@@ -1,0 +1,24 @@
+<svg width="320" height="120" viewBox="0 0 320 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="ternBlue" x1="20" y1="12" x2="280" y2="108" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1FC5FF"/>
+      <stop offset="1" stop-color="#0D9FE7"/>
+    </linearGradient>
+  </defs>
+
+  <path d="M24 90C56 72 86 70 126 82C160 92 194 92 236 74C257 65 279 64 298 72" stroke="url(#ternBlue)" stroke-width="14" stroke-linecap="round"/>
+
+  <!-- minimal bird cue: tiny beak (detached, non-invasive) -->
+  <path d="M21.8 49L24 48.1V49.9L21.8 49Z" fill="url(#ternBlue)"/>
+
+  <!-- restore exact original letterforms -->
+  <path d="M24 38H88V58H65V94H47V58H24V38Z" fill="url(#ternBlue)"/>
+  <path d="M94 38H171V56H113V60H164V76H113V82H171V100H94V38Z" fill="url(#ternBlue)"/>
+  <path d="M178 38H232C252 38 266 50 266 68C266 86 252 100 232 100H178V38ZM197 56V82H228C239 82 247 76 247 68C247 60 239 56 228 56H197Z" fill="url(#ternBlue)"/>
+
+  <!-- keep original N shape -->
+  <path d="M274 38H293L320 76V38H320V100H301L274 62V100H274V38Z" fill="url(#ternBlue)"/>
+
+  <!-- minimal bird cue: tiny tail extension from N end, detached feel -->
+  <path d="M320.1 98.8C321.1 98.5 321.9 98.1 322.4 97.5" stroke="url(#ternBlue)" stroke-width="1.4" stroke-linecap="round"/>
+</svg>

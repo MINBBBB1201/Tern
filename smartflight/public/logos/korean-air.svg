@@ -1,0 +1,6 @@
+<svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="120" height="120" rx="20" fill="#F5F8FF"/>
+  <circle cx="60" cy="50" r="20" fill="#E53935"/>
+  <path d="M60 30C48.95 30 40 38.95 40 50H80C80 38.95 71.05 30 60 30Z" fill="#1E4ED8"/>
+  <text x="60" y="93" text-anchor="middle" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#1F2937">KOREAN AIR</text>
+</svg>

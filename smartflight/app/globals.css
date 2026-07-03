@@ -1,0 +1,1012 @@
+@import "tailwindcss";
+
+/* ─────────────────────────────────────────────
+   DESIGN SYSTEM — Light Volumetric Sky
+   Reference: image_8.png — bright blue-white sky,
+   3D photorealistic clouds, perspective grid,
+   white/cyan data-stream arcs, TERN airplane
+   ───────────────────────────────────────────── */
+
+@theme inline {
+  /* ── Hero atmosphere — light blue sky ── */
+  --color-sky-light:       #c8dff5;
+  --color-sky-mid:         #a8c8e8;
+  --color-sky-upper:       #d8ecf8;
+  --color-sky-horizon:     #e8f4fc;
+  --color-sky-cloud:       #f0f8ff;
+
+  /* ── Navy — primary brand dark ── */
+  --color-navy:            #1a3a6b;
+  --color-navy-deep:       #0d2040;
+  --color-navy-mid:        #1e4a80;
+  --color-navy-light:      #2a5a9a;
+
+  /* ── Base surfaces ── */
+  --color-background:       #ffffff;
+  --color-surface:          #f8fafc;
+  --color-surface-raised:   #ffffff;
+  --color-surface-overlay:  rgba(255, 255, 255, 0.95);
+
+  /* ── Foreground ── */
+  --color-foreground:       #0d2040;
+  --color-foreground-muted: #4a6080;
+  --color-foreground-faint: #8aa0b8;
+
+  /* ── Primary — Skyscanner blue ── */
+  --color-primary:          #0062e3;
+  --color-primary-hover:    #0052c2;
+  --color-primary-active:   #0044a8;
+  --color-primary-subtle:   #eff6ff;
+  --color-primary-border:   #bfdbfe;
+
+  /* ── Borders ── */
+  --color-border:           #e2e8f0;
+  --color-border-strong:    #cbd5e1;
+  --color-border-focus:     #1a3a6b;
+
+  /* ── White pill card (on light hero) ── */
+  --pill-card-bg:           #ffffff;
+  --pill-card-border:       rgba(26, 58, 107, 0.12);
+  --pill-card-shadow:       0 8px 40px rgba(26, 58, 107, 0.14), 0 2px 8px rgba(26, 58, 107, 0.08);
+
+  /* ── Data-stream / light trails (light bg) ── */
+  --stream-primary:         rgba(255, 255, 255, 0.95);
+  --stream-cyan:            rgba(100, 200, 255, 0.7);
+  --stream-blue:            rgba(60, 140, 220, 0.5);
+  --stream-glow:            rgba(140, 200, 255, 0.4);
+
+  /* ── Cloud depth (bright 3D clouds) ── */
+  --cloud-bright:           rgba(255, 255, 255, 1.0);
+  --cloud-mid:              rgba(220, 235, 250, 0.9);
+  --cloud-shadow:           rgba(100, 140, 190, 0.25);
+  --cloud-ambient:          rgba(160, 200, 240, 0.4);
+
+  /* ── Semantic ── */
+  --color-success:          #16a34a;
+  --color-success-subtle:   #f0fdf4;
+  --color-warning:          #d97706;
+  --color-warning-subtle:   #fffbeb;
+  --color-danger:           #dc2626;
+  --color-danger-subtle:    #fef2f2;
+
+  /* ── Radius ── */
+  --radius-sm:   4px;
+  --radius-md:   8px;
+  --radius-lg:   12px;
+  --radius-xl:   16px;
+  --radius-2xl:  20px;
+  --radius-full: 9999px;
+
+  /* ── Shadows ── */
+  --shadow-xs:  0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-sm:  0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-md:  0 4px 12px rgba(15, 23, 42, 0.08), 0 1px 3px rgba(15, 23, 42, 0.04);
+  --shadow-lg:  0 8px 24px rgba(15, 23, 42, 0.10), 0 2px 6px rgba(15, 23, 42, 0.04);
+  --shadow-navy: 0 4px 20px rgba(26, 58, 107, 0.35);
+  --shadow-search: 0 2px 8px rgba(26, 58, 107, 0.25);
+
+  /* ── Typography ── */
+  --font-sans: "Geist", "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
+
+  /* ── Hero gradient — light blue volumetric sky ── */
+  --hero-bg:
+    radial-gradient(ellipse 140% 70% at 50% 0%, rgba(255, 255, 255, 0.9) 0%, transparent 45%),
+    radial-gradient(ellipse 80% 60% at 20% 80%, rgba(168, 200, 232, 0.6) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 50% at 80% 70%, rgba(200, 223, 245, 0.5) 0%, transparent 50%),
+    linear-gradient(180deg, #c8dff5 0%, #a8c8e8 40%, #d8ecf8 75%, #e8f4fc 100%);
+}
+
+/* ─────────────────────────────────────────────
+   DARK IMMERSIVE HERO — Data Matrix World
+   ───────────────────────────────────────────── */
+
+  /* ── Dark hero background ── */
+  --hero-dark-bg:
+    radial-gradient(ellipse 120% 80% at 50% -10%, rgba(30,74,138,0.9) 0%, transparent 55%),
+    radial-gradient(ellipse 80% 60% at 15% 50%, rgba(15,40,80,0.7) 0%, transparent 50%),
+    radial-gradient(ellipse 60% 50% at 85% 60%, rgba(10,30,60,0.6) 0%, transparent 50%),
+    linear-gradient(180deg, #060d1a 0%, #0a1628 30%, #0d1e38 60%, #081220 100%);
+
+  /* ── Glass orb node ── */
+  --orb-glass-bg:
+    radial-gradient(circle at 35% 30%, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.04) 50%, transparent 70%),
+    linear-gradient(135deg, rgba(30,74,138,0.5) 0%, rgba(10,30,60,0.7) 100%);
+  --orb-border: rgba(100,160,255,0.25);
+  --orb-glow: 0 0 30px rgba(60,120,255,0.3), 0 0 60px rgba(30,80,200,0.15);
+
+/* ─────────────────────────────────────────────
+   GLOBAL RESET & BASE
+   ───────────────────────────────────────────── */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* ─────────────────────────────────────────────
+   UTILITY CLASSES
+   ───────────────────────────────────────────── */
+
+/* Standard card */
+.card {
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+}
+
+/* White pill search card — sits on light hero */
+.pill-card {
+  background: var(--pill-card-bg);
+  border: 1px solid var(--pill-card-border);
+  border-radius: var(--radius-full);
+  box-shadow: var(--pill-card-shadow);
+  overflow: visible;
+}
+
+/* Search container alias */
+.search-container {
+  background: var(--pill-card-bg);
+  border: 1px solid var(--pill-card-border);
+  border-radius: var(--radius-full);
+  box-shadow: var(--pill-card-shadow);
+  overflow: visible;
+}
+
+/* Input field */
+.input-field {
+  height: 44px;
+  padding: 0 12px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-family: var(--font-sans);
+  color: var(--color-foreground);
+  outline: none;
+  transition: border-color 0.15s ease, background 0.15s ease;
+  width: 100%;
+}
+
+.input-field::placeholder {
+  color: var(--color-foreground-faint);
+}
+
+.input-field:hover {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+}
+
+.input-field:focus {
+  background: var(--color-surface);
+  border-color: var(--color-border-focus);
+  box-shadow: 0 0 0 3px rgba(26, 58, 107, 0.08);
+}
+
+/* Dark navy search button — 3D volumetric depth */
+.btn-search-navy {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 52px;
+  padding: 0 28px;
+  background: linear-gradient(160deg, #2a5a9a 0%, #1a3a6b 40%, #0d2040 100%);
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: var(--font-sans);
+  border: none;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: background 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
+  white-space: nowrap;
+  letter-spacing: -0.01em;
+  box-shadow:
+    0 4px 16px rgba(13, 32, 64, 0.4),
+    0 1px 4px rgba(13, 32, 64, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.2);
+}
+
+.btn-search-navy:hover {
+  background: linear-gradient(160deg, #3a6aaa 0%, #2a4a7b 40%, #1a3060 100%);
+  box-shadow:
+    0 6px 24px rgba(13, 32, 64, 0.5),
+    0 2px 8px rgba(13, 32, 64, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.2);
+  transform: translateY(-1px);
+}
+
+.btn-search-navy:active {
+  background: linear-gradient(160deg, #1a3a6b 0%, #0d2040 100%);
+  transform: translateY(0);
+  box-shadow:
+    0 2px 8px rgba(13, 32, 64, 0.4),
+    inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.btn-search-navy:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Primary button — blue */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 20px;
+  background: linear-gradient(135deg, #0070f3 0%, #0062e3 50%, #0052c2 100%);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
+  white-space: nowrap;
+  letter-spacing: -0.01em;
+  box-shadow: 0 2px 8px rgba(0, 98, 227, 0.35), inset 0 1px 0 rgba(255,255,255,0.15);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #0080ff 0%, #0070f3 50%, #005ed4 100%);
+  box-shadow: var(--shadow-navy);
+  transform: translateY(-1px);
+}
+
+.btn-primary:active {
+  background: linear-gradient(135deg, #0052c2 0%, #0044a8 100%);
+  transform: translateY(0);
+  box-shadow: var(--shadow-search);
+}
+
+.btn-primary:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Ghost button */
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 12px;
+  background: transparent;
+  color: var(--color-foreground-muted);
+  font-size: 13px;
+  font-weight: 500;
+  font-family: var(--font-sans);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+}
+
+.btn-ghost:hover {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+  color: var(--color-foreground);
+}
+
+/* Vertical dashed divider */
+.divider-dashed {
+  width: 1px;
+  align-self: stretch;
+  background: repeating-linear-gradient(
+    to bottom,
+    var(--color-border) 0px,
+    var(--color-border) 4px,
+    transparent 4px,
+    transparent 8px
+  );
+  flex-shrink: 0;
+}
+
+/* Pill / badge */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.badge-primary {
+  background: var(--color-primary-subtle);
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary-border);
+}
+
+.badge-muted {
+  background: var(--color-surface);
+  color: var(--color-foreground-muted);
+  border: 1px solid var(--color-border);
+}
+
+/* Focus ring */
+.focus-ring:focus-visible {
+  outline: 2px solid var(--color-navy);
+  outline-offset: 2px;
+}
+
+/* ─────────────────────────────────────────────
+   HERO — Light Volumetric Sky
+   ───────────────────────────────────────────── */
+
+.hero-sky {
+  position: relative;
+  background: var(--hero-bg);
+  overflow: hidden;
+}
+
+/* Atmospheric depth — soft light layers */
+.hero-sky::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 70% 50% at 15% 60%, rgba(168, 200, 232, 0.4) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 85% 40%, rgba(200, 223, 245, 0.3) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Subtle cloud-light shimmer */
+.hero-sky::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(2px 2px at 20% 30%, rgba(255,255,255,0.8) 0%, transparent 100%),
+    radial-gradient(2px 2px at 40% 15%, rgba(255,255,255,0.6) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 60% 25%, rgba(255,255,255,0.7) 0%, transparent 100%),
+    radial-gradient(2px 2px at 80% 10%, rgba(255,255,255,0.5) 0%, transparent 100%),
+    radial-gradient(1px 1px at 10% 50%, rgba(255,255,255,0.4) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 90% 35%, rgba(255,255,255,0.5) 0%, transparent 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Cloud layer */
+.cloud-layer {
+  position: absolute;
+  pointer-events: none;
+}
+
+/* Data-stream light trail */
+.stream-trail {
+  position: absolute;
+  pointer-events: none;
+  overflow: visible;
+}
+
+/* ─────────────────────────────────────────────
+   TRIP TYPE PILLS — inside white card header
+   ───────────────────────────────────────────── */
+
+/* Inline pill inside the white card */
+.pill-option {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  font-weight: 500;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+  border: none;
+  background: transparent;
+  color: var(--color-foreground-muted);
+  white-space: nowrap;
+  letter-spacing: -0.005em;
+}
+
+.pill-option:hover {
+  background: rgba(26, 58, 107, 0.06);
+  color: var(--color-navy);
+}
+
+.pill-option.active {
+  background: rgba(26, 58, 107, 0.1);
+  color: var(--color-navy);
+  font-weight: 600;
+}
+
+/* ─────────────────────────────────────────────
+   STATS ROW (below search card)
+   ───────────────────────────────────────────── */
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.stat-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-navy-deep);
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: var(--color-foreground-muted);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+}
+
+.stat-divider {
+  width: 1px;
+  height: 32px;
+  background: rgba(26, 58, 107, 0.15);
+  flex-shrink: 0;
+}
+
+/* ─────────────────────────────────────────────
+   ANIMATIONS
+   ───────────────────────────────────────────── */
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+@keyframes stream-flow {
+  0%   { stroke-dashoffset: 1200; opacity: 0; }
+  8%   { opacity: 1; }
+  88%  { opacity: 0.9; }
+  100% { stroke-dashoffset: 0; opacity: 0; }
+}
+
+@keyframes cloud-drift {
+  0%   { transform: translateX(0px) translateY(0px); }
+  50%  { transform: translateX(12px) translateY(-4px); }
+  100% { transform: translateX(0px) translateY(0px); }
+}
+
+@keyframes cloud-drift-slow {
+  0%   { transform: translateX(0px); }
+  100% { transform: translateX(18px); }
+}
+
+@keyframes hero-text-in {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes plane-float {
+  0%   { transform: translateY(0px) rotate(-3deg); }
+  50%  { transform: translateY(-10px) rotate(-2deg); }
+  100% { transform: translateY(0px) rotate(-3deg); }
+}
+
+@keyframes grid-shimmer {
+  0%   { opacity: 0.3; }
+  50%  { opacity: 0.5; }
+  100% { opacity: 0.3; }
+}
+
+.animate-fade-up {
+  animation: fadeUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.25s ease both;
+}
+
+.animate-stream {
+  animation: stream-flow 5s ease-in-out infinite;
+}
+
+.animate-cloud-drift {
+  animation: cloud-drift 10s ease-in-out infinite;
+}
+
+.animate-cloud-drift-slow {
+  animation: cloud-drift-slow 14s ease-in-out infinite alternate;
+}
+
+.animate-hero-text {
+  animation: hero-text-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-plane-float {
+  animation: plane-float 6s ease-in-out infinite;
+}
+
+.animate-grid-shimmer {
+  animation: grid-shimmer 4s ease-in-out infinite;
+}
+
+/* ─────────────────────────────────────────────
+   VOLUMETRIC 3D SEARCH BAR — Zero-Clutter System
+   ───────────────────────────────────────────── */
+
+/* ── Outer shell: single cohesive 3D object ── */
+.vol-shell {
+  background:
+    linear-gradient(180deg,
+      rgba(255,255,255,0.97) 0%,
+      rgba(245,249,255,0.96) 50%,
+      rgba(238,245,255,0.95) 100%
+    );
+  border: 1px solid rgba(255,255,255,0.9);
+  border-bottom-color: rgba(180,200,230,0.5);
+  border-radius: 24px;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,1) inset,
+    0 -1px 0 rgba(160,190,230,0.3) inset,
+    0 20px 60px rgba(13,32,64,0.14),
+    0 8px 24px rgba(13,32,64,0.08),
+    0 2px 6px rgba(13,32,64,0.06),
+    0 0 0 1px rgba(180,205,240,0.4);
+  position: relative;
+  overflow: visible;
+}
+
+/* ── Top-edge specular highlight ── */
+.vol-shell::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 24px;
+  right: 24px;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(255,255,255,0.9) 20%,
+    rgba(255,255,255,1) 50%,
+    rgba(255,255,255,0.9) 80%,
+    transparent 100%
+  );
+  border-radius: 1px;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* ── Bottom-edge depth shadow ── */
+.vol-shell::after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  left: 32px;
+  right: 32px;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(130,165,215,0.4) 20%,
+    rgba(130,165,215,0.6) 50%,
+    rgba(130,165,215,0.4) 80%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* ── Sculpted field card ── */
+.vol-field {
+  position: relative;
+  background:
+    linear-gradient(160deg,
+      rgba(255,255,255,0.0) 0%,
+      rgba(240,247,255,0.0) 100%
+    );
+  border-radius: 14px;
+  transition: background 0.18s ease;
+  cursor: pointer;
+}
+
+.vol-field:hover {
+  background:
+    linear-gradient(160deg,
+      rgba(240,247,255,0.7) 0%,
+      rgba(230,242,255,0.5) 100%
+    );
+}
+
+.vol-field:hover::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 14px;
+  border: 1px solid rgba(26,58,107,0.1);
+  pointer-events: none;
+}
+
+/* ── Field label ── */
+.vol-label {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(138,160,184,0.9);
+  line-height: 1;
+  margin-bottom: 5px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* ── Primary value (IATA code / date) ── */
+.vol-value {
+  font-size: 22px;
+  font-weight: 800;
+  color: #0d2040;
+  letter-spacing: -0.04em;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Secondary value (city name / weekday) ── */
+.vol-sub {
+  font-size: 11px;
+  font-weight: 400;
+  color: rgba(74,96,128,0.8);
+  letter-spacing: 0.01em;
+  margin-top: 3px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Sculpted vertical divider ── */
+.vol-divider {
+  width: 1px;
+  align-self: stretch;
+  margin: 12px 0;
+  flex-shrink: 0;
+  background: linear-gradient(180deg,
+    transparent 0%,
+    rgba(180,205,235,0.5) 20%,
+    rgba(180,205,235,0.7) 50%,
+    rgba(180,205,235,0.5) 80%,
+    transparent 100%
+  );
+  position: relative;
+}
+
+/* ── Swap button ── */
+.vol-swap {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid rgba(180,205,235,0.6);
+  background:
+    linear-gradient(145deg,
+      rgba(255,255,255,0.95) 0%,
+      rgba(240,247,255,0.9) 100%
+    );
+  box-shadow:
+    0 2px 8px rgba(13,32,64,0.1),
+    0 1px 2px rgba(13,32,64,0.06),
+    inset 0 1px 0 rgba(255,255,255,0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #4a6080;
+  transition: all 0.18s cubic-bezier(0.34,1.56,0.64,1);
+  flex-shrink: 0;
+}
+
+.vol-swap:hover {
+  background:
+    linear-gradient(145deg,
+      rgba(240,247,255,1) 0%,
+      rgba(220,236,255,0.95) 100%
+    );
+  border-color: rgba(26,58,107,0.25);
+  color: #1a3a6b;
+  box-shadow:
+    0 4px 14px rgba(13,32,64,0.15),
+    0 1px 3px rgba(13,32,64,0.08),
+    inset 0 1px 0 rgba(255,255,255,1);
+  transform: scale(1.08);
+}
+
+.vol-swap:active {
+  transform: scale(0.95) rotate(180deg);
+}
+
+/* ── Deep blue volumetric search pill ── */
+.vol-search-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 32px;
+  height: 52px;
+  background:
+    linear-gradient(160deg,
+      #1e4a8a 0%,
+      #1a3a6b 35%,
+      #0f2850 65%,
+      #0a1e3d 100%
+    );
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: var(--font-sans);
+  letter-spacing: 0.02em;
+  border: none;
+  border-radius: 9999px;
+  cursor: pointer;
+  white-space: nowrap;
+  position: relative;
+  overflow: hidden;
+  transition: box-shadow 0.2s ease, transform 0.15s ease;
+  box-shadow:
+    0 6px 20px rgba(10,30,61,0.55),
+    0 2px 6px rgba(10,30,61,0.35),
+    0 1px 2px rgba(10,30,61,0.25),
+    inset 0 1px 0 rgba(255,255,255,0.14),
+    inset 0 -2px 0 rgba(0,0,0,0.25),
+    inset 1px 0 0 rgba(255,255,255,0.06),
+    inset -1px 0 0 rgba(0,0,0,0.1);
+}
+
+.vol-search-btn::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 10%;
+  right: 10%;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent,
+    rgba(255,255,255,0.35) 30%,
+    rgba(255,255,255,0.5) 50%,
+    rgba(255,255,255,0.35) 70%,
+    transparent
+  );
+  border-radius: 1px;
+}
+
+.vol-search-btn:hover {
+  box-shadow:
+    0 10px 32px rgba(10,30,61,0.65),
+    0 4px 12px rgba(10,30,61,0.4),
+    0 1px 3px rgba(10,30,61,0.3),
+    inset 0 1px 0 rgba(255,255,255,0.18),
+    inset 0 -2px 0 rgba(0,0,0,0.28),
+    inset 1px 0 0 rgba(255,255,255,0.08),
+    inset -1px 0 0 rgba(0,0,0,0.12);
+  transform: translateY(-1.5px);
+}
+
+.vol-search-btn:active {
+  transform: translateY(0.5px);
+  box-shadow:
+    0 3px 10px rgba(10,30,61,0.5),
+    0 1px 3px rgba(10,30,61,0.3),
+    inset 0 2px 4px rgba(0,0,0,0.2),
+    inset 0 1px 0 rgba(255,255,255,0.08);
+}
+
+.vol-search-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow:
+    0 2px 6px rgba(10,30,61,0.2),
+    inset 0 1px 0 rgba(255,255,255,0.08);
+}
+
+/* ── Trip type / cabin header pills ── */
+.vol-pill-option {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 11px;
+  border-radius: 9999px;
+  font-size: 11.5px;
+  font-weight: 500;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+  border: none;
+  background: transparent;
+  color: rgba(74,96,128,0.8);
+  white-space: nowrap;
+  letter-spacing: -0.005em;
+}
+
+.vol-pill-option:hover {
+  background: rgba(26,58,107,0.07);
+  color: #1a3a6b;
+}
+
+.vol-pill-option.active {
+  background:
+    linear-gradient(135deg,
+      rgba(26,58,107,0.12) 0%,
+      rgba(26,58,107,0.08) 100%
+    );
+  color: #1a3a6b;
+  font-weight: 650;
+  box-shadow:
+    inset 0 1px 2px rgba(26,58,107,0.08),
+    0 1px 0 rgba(255,255,255,0.8);
+}
+
+/* ── Passenger popover ── */
+.vol-popover {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 268px;
+  background:
+    linear-gradient(160deg,
+      rgba(255,255,255,0.99) 0%,
+      rgba(246,250,255,0.98) 100%
+    );
+  border: 1px solid rgba(180,205,235,0.6);
+  border-radius: 18px;
+  box-shadow:
+    0 20px 60px rgba(13,32,64,0.18),
+    0 8px 24px rgba(13,32,64,0.1),
+    0 2px 6px rgba(13,32,64,0.06),
+    inset 0 1px 0 rgba(255,255,255,0.9);
+  padding: 18px;
+  z-index: 200;
+}
+
+/* ── Stepper button ── */
+.vol-stepper-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid rgba(180,205,235,0.7);
+  background:
+    linear-gradient(145deg,
+      rgba(255,255,255,0.95) 0%,
+      rgba(240,247,255,0.9) 100%
+    );
+  box-shadow:
+    0 2px 6px rgba(13,32,64,0.08),
+    inset 0 1px 0 rgba(255,255,255,0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #1a3a6b;
+  transition: all 0.15s ease;
+  font-size: 0;
+}
+
+.vol-stepper-btn:hover {
+  background:
+    linear-gradient(145deg,
+      #1a3a6b 0%,
+      #0d2040 100%
+    );
+  border-color: #1a3a6b;
+  color: #ffffff;
+  box-shadow:
+    0 4px 12px rgba(13,32,64,0.25),
+    inset 0 1px 0 rgba(255,255,255,0.15);
+}
+
+.vol-stepper-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ── Popover done button ── */
+.vol-done-btn {
+  width: 100%;
+  height: 38px;
+  margin-top: 14px;
+  background:
+    linear-gradient(160deg,
+      #1e4a8a 0%,
+      #1a3a6b 50%,
+      #0d2040 100%
+    );
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 650;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  letter-spacing: 0.02em;
+  box-shadow:
+    0 4px 14px rgba(13,32,64,0.3),
+    inset 0 1px 0 rgba(255,255,255,0.12),
+    inset 0 -1px 0 rgba(0,0,0,0.15);
+  transition: box-shadow 0.15s ease, transform 0.1s ease;
+}
+
+.vol-done-btn:hover {
+  box-shadow:
+    0 6px 20px rgba(13,32,64,0.4),
+    inset 0 1px 0 rgba(255,255,255,0.15),
+    inset 0 -1px 0 rgba(0,0,0,0.18);
+  transform: translateY(-1px);
+}
+
+/* ── Inline edit input ── */
+.vol-inline-input {
+  font-size: 22px;
+  font-weight: 800;
+  color: #0d2040;
+  letter-spacing: -0.04em;
+  background: transparent;
+  border: none;
+  outline: none;
+  width: 100%;
+  padding: 0;
+  font-family: var(--font-sans);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ─────────────────────────────────────────────
+   SCROLLBAR — minimal
+   ───────────────────────────────────────────── */
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-strong);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-foreground-faint);
+}

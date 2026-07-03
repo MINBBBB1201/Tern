@@ -1,0 +1,17 @@
+# 원본 소스 폴더 (이미 규칙을 추출했으므로 무시)
+superpowers-main/
+ui-ux-pro-max-skill-main/
+claude-mem-main/
+browser-use-main/
+n8n-mcp-main/
+
+# 개발 환경 관련
+node_modules/
+.git/
+dist/
+build/
+.next/
+
+# 불필요한 설정 파일
+.npmrc
+.yarnrc

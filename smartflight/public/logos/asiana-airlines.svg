@@ -1,0 +1,6 @@
+<svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="120" height="120" rx="20" fill="#FFF7F5"/>
+  <path d="M26 66L54 42L66 54L94 30" stroke="#D32F2F" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M26 78L54 54L66 66L94 42" stroke="#FF8F00" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" opacity="0.95"/>
+  <text x="60" y="95" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#1F2937">ASIANA</text>
+</svg>
