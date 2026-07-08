@@ -16,7 +16,7 @@ export default function AirportGuideCards({ departureGuide, arrivalGuide, from, 
   return (
     <div className="mt-4 grid gap-4 md:grid-cols-2">
       {[departureGuide, arrivalGuide].map((guide, idx) => guide && (
-        <div key={idx} className="rounded-[20px] border border-[#e5ecf6] bg-white p-5 shadow-sm">
+        <div key={idx} className="glass-panel rounded-[20px] p-5">
           <p className="mb-1 text-sm font-semibold">{guide.name}</p>
           <p className="text-xs text-muted mb-3">{guide.summary}</p>
           <Link

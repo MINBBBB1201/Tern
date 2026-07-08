@@ -20,7 +20,7 @@ type PriceTrendChartProps = {
 
 export default function PriceTrendChart({ priceChartData, chartLoading, onLoadTrend, cheapestDatePoint }: PriceTrendChartProps) {
   return (
-    <div className="mt-6 rounded-[20px] border border-[#e5ecf6] bg-white p-5 shadow-sm">
+    <div className="glass-panel mt-6 rounded-[20px] p-5">
       <div className="mb-4 flex items-center justify-between">
         <div>
           <p className="text-sm font-semibold">Price trend (±5 days)</p>

@@ -25,12 +25,12 @@ export default function OfferList({ offers, from, to, cabinClass, cheapestDirect
       {(cheapestDirect || cheapestConnecting) && (
         <div className="flex flex-wrap gap-2 text-xs">
           {cheapestDirect && (
-            <span className="rounded-full bg-[#eff5ff] px-3 py-1 text-primary font-medium">
+            <span className="rounded-full bg-primary-subtle px-3 py-1 text-primary-hover font-medium">
               Cheapest non-stop: {formatMoney(Number(cheapestDirect.price), cheapestDirect.currency)}
             </span>
           )}
           {cheapestConnecting && (
-            <span className="rounded-full bg-[#f5fff8] px-3 py-1 text-green-700 font-medium">
+            <span className="rounded-full bg-success-subtle px-3 py-1 text-success-strong font-medium">
               Cheapest with stops: {formatMoney(Number(cheapestConnecting.price), cheapestConnecting.currency)}
             </span>
           )}

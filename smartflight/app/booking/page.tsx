@@ -84,11 +84,11 @@ function BookingPageClient() {
 
   return (
     <main className="min-h-screen bg-[var(--paper-50)] text-foreground">
-      <header className="sticky top-0 z-40 border-b border-[#e4ebf5] bg-white/95 backdrop-blur">
+      <header className="glass-nav sticky top-0 z-40">
         <div className="mx-auto flex h-16 w-full max-w-[min(100%,88rem)] items-center justify-between px-5">
           <BrandLogo className="h-10 w-36 md:h-11 md:w-44" />
           <div className="flex items-center gap-2 text-sm">
-            <span className="hidden rounded-full bg-[#eff5ff] px-3 py-1.5 text-[#2563eb] md:inline-flex">
+            <span className="hidden rounded-full bg-primary-subtle px-3 py-1.5 text-primary-hover md:inline-flex">
               {tripType}
             </span>
             <Link href="/" className="rounded-full bg-primary px-4 py-2 font-semibold text-white">
@@ -99,7 +99,7 @@ function BookingPageClient() {
       </header>
 
       <section className="mx-auto w-full max-w-[min(100%,88rem)] px-4 py-6 sm:px-5">
-        <div className="mb-4 rounded-2xl border border-[#cfe0fb] bg-gradient-to-r from-[#f0f7ff] via-white to-[#f5f9ff] p-4 shadow-sm md:p-5">
+        <div className="glass-panel mb-4 rounded-2xl p-4 md:p-5">
           <p className="text-xs font-semibold uppercase tracking-wide text-[#2563eb]">Why shop on Tern</p>
           <p className="mt-2 text-sm font-medium text-foreground md:text-base">
             Compare cheapest fares, fastest trips, earliest arrivals, AI-balanced picks, smart connection deals, and delay-risk signals—then book with points or cash in one flow.
@@ -111,11 +111,11 @@ function BookingPageClient() {
 
         <div className="glass-panel rounded-[26px] p-4 md:p-5">
           <div className="mb-3 grid gap-2 md:grid-cols-[1.1fr_1.1fr_0.9fr_0.9fr_auto]">
-            <div className="data-mono rounded-xl border border-[#dfe7f2] px-4 py-3 text-sm font-semibold">{fromCity} ({from})</div>
-            <div className="data-mono rounded-xl border border-[#dfe7f2] px-4 py-3 text-sm font-semibold">{toCity} ({to})</div>
-            <div className="data-mono rounded-xl border border-[#dfe7f2] px-4 py-3 text-sm text-muted">{departureDate}</div>
-            <div className="data-mono rounded-xl border border-[#dfe7f2] px-4 py-3 text-sm text-muted">{returnDate || "One-way"}</div>
-            <div className="data-mono rounded-xl border border-[#dfe7f2] px-4 py-3 text-sm text-muted">
+            <div className="glass-chip data-mono rounded-xl px-4 py-3 text-sm font-semibold">{fromCity} ({from})</div>
+            <div className="glass-chip data-mono rounded-xl px-4 py-3 text-sm font-semibold">{toCity} ({to})</div>
+            <div className="glass-chip data-mono rounded-xl px-4 py-3 text-sm text-muted">{departureDate}</div>
+            <div className="glass-chip data-mono rounded-xl px-4 py-3 text-sm text-muted">{returnDate || "One-way"}</div>
+            <div className="glass-chip data-mono rounded-xl px-4 py-3 text-sm text-muted">
               {totalPassengers} pax · {cabinClass.replace("_", " ")}
             </div>
           </div>
@@ -154,7 +154,7 @@ function BookingPageClient() {
 
         {/* Matched alert banner */}
         {priceAlerts.matchedAlert && (
-          <div className="mt-4 rounded-2xl border border-green-200 bg-green-50 p-4 text-sm text-green-800">
+          <div className="mt-4 rounded-2xl border border-[color-mix(in_srgb,var(--color-success)_30%,white)] bg-success-subtle p-4 text-sm text-success-strong">
             🎉 Price alert triggered! A fare for {priceAlerts.matchedAlert.from} → {priceAlerts.matchedAlert.to} is at or below your target of <span className="data-mono">{formatMoney(priceAlerts.matchedAlert.targetPrice, "USD")}</span>.
           </div>
         )}
@@ -190,13 +190,13 @@ function BookingPageClient() {
         )}
 
         {!loading && !error && filters.filteredSortedOffers.length === 0 && results.length > 0 && (
-          <div className="mt-8 rounded-2xl border border-[#e5ecf6] bg-white p-8 text-center text-sm text-muted">
+          <div className="glass-panel mt-8 rounded-2xl p-8 text-center text-sm text-muted">
             No flights match your current filters. Try adjusting stops, price, or airline filters.
           </div>
         )}
 
         {!loading && !error && results.length === 0 && (
-          <div className="mt-8 rounded-2xl border border-[#e5ecf6] bg-white p-8 text-center text-sm text-muted">
+          <div className="glass-panel mt-8 rounded-2xl p-8 text-center text-sm text-muted">
             No bookable flights found for this route and date. Try a different date or route.
           </div>
         )}

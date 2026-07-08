@@ -2,6 +2,7 @@
 
 import { memo } from "react";
 import Image from "next/image";
+import { useHoverTilt } from "../../hooks/useHoverTilt";
 import { getAircraftImage, getAircraftName } from "../../lib/aircraftImages";
 import {
   buildBookingPrograms,
@@ -24,21 +25,23 @@ type OfferCardProps = {
 
 function OfferCardImpl({ offer, isExpanded, onToggleExpand, onSelect, from, to, cabinClass }: OfferCardProps) {
   const delayRisk = computeDelayRiskScore(offer);
-  // 700-weight shades: the 600s fail WCAG AA at this size on the glass fill
-  const riskColor = delayRisk < 25 ? "text-green-700" : delayRisk < 55 ? "text-yellow-700" : "text-red-600";
+  const riskColor = delayRisk < 25 ? "text-success-strong" : delayRisk < 55 ? "text-warning-strong" : "text-danger-strong";
   const aircraftImg = getAircraftImage(offer.aircraftIata);
   const aircraftName = getAircraftName(offer.aircraftIata);
   const programs = buildBookingPrograms(offer);
+  const tilt = useHoverTilt<HTMLElement>(2);
 
   return (
     <article
       id={`flight-card-${offer.id}`}
-      className="glass-panel-scan rounded-[20px] transition-shadow hover:shadow-md"
+      onMouseMove={tilt.onMouseMove}
+      onMouseLeave={tilt.onMouseLeave}
+      className="glass-panel-scan tilt-card rounded-[20px] hover:shadow-md"
     >
       {/* Main row */}
       <div className="flex flex-wrap items-center gap-4 p-4 md:p-5">
         {/* Airline logo */}
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-gray-100 bg-gray-50">
+        <div className="glass-chip flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl">
           {offer.airlineLogo ? (
             <Image
               src={offer.airlineLogo}
@@ -80,7 +83,9 @@ function OfferCardImpl({ offer, isExpanded, onToggleExpand, onSelect, from, to, 
         <div className="hidden md:block text-right min-w-[120px]">
           <p className="text-sm font-semibold">{offer.airline || "Partner Airline"}</p>
           <p className="text-xs text-muted capitalize">{(offer.cabinClass || cabinClass).replace("_", " ")}</p>
-          <p className={`data-mono text-xs font-medium mt-0.5 ${riskColor}`}>Risk {delayRisk}/98</p>
+          <span className={`glass-chip data-mono mt-0.5 inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold ${riskColor}`}>
+            Risk {delayRisk}/98
+          </span>
         </div>
 
         {/* Price + CTA */}
@@ -110,7 +115,7 @@ function OfferCardImpl({ offer, isExpanded, onToggleExpand, onSelect, from, to, 
 
       {/* Expanded details */}
       {isExpanded && (
-        <div className="border-t border-[#f0f4fa] px-4 pb-4 pt-3 md:px-5">
+        <div className="border-t border-[var(--glass-border)] px-4 pb-4 pt-3 md:px-5">
           <div className="grid gap-4 md:grid-cols-2">
             {/* Segments */}
             <div>
@@ -118,7 +123,7 @@ function OfferCardImpl({ offer, isExpanded, onToggleExpand, onSelect, from, to, 
               {(offer.segments || []).length > 0 ? (
                 <div className="space-y-2">
                   {offer.segments!.map((seg, i) => (
-                    <div key={i} className="rounded-xl border border-[#edf2fb] bg-[#f8faff] p-3 text-xs">
+                    <div key={i} className="glass-chip rounded-xl p-3 text-xs">
                       <div className="flex items-center justify-between">
                         <span className="font-semibold">{seg.origin} → {seg.destination}</span>
                         <span className="data-mono text-muted">{durationLabel(seg.duration)}</span>
@@ -139,7 +144,7 @@ function OfferCardImpl({ offer, isExpanded, onToggleExpand, onSelect, from, to, 
             {/* Aircraft + loyalty */}
             <div className="space-y-3">
               {aircraftImg && (
-                <div className="overflow-hidden rounded-xl border border-[#edf2fb]">
+                <div className="overflow-hidden rounded-xl border border-[var(--glass-border)]">
                   <Image
                     src={aircraftImg}
                     alt={aircraftName || "Aircraft"}
@@ -158,7 +163,7 @@ function OfferCardImpl({ offer, isExpanded, onToggleExpand, onSelect, from, to, 
                 <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-muted">Book with points</p>
                 <div className="space-y-1">
                   {programs.easyPicks.map((p) => (
-                    <div key={p.label} className="flex items-center justify-between rounded-lg bg-[#f8faff] px-3 py-2 text-xs">
+                    <div key={p.label} className="glass-chip flex items-center justify-between rounded-lg px-3 py-2 text-xs">
                       <span className="font-medium">{p.label}</span>
                       <span className="data-mono text-primary-hover font-semibold">{p.points.toLocaleString()} pts {p.cash}</span>
                     </div>

@@ -2,6 +2,9 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
+    // Next 16 restricts <Image quality> to this allowlist (default [75]);
+    // the tern logo renders at quality={100}.
+    qualities: [75, 100],
     remotePatterns: [
       {
         protocol: "https",
@@ -10,6 +13,11 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "lh3.googleusercontent.com",
+      },
+      {
+        // Airline logos in OfferCard / search API responses
+        protocol: "https",
+        hostname: "images.kiwi.com",
       },
     ],
   },

@@ -20,7 +20,7 @@ export default function PriceAlertPanel({ alerts, alertPrice, setAlertPrice, onA
           placeholder="Target price (USD)"
           value={alertPrice}
           onChange={(e) => setAlertPrice(e.target.value)}
-          className="flex-1 rounded-xl border border-[#dfe7f2] px-3 py-2 text-sm focus:border-primary focus:outline-none"
+          className="glass-chip flex-1 rounded-xl px-3 py-2 text-sm focus:border-primary focus:outline-none"
         />
         <button
           type="button"
@@ -33,7 +33,7 @@ export default function PriceAlertPanel({ alerts, alertPrice, setAlertPrice, onA
       {alerts.length > 0 && (
         <div className="mt-3 space-y-2">
           {alerts.map((alert) => (
-            <div key={alert.id} className="flex items-center justify-between rounded-xl border border-[#edf2fb] bg-[#f8faff] px-3 py-2 text-xs">
+            <div key={alert.id} className="glass-chip flex items-center justify-between rounded-xl px-3 py-2 text-xs">
               <span className="data-mono">{alert.from} → {alert.to} · target {formatMoney(alert.targetPrice, "USD")} · set {alert.setDate}</span>
               <button type="button" onClick={() => onDeleteAlert(alert.id)} className="ml-2 text-red-400 hover:text-red-600">✕</button>
             </div>

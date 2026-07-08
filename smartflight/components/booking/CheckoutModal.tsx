@@ -19,6 +19,18 @@ export default function CheckoutModal({ checkoutOffer, checkoutStep, fromCity, t
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 backdrop-blur-sm sm:items-center">
       <div className="glass-panel-strong w-full max-w-lg rounded-t-3xl p-6 sm:rounded-3xl">
+        {/* Static boarding-pass mark — the hero's signature object, flat and small */}
+        <div className="boarding-pass-mark data-mono mb-5" aria-hidden="true">
+          <span>{from}</span>
+          <span className="bpm-route">
+            <i className="bpm-dot" />
+            <i className="bpm-line" />
+            <i className="bpm-dot" />
+          </span>
+          <span>{to}</span>
+          <span className="bpm-stub">TERN</span>
+        </div>
+
         <div className="mb-4 flex items-center justify-between">
           <p className="text-lg font-bold">
             {checkoutStep === "review" ? "Review your flight" : "Complete booking"}
@@ -32,7 +44,7 @@ export default function CheckoutModal({ checkoutOffer, checkoutStep, fromCity, t
 
         {checkoutStep === "review" && (
           <div className="space-y-4">
-            <div className="rounded-2xl border border-[#e5ecf6] bg-[#f8faff] p-4">
+            <div className="glass-chip rounded-2xl p-4">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="font-semibold">{checkoutOffer.airline || "Partner Airline"}</p>
@@ -47,7 +59,7 @@ export default function CheckoutModal({ checkoutOffer, checkoutStep, fromCity, t
               <p className="mb-2 text-sm font-semibold">Book with points or cash</p>
               <div className="space-y-2">
                 {buildBookingPrograms(checkoutOffer).transferOptions.map((opt) => (
-                  <div key={opt.program} className="flex items-center justify-between rounded-xl border border-[#edf2fb] px-3 py-2.5 text-sm">
+                  <div key={opt.program} className="glass-chip flex items-center justify-between rounded-xl px-3 py-2.5 text-sm">
                     <span className="font-medium">{opt.program}</span>
                     <span className="text-primary-hover font-semibold">{opt.points.toLocaleString()} pts {opt.cash}</span>
                   </div>
@@ -72,7 +84,7 @@ export default function CheckoutModal({ checkoutOffer, checkoutStep, fromCity, t
               <strong>{formatMoney(Number(checkoutOffer.price), checkoutOffer.currency)}</strong>.
               This is a demo — no real booking will be made.
             </p>
-            <div className="rounded-2xl border border-green-200 bg-green-50 p-4 text-sm text-green-800">
+            <div className="rounded-2xl border border-[color-mix(in_srgb,var(--color-success)_30%,white)] bg-success-subtle p-4 text-sm text-success-strong">
               ✅ Booking confirmed (demo). Check your email for confirmation details.
             </div>
             <button

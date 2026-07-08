@@ -57,21 +57,21 @@ export default function FiltersBar({
     <>
       <div className="relative">
         <div className="flex flex-wrap items-center gap-2">
-          <button type="button" onClick={() => togglePanel("airlines")} className="rounded-full border border-[#d5dfec] bg-white px-4 py-2 text-sm font-medium">Airlines</button>
-          <button type="button" onClick={() => togglePanel("stops")} className="rounded-full border border-[#d5dfec] bg-white px-4 py-2 text-sm font-medium">Stops</button>
-          <button type="button" onClick={() => togglePanel("times")} className="rounded-full border border-[#d5dfec] bg-white px-4 py-2 text-sm font-medium">Times</button>
-          <button type="button" onClick={() => togglePanel("programs")} className="rounded-full border border-[#d5dfec] bg-white px-4 py-2 text-sm font-medium">Programs</button>
-          <label className={`flex cursor-pointer items-center gap-2 rounded-full border px-3 py-2 text-xs font-medium transition-colors ${loyaltyFilterOn ? "border-[var(--contrail-300)] bg-[color-mix(in_srgb,var(--contrail-300)_12%,white)]" : "border-[#dbe7f6] bg-[#f8fbff]"}`}>
+          <button type="button" onClick={() => togglePanel("airlines")} className="glass-chip rounded-full px-4 py-2 text-sm font-medium">Airlines</button>
+          <button type="button" onClick={() => togglePanel("stops")} className="glass-chip rounded-full px-4 py-2 text-sm font-medium">Stops</button>
+          <button type="button" onClick={() => togglePanel("times")} className="glass-chip rounded-full px-4 py-2 text-sm font-medium">Times</button>
+          <button type="button" onClick={() => togglePanel("programs")} className="glass-chip rounded-full px-4 py-2 text-sm font-medium">Programs</button>
+          <label className={`flex cursor-pointer items-center gap-2 rounded-full border px-3 py-2 text-xs font-medium transition-colors ${loyaltyFilterOn ? "border-[var(--contrail-300)] bg-[color-mix(in_srgb,var(--contrail-300)_12%,white)]" : "glass-chip"}`}>
             <input type="checkbox" checked={loyaltyFilterOn} onChange={(e) => setLoyaltyFilterOn(e.target.checked)} className="rounded border-gray-300" />
             Match alliance / transferable miles
           </label>
-          <label className={`flex cursor-pointer items-center gap-2 rounded-full border px-3 py-2 text-xs font-medium transition-colors ${connectingOnly ? "border-[var(--contrail-300)] bg-[color-mix(in_srgb,var(--contrail-300)_12%,white)]" : "border-[#dbe7f6] bg-[#fffefb]"}`}>
+          <label className={`flex cursor-pointer items-center gap-2 rounded-full border px-3 py-2 text-xs font-medium transition-colors ${connectingOnly ? "border-[var(--contrail-300)] bg-[color-mix(in_srgb,var(--contrail-300)_12%,white)]" : "glass-chip"}`}>
             <input type="checkbox" checked={connectingOnly} onChange={(e) => setConnectingOnly(e.target.checked)} className="rounded border-gray-300" />
             Connecting only
           </label>
           <div className="ml-auto flex flex-wrap items-center gap-2">
             <span className="text-xs font-semibold uppercase tracking-wide text-muted">Sort</span>
-            <select value={sortTab} onChange={(e) => setSortTab(e.target.value as SortTab)} className="rounded-full border border-[#d5dfec] px-3 py-2 text-sm">
+            <select value={sortTab} onChange={(e) => setSortTab(e.target.value as SortTab)} className="glass-chip rounded-full px-3 py-2 text-sm">
               <option value="duration">Fastest (shortest travel)</option>
               <option value="price">Cheapest</option>
               <option value="arrival">Earliest arrival</option>
@@ -138,13 +138,13 @@ export default function FiltersBar({
             <div className="space-y-4">
               <div>
                 <p className="mb-1 text-xs text-muted">Departure: {Math.floor(depWindow[0] / 60).toString().padStart(2, "0")}:{(depWindow[0] % 60).toString().padStart(2, "0")} – {Math.floor(depWindow[1] / 60).toString().padStart(2, "0")}:{(depWindow[1] % 60).toString().padStart(2, "0")}</p>
-                <input type="range" min={0} max={1439} value={depWindow[0]} onChange={(e) => setDepWindow([Number(e.target.value), depWindow[1]])} className="w-full" />
-                <input type="range" min={0} max={1439} value={depWindow[1]} onChange={(e) => setDepWindow([depWindow[0], Number(e.target.value)])} className="w-full" />
+                <input type="range" min={0} max={1439} value={depWindow[0]} onChange={(e) => setDepWindow([Number(e.target.value), depWindow[1]])} className="brand-range w-full" />
+                <input type="range" min={0} max={1439} value={depWindow[1]} onChange={(e) => setDepWindow([depWindow[0], Number(e.target.value)])} className="brand-range w-full" />
               </div>
               <div>
                 <p className="mb-1 text-xs text-muted">Arrival: {Math.floor(arrWindow[0] / 60).toString().padStart(2, "0")}:{(arrWindow[0] % 60).toString().padStart(2, "0")} – {Math.floor(arrWindow[1] / 60).toString().padStart(2, "0")}:{(arrWindow[1] % 60).toString().padStart(2, "0")}</p>
-                <input type="range" min={0} max={1439} value={arrWindow[0]} onChange={(e) => setArrWindow([Number(e.target.value), arrWindow[1]])} className="w-full" />
-                <input type="range" min={0} max={1439} value={arrWindow[1]} onChange={(e) => setArrWindow([arrWindow[0], Number(e.target.value)])} className="w-full" />
+                <input type="range" min={0} max={1439} value={arrWindow[0]} onChange={(e) => setArrWindow([Number(e.target.value), arrWindow[1]])} className="brand-range w-full" />
+                <input type="range" min={0} max={1439} value={arrWindow[1]} onChange={(e) => setArrWindow([arrWindow[0], Number(e.target.value)])} className="brand-range w-full" />
               </div>
             </div>
           </div>
@@ -185,7 +185,7 @@ export default function FiltersBar({
           step={50}
           value={maxPrice}
           onChange={(e) => setMaxPrice(Number(e.target.value))}
-          className="flex-1"
+          className="brand-range flex-1"
         />
         <span className="data-mono text-xs font-semibold text-foreground whitespace-nowrap">{formatMoney(maxPrice, "USD")}</span>
       </div>
