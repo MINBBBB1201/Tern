@@ -71,6 +71,11 @@
   --color-warning-subtle:   #fffbeb;
   --color-danger:           #dc2626;
   --color-danger-subtle:    #fef2f2;
+  /* Strong variants: small text (≤12px) on glass fills needs these to hold
+     WCAG AA 4.5:1 — the base 600-level shades fail there. */
+  --color-success-strong:   #15803d;
+  --color-warning-strong:   #a16207;
+  --color-danger-strong:    #dc2626;
 
   /* ── Radius ── */
   --radius-sm:   4px;
@@ -426,7 +431,6 @@ body {
 .glass-panel {
   background: var(--glass-fill-light);
   backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
   border: 1px solid var(--glass-border);
   box-shadow: inset 0 1px 0 var(--glass-highlight), 0 8px 30px rgba(10,15,30,0.08);
 }
@@ -434,7 +438,6 @@ body {
 .glass-panel-dark {
   background: var(--glass-fill-dark);
   backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
   border: 1px solid var(--glass-border);
   box-shadow: inset 0 1px 0 var(--glass-highlight), 0 8px 30px rgba(10,15,30,0.35);
 }
@@ -444,7 +447,6 @@ body {
 .glass-panel-scan {
   background: rgba(255,255,255,0.72);
   backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
   border: 1px solid var(--glass-border);
   box-shadow: inset 0 1px 0 var(--glass-highlight), 0 4px 16px rgba(10,15,30,0.06);
 }
@@ -454,25 +456,217 @@ body {
 .glass-panel-strong {
   background: var(--glass-fill-strong);
   backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
   border: 1px solid var(--glass-border);
   box-shadow: inset 0 1px 0 var(--glass-highlight), 0 24px 60px rgba(10,15,30,0.25);
+}
+
+/* Small elements (chips, badges, nested rows) inside glass panels: same
+   material at lower volume — glass border + translucent fill, no second
+   backdrop-filter (nested blur costs paint time and adds nothing visible). */
+.glass-chip {
+  background: rgba(255,255,255,0.5);
+  border: 1px solid var(--glass-border);
+  box-shadow: inset 0 1px 0 var(--glass-highlight);
+}
+
+/* Selectable glass list rows (homepage airline picker): hover/active accent
+   lives here, not in utility classes — .glass-panel is unlayered CSS, so a
+   layered Tailwind border-color utility can never override its border. */
+.glass-row {
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.glass-row:hover {
+  border-color: var(--contrail-300);
+}
+
+.glass-row.is-active {
+  border-color: var(--contrail-300);
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: inset 0 1px 0 var(--glass-highlight), 0 4px 16px rgba(10, 15, 30, 0.10);
+}
+
+/* Sticky site nav: the glass recipe with a bottom edge only — a full border
+   reads as a floating panel, a nav bar is a surface the page slides under. */
+.glass-nav {
+  background: var(--glass-fill-light);
+  backdrop-filter: blur(var(--glass-blur));
+  border-bottom: 1px solid var(--glass-border);
+  box-shadow: inset 0 1px 0 var(--glass-highlight), 0 8px 30px rgba(10,15,30,0.08);
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Same nav sitting over the dark hero at the top of the page. */
+.glass-nav-dark {
+  background: var(--glass-fill-dark);
+  backdrop-filter: blur(var(--glass-blur));
+  border-bottom: 1px solid rgba(143,224,232,0.12);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Glass sitting on flat --paper-50/white (homepage coupons, airlines,
+   stats, flight list): there is nothing behind the panel for the blur to
+   act on, so the material must read through its edges instead — a crisper
+   contrail border and a visible top-edge sheen. Scoped to .glass-boost
+   sections only; hero and booking glass sit over imagery and are correct
+   as-is. */
+.glass-boost .glass-panel,
+.glass-boost .glass-panel-scan,
+.glass-boost .glass-chip {
+  border-color: rgba(143, 224, 232, 0.52);
+}
+
+.glass-boost .glass-panel {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 1),
+    inset 0 16px 28px -18px rgba(143, 224, 232, 0.38),
+    0 8px 30px rgba(10, 15, 30, 0.08);
+}
+
+.glass-boost .glass-panel-scan {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 1),
+    inset 0 16px 28px -18px rgba(143, 224, 232, 0.38),
+    0 4px 16px rgba(10, 15, 30, 0.06);
+}
+
+.glass-boost .glass-chip {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 1),
+    inset 0 8px 14px -10px rgba(143, 224, 232, 0.30);
 }
 
 @media (prefers-reduced-transparency: reduce) {
   .glass-panel,
   .glass-panel-scan,
-  .glass-panel-strong {
+  .glass-panel-strong,
+  .glass-nav {
     background: var(--paper-50);
     backdrop-filter: none;
-    -webkit-backdrop-filter: none;
+  }
+  .glass-chip {
+    background: #ffffff;
   }
   .glass-panel-dark,
+  .glass-nav-dark,
   .vol-shell,
   .vol-popover {
     background: #141F3D;
     backdrop-filter: none;
-    -webkit-backdrop-filter: none;
+  }
+}
+
+/* ─────────────────────────────────────────────
+   RANGE SLIDERS — brand tokens replace the browser
+   default: contrail track, signal thumb. Thumb/track
+   pseudo-elements must stay per-engine (webkit/moz);
+   combining selectors invalidates the whole rule.
+   ───────────────────────────────────────────── */
+
+.brand-range {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 18px; /* comfortable hit target; visible track stays 4px */
+  background: transparent;
+  cursor: pointer;
+}
+
+.brand-range::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--contrail-300) 45%, white);
+  border: 1px solid var(--glass-border);
+}
+
+.brand-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  margin-top: -6px; /* center 16px thumb on 4px track */
+  height: 16px;
+  width: 16px;
+  border-radius: 9999px;
+  background: var(--signal-600);
+  border: 2px solid #ffffff;
+  box-shadow: 0 1px 4px rgba(10, 15, 30, 0.25), 0 0 0 1px var(--glass-border);
+}
+
+.brand-range::-moz-range-track {
+  height: 4px;
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--contrail-300) 45%, white);
+  border: 1px solid var(--glass-border);
+}
+
+/* Firefox can paint the filled portion natively */
+.brand-range::-moz-range-progress {
+  height: 4px;
+  border-radius: 9999px;
+  background: var(--signal-600);
+}
+
+.brand-range::-moz-range-thumb {
+  height: 16px;
+  width: 16px;
+  border-radius: 9999px;
+  background: var(--signal-600);
+  border: 2px solid #ffffff;
+  box-shadow: 0 1px 4px rgba(10, 15, 30, 0.25), 0 0 0 1px var(--glass-border);
+}
+
+.brand-range:focus-visible {
+  outline: 2px solid var(--contrail-300);
+  outline-offset: 2px;
+}
+
+/* ─────────────────────────────────────────────
+   HOVER TILT — the hero's object language echoed
+   on cards: a few degrees of cursor-tracked
+   perspective, not a WebGL scene per card.
+   Driven by useHoverTilt; disabled entirely under
+   prefers-reduced-motion (the hook also no-ops).
+   ───────────────────────────────────────────── */
+
+.tilt-card {
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tilt-card {
+    transition: none;
+    transform: none !important;
+  }
+}
+
+/* ─────────────────────────────────────────────
+   ROUTE TRACE — homepage destination cards' one
+   interactive flourish: a thin contrail draws
+   across the photo on hover/tap, then settles.
+   Purely decorative; hidden under reduced motion.
+   ───────────────────────────────────────────── */
+
+.route-trace-path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  opacity: 0;
+}
+
+.route-trace.is-active .route-trace-path {
+  animation: route-trace-draw 1.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes route-trace-draw {
+  0%   { stroke-dashoffset: 1; opacity: 0; }
+  12%  { opacity: 1; }
+  62%  { stroke-dashoffset: 0; opacity: 1; }
+  100% { stroke-dashoffset: 0; opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .route-trace.is-active .route-trace-path {
+    animation: none;
   }
 }
 
@@ -486,7 +680,6 @@ body {
 .boarding-pass-static {
   background: linear-gradient(165deg, rgba(255,255,255,0.10) 0%, var(--glass-fill-dark) 55%, rgba(143,224,232,0.05) 100%);
   backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
   border: 1px solid var(--glass-border);
   border-radius: 14px;
   box-shadow:
@@ -505,8 +698,62 @@ body {
   .boarding-pass-static {
     background: #141F3D;
     backdrop-filter: none;
-    -webkit-backdrop-filter: none;
   }
+}
+
+/* ─────────────────────────────────────────────
+   BOARDING-PASS MARK — small, flat, static callback
+   to the hero's signature object. Used sparingly
+   (checkout header), never animated, never repeated
+   per-card: a brand rhyme, not a second hero.
+   ───────────────────────────────────────────── */
+
+.boarding-pass-mark {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: linear-gradient(165deg, var(--dusk-700) 0%, var(--ink-900) 100%);
+  border: 1px solid var(--glass-border);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), 0 4px 14px rgba(10,15,30,0.25);
+  color: var(--paper-50);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.bpm-route {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+  min-width: 40px;
+}
+
+.bpm-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--contrail-300);
+  box-shadow: var(--contrail-glow);
+  flex-shrink: 0;
+}
+
+.bpm-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--contrail-300), transparent);
+}
+
+/* Detachable-stub edge: the one detail that makes it read as a travel
+   document rather than a dark pill. */
+.bpm-stub {
+  border-left: 1px dashed rgba(143,224,232,0.4);
+  padding-left: 12px;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  color: rgba(246,248,251,0.65);
 }
 
 /* ─────────────────────────────────────────────
@@ -686,7 +933,6 @@ body {
   border: 1px solid var(--glass-border);
   border-radius: 24px;
   backdrop-filter: blur(var(--glass-blur)) saturate(140%);
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(140%);
   box-shadow:
     0 20px 60px rgba(0,0,0,0.35),
     inset 0 1px 0 var(--glass-highlight),

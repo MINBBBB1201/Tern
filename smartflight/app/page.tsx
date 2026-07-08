@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   LineChart,
   Line,
@@ -22,6 +22,7 @@ import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import SearchBar, { type SearchParams } from "../components/SearchBar";
+import { useHoverTilt } from "../hooks/useHoverTilt";
 import { usePriceAlerts } from "../hooks/usePriceAlerts";
 import type { Offer } from "../lib/offerUtils";
 
@@ -120,6 +121,9 @@ const TicketCard = ({ children, className = "" }: { children: React.ReactNode; c
   </div>
 );
 
+/* Mirrors OfferCard.tsx on the booking page (glass-panel-scan, tilt, mono
+   data, glass-chip logo tile) so homepage flight rows read as the same
+   component family as real search results — one card language, not two. */
 const FlightTicketCard = ({
   airline,
   airlineLogo,
@@ -146,68 +150,78 @@ const FlightTicketCard = ({
   price: number;
   departureTime: string;
   arrivalTime: string;
-}) => (
-  <div className="relative group">
-    <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-shadow">
-      <div className="flex">
-        <div className="flex-1 p-5 flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-white border border-gray-100 p-1.5 flex items-center justify-center overflow-hidden shrink-0">
-            {airlineLogo ? (
-              <img
-                src={airlineLogo}
-                alt={airline}
-                className="object-contain w-full h-full"
-                onError={(e) => {
-                  const img = e.currentTarget;
-                  img.onerror = null;
-                  img.src = "/file.svg";
-                }}
-              />
-            ) : (
-              <PlaneRightIcon className="w-6 h-6 text-primary" />
-            )}
-          </div>
-          <div>
-            <p className="font-semibold text-foreground">{airline}</p>
-            <span className="inline-block px-2 py-0.5 bg-primary/10 text-primary text-xs font-medium rounded-full mt-1">
-              {cabinClass}
-            </span>
-          </div>
-        </div>
+}) => {
+  const tilt = useHoverTilt<HTMLElement>(2);
 
-        <div className="flex-[2] p-5 flex items-center justify-center gap-4">
-          <div className="text-center">
-            <p className="data-mono text-2xl font-bold text-foreground">{from}</p>
-            <p className="text-xs text-muted">{fromCity}</p>
-            <p className="data-mono text-sm font-medium text-foreground mt-1">{departureTime}</p>
-          </div>
-          <div className="flex-1 flex items-center gap-2 px-4">
-            <div className="h-0.5 flex-1 border-t-2 border-dashed border-gray-300" />
+  return (
+    <article
+      onMouseMove={tilt.onMouseMove}
+      onMouseLeave={tilt.onMouseLeave}
+      className="glass-panel-scan tilt-card rounded-[20px] hover:shadow-md"
+    >
+      <div className="flex flex-wrap items-center gap-4 p-4 md:p-5">
+        {/* Airline logo */}
+        <div className="glass-chip flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl">
+          {airlineLogo ? (
+            <img
+              src={airlineLogo}
+              alt={airline}
+              className="h-9 w-9 object-contain"
+              onError={(e) => {
+                const img = e.currentTarget;
+                img.onerror = null;
+                img.src = "/file.svg";
+              }}
+            />
+          ) : (
             <PlaneRightIcon className="w-5 h-5 text-primary" />
-            <div className="h-0.5 flex-1 border-t-2 border-dashed border-gray-300" />
+          )}
+        </div>
+
+        {/* Route & times */}
+        <div className="flex flex-1 flex-wrap items-center gap-4 min-w-0">
+          <div className="text-center">
+            <p className="data-mono text-xl font-bold">{departureTime}</p>
+            <p className="text-xs text-muted">{from} · {fromCity}</p>
+          </div>
+          <div className="flex flex-col items-center gap-0.5 flex-1 min-w-[80px]">
+            <p className="data-mono text-xs text-muted">{duration}</p>
+            <div className="relative w-full flex items-center">
+              <div className="h-px flex-1 bg-gray-200" />
+              <PlaneRightIcon className="mx-1 h-3 w-3 text-primary shrink-0" />
+              <div className="h-px flex-1 bg-gray-200" />
+            </div>
+            <p className="text-xs text-muted">{stops === 0 ? "Non-stop" : `${stops} stop${stops > 1 ? "s" : ""}`}</p>
           </div>
           <div className="text-center">
-            <p className="data-mono text-2xl font-bold text-foreground">{to}</p>
-            <p className="text-xs text-muted">{toCity}</p>
-            <p className="data-mono text-sm font-medium text-foreground mt-1">{arrivalTime}</p>
+            <p className="data-mono text-xl font-bold">{arrivalTime}</p>
+            <p className="text-xs text-muted">{to} · {toCity}</p>
           </div>
         </div>
 
-        <div className="w-px border-l-2 border-dashed border-gray-200 my-4" />
+        {/* Airline name + cabin */}
+        <div className="hidden md:block text-right min-w-[120px]">
+          <p className="text-sm font-semibold">{airline}</p>
+          <span className="glass-chip mt-0.5 inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold text-primary-hover">
+            {cabinClass}
+          </span>
+        </div>
 
-        <div className="w-48 p-5 flex flex-col items-center justify-center bg-gray-50/50">
-          <p className="data-mono text-sm text-muted mb-1">{duration} · {stops === 0 ? 'Direct' : `${stops} stop${stops > 1 ? 's' : ''}`}</p>
-          <p className="data-mono text-3xl font-bold text-foreground">${price.toLocaleString()}</p>
-          <button className="mt-3 px-5 py-2 bg-primary text-primary-foreground text-sm font-semibold rounded-full hover:bg-primary/90 transition">
+        {/* Price + CTA */}
+        <div className="flex flex-col items-end gap-2 ml-auto">
+          <p className="data-mono text-2xl font-black text-foreground">${price.toLocaleString()}</p>
+          <p className="text-xs text-muted">per person</p>
+          <button
+            type="button"
+            className="rounded-full bg-primary px-4 py-1.5 text-xs font-semibold text-white hover:bg-primary/90 transition-colors"
+          >
             Book Now
           </button>
         </div>
       </div>
-    </div>
-    <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 w-6 h-6 bg-[#F0F4F8] rounded-full" />
-    <div className="absolute right-48 top-1/2 -translate-y-1/2 w-6 h-6 bg-white rounded-full border-2 border-dashed border-gray-200" style={{ clipPath: 'inset(0 50% 0 0)' }} />
-  </div>
-);
+    </article>
+  );
+};
 
 const sampleFlights = [
   {
@@ -254,7 +268,7 @@ const destinationDeals = [
     city: "Tokyo",
     route: "ICN → NRT",
     dateRange: "24 Dec 2025 - 07 Jan 2026",
-    priceLabel: "USD $450",
+    price: 450,
     image:
       "https://images.unsplash.com/photo-1536098561742-ca998e48cbcc?auto=format&fit=crop&w=1200&q=80",
   },
@@ -262,7 +276,7 @@ const destinationDeals = [
     city: "New York",
     route: "ICN → JFK",
     dateRange: "24 Dec 2025 - 07 Jan 2026",
-    priceLabel: "USD $249",
+    price: 249,
     image:
       "https://images.unsplash.com/photo-1546436836-07a91091f160?auto=format&fit=crop&w=1200&q=80",
   },
@@ -270,11 +284,101 @@ const destinationDeals = [
     city: "Dubai",
     route: "ICN → DXB",
     dateRange: "24 Dec 2025 - 07 Jan 2026",
-    priceLabel: "USD $310",
+    price: 310,
     image:
       "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=1200&q=80",
   },
 ];
+
+/* The homepage's one interactive centerpiece: on hover (desktop) or tap
+   (mobile) the card tilts toward the cursor — same tilt-card pattern as
+   OfferCard/SmartPickCards — the fare counts up, and a thin contrail
+   briefly traces the route across the photo. Everything else on the page
+   stays calm so this single moment reads as tactile, not as a demo reel. */
+const DestinationCard = ({
+  deal,
+}: {
+  deal: { city: string; route: string; dateRange: string; price: number; image: string };
+}) => {
+  const tilt = useHoverTilt<HTMLElement>(3);
+  const [active, setActive] = useState(false);
+  const [shownPrice, setShownPrice] = useState(deal.price);
+  const rafRef = useRef(0);
+
+  useEffect(() => () => cancelAnimationFrame(rafRef.current), []);
+
+  const activate = () => {
+    if (active) return;
+    setActive(true);
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    cancelAnimationFrame(rafRef.current);
+    const started = performance.now();
+    const duration = 650;
+    const tick = (now: number) => {
+      const t = Math.min((now - started) / duration, 1);
+      const eased = 1 - Math.pow(1 - t, 3);
+      setShownPrice(Math.round(deal.price * eased));
+      if (t < 1) rafRef.current = requestAnimationFrame(tick);
+    };
+    rafRef.current = requestAnimationFrame(tick);
+  };
+
+  const deactivate = () => {
+    setActive(false);
+    cancelAnimationFrame(rafRef.current);
+    setShownPrice(deal.price);
+  };
+
+  return (
+    <article
+      onMouseEnter={activate}
+      onMouseMove={tilt.onMouseMove}
+      onMouseLeave={(e) => {
+        deactivate();
+        tilt.onMouseLeave(e);
+      }}
+      onClick={activate}
+      className="tilt-card relative h-80 overflow-hidden rounded-2xl shadow-lg cursor-pointer group hover:shadow-xl transition-all"
+    >
+      <div
+        className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
+        style={{ backgroundImage: `url(${deal.image})` }}
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/30 to-transparent" />
+
+      {/* Contrail route trace — decorative, drawn only while active */}
+      <svg
+        className={`route-trace absolute inset-0 h-full w-full pointer-events-none ${active ? "is-active" : ""}`}
+        viewBox="0 0 100 100"
+        preserveAspectRatio="none"
+        aria-hidden="true"
+      >
+        <path
+          className="route-trace-path"
+          d="M -2 82 C 24 68, 52 38, 103 14"
+          pathLength={1}
+          fill="none"
+          stroke="var(--contrail-300)"
+          strokeWidth={1.5}
+          vectorEffect="non-scaling-stroke"
+          style={{ filter: 'drop-shadow(0 0 5px rgba(143,224,232,0.85))' }}
+        />
+      </svg>
+
+      <div className="absolute inset-x-0 bottom-0 p-5 text-white">
+        <p className="text-3xl font-bold leading-tight">{deal.city}</p>
+        <p className="data-mono mt-1 text-xs text-white/80">{deal.dateRange}</p>
+        <div className="mt-3 flex items-end justify-between">
+          <div>
+            <p className="text-[11px] uppercase tracking-wide text-white/80">Economy From</p>
+            <p className="data-mono text-2xl font-bold">USD ${shownPrice}</p>
+          </div>
+          <span className="data-mono text-sm font-medium text-white/90">{deal.route}</span>
+        </div>
+      </div>
+    </article>
+  );
+};
 
 const bestOfferCards = [
   {
@@ -283,7 +387,6 @@ const bestOfferCards = [
     cta: "Explore",
     image:
       "https://images.unsplash.com/photo-1493558103817-58b2924bce98?auto=format&fit=crop&w=1200&q=80",
-    tone: "from-[#1f6fff]/90 via-[#2f8dff]/75 to-[#8ad0ff]/70",
   },
   {
     title: "Up to 50% Off Flights!",
@@ -291,7 +394,6 @@ const bestOfferCards = [
     cta: "See Deals",
     image:
       "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=1200&q=80",
-    tone: "from-[#1446d8]/90 via-[#2454ea]/80 to-[#34b6ff]/75",
   },
   {
     title: "Get ready for the next adventure",
@@ -299,7 +401,6 @@ const bestOfferCards = [
     cta: "View Offer",
     image:
       "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=1200&q=80",
-    tone: "from-[#0f8be8]/88 via-[#20a2ff]/78 to-[#7ad7ff]/74",
   },
 ];
 
@@ -422,11 +523,21 @@ export default function Home() {
   const [showResults, setShowResults] = useState(false);
   const [showOffers, setShowOffers] = useState(true);
   const [selectedAirlineKey, setSelectedAirlineKey] = useState("turkish");
+  // Nav sits over the dark hero at the top, over light sections once scrolled —
+  // same glass material in both states, different fill.
+  const [navOverHero, setNavOverHero] = useState(true);
 
   useEffect(() => {
     handleRedirectResult().then((u) => { if (u) setUser(u); });
     const unsubscribe = onAuthStateChanged(auth, (u) => setUser(u));
     return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    const onScroll = () => setNavOverHero(window.scrollY < window.innerHeight - 80);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   const handleSignIn = async () => { try { await signInWithGoogle(); } catch (err) { console.error("Login failed:", err); } };
@@ -515,20 +626,21 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-background text-foreground">
-      {/* Navigation — glass-dark, sits directly on the twilight hero */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-[rgba(10,15,30,0.35)] backdrop-blur-md border-b border-[rgba(143,224,232,0.12)]">
+      {/* Navigation — one glass bar, two states: dark fill over the twilight
+          hero at the top, light fill once it sits over light content */}
+      <nav className={`fixed top-0 left-0 right-0 z-50 ${navOverHero ? "glass-nav-dark" : "glass-nav"}`}>
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <BrandLogo className="h-10 w-36 md:h-11 md:w-44 brightness-0 invert" />
+            <BrandLogo className={`h-10 w-36 md:h-11 md:w-44 transition ${navOverHero ? "brightness-0 invert" : ""}`} />
           </div>
           <div className="hidden md:flex items-center gap-8">
-            <Link href="/" className="text-sm font-medium text-white hover:text-[var(--contrail-300)] transition">Home</Link>
-            <a href="/booking" className="text-sm font-medium text-white/70 hover:text-[var(--contrail-300)] transition">Booking</a>
-            <a href="#deals" className="text-sm font-medium text-white/70 hover:text-[var(--contrail-300)] transition">Deals</a>
-            <a href="#blog" className="text-sm font-medium text-white/70 hover:text-[var(--contrail-300)] transition">Blog</a>
+            <Link href="/" className={`text-sm font-medium hover:text-[var(--contrail-300)] transition ${navOverHero ? "text-white" : "text-foreground"}`}>Home</Link>
+            <a href="/booking" className={`text-sm font-medium transition ${navOverHero ? "text-white/70 hover:text-[var(--contrail-300)]" : "text-muted hover:text-primary-hover"}`}>Booking</a>
+            <a href="#deals" className={`text-sm font-medium transition ${navOverHero ? "text-white/70 hover:text-[var(--contrail-300)]" : "text-muted hover:text-primary-hover"}`}>Deals</a>
+            <a href="#blog" className={`text-sm font-medium transition ${navOverHero ? "text-white/70 hover:text-[var(--contrail-300)]" : "text-muted hover:text-primary-hover"}`}>Blog</a>
           </div>
           <div className="flex items-center gap-4">
-            <button className="flex items-center gap-1 text-sm text-white/70 hover:text-white transition">
+            <button className={`flex items-center gap-1 text-sm transition ${navOverHero ? "text-white/70 hover:text-white" : "text-muted hover:text-foreground"}`}>
               <GlobeIcon />
               <span className="hidden sm:inline">EN</span>
             </button>
@@ -537,8 +649,15 @@ export default function Home() {
                 {user.photoURL && (
                   <Image src={user.photoURL} alt={user.displayName ?? ""} width={32} height={32} className="rounded-full" />
                 )}
-                <span className="hidden sm:inline text-sm text-white/70">{user.displayName}</span>
-                <button onClick={handleSignOut} className="px-4 py-2 rounded-full bg-white/10 border border-white/15 text-sm font-medium text-white hover:bg-white/15 transition">
+                <span className={`hidden sm:inline text-sm transition ${navOverHero ? "text-white/70" : "text-muted"}`}>{user.displayName}</span>
+                <button
+                  onClick={handleSignOut}
+                  className={`px-4 py-2 rounded-full border text-sm font-medium transition ${
+                    navOverHero
+                      ? "bg-white/10 border-white/15 text-white hover:bg-white/15"
+                      : "glass-chip text-foreground hover:bg-white/80"
+                  }`}
+                >
                   Sign Out
                 </button>
               </div>
@@ -552,13 +671,14 @@ export default function Home() {
       </nav>
 
       {/* ── Hero: Civil Twilight — 35,000ft, dawn/dusk horizon ── */}
+      {/* No top margin: the twilight gradient runs underneath the glass nav,
+          so the nav's dark fill has real hero to frost against */}
       <section
         className="hero-twilight"
         style={{
           position: 'relative',
           width: '100%',
           minHeight: '100vh',
-          marginTop: '64px',
         }}
       >
         {/* Ambient stars — distant, drifting almost imperceptibly */}
@@ -571,8 +691,8 @@ export default function Home() {
         <div style={{
           position: 'relative', zIndex: 10,
           display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-          minHeight: 'calc(100vh - 64px)',
-          padding: '80px 24px',
+          minHeight: '100vh',
+          padding: '144px 24px 80px',
           textAlign: 'center',
         }}>
           <h1
@@ -637,8 +757,17 @@ export default function Home() {
       </section>
 
 
-      {/* Why "Tern" — the name, stated plainly, not implied by an animation */}
-      <section className="py-10" style={{ background: 'var(--paper-50)', borderBottom: '1px solid rgba(27,42,82,0.08)' }}>
+      {/* Why "Tern" — the name, stated plainly, not implied by an animation.
+          The hero ends on the warm --horizon-500 band; this strip continues
+          that horizon and lets it settle into daylight paper, so the page
+          transitions from night to day instead of cutting to flat white. */}
+      <section
+        className="py-14"
+        style={{
+          background:
+            'linear-gradient(180deg, var(--horizon-500) 0%, color-mix(in srgb, var(--horizon-500) 40%, var(--paper-50)) 30%, color-mix(in srgb, var(--horizon-500) 12%, var(--paper-50)) 62%, var(--paper-50) 100%)',
+        }}
+      >
         <div className="max-w-4xl mx-auto px-6 flex items-center justify-center gap-5 text-center md:text-left">
           <svg width="34" height="34" viewBox="0 0 24 24" fill="none" aria-hidden="true" className="hidden md:block shrink-0">
             <path d="M2 15 L22 8 L12 12.5 L9.5 4.5 L7.5 5.5 L9 13.5 Z" fill="var(--dusk-700)" />
@@ -651,8 +780,10 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Explore the best offer for you */}
-      <section className="py-14 bg-white">
+      {/* Explore the best offer for you — same photo-card language as
+          "Explore Top Destinations" below: real destination photo, glass
+          content bar, glass-chip sponsored tag (kept for disclosure). */}
+      <section className="py-14" style={{ background: 'var(--paper-50)' }}>
         <div className="max-w-6xl mx-auto px-6">
           <div className="mb-8">
             <h2 className="text-3xl font-bold text-foreground">Explore the best offers for you</h2>
@@ -661,20 +792,21 @@ export default function Home() {
 
           <div className="grid md:grid-cols-3 gap-5">
             {bestOfferCards.map((offer) => (
-              <article key={offer.title} className="relative h-40 rounded-2xl overflow-hidden shadow-lg group cursor-pointer">
+              <article key={offer.title} className="relative h-56 rounded-2xl overflow-hidden shadow-lg group cursor-pointer">
                 <div
                   className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
                   style={{ backgroundImage: `url(${offer.image})` }}
                 />
-                <div className={`absolute inset-0 bg-gradient-to-r ${offer.tone}`} />
-                <div className="absolute inset-0 p-5 flex flex-col justify-between text-white">
-                  <div>
-                    <p className="text-xs uppercase tracking-[0.18em] text-white/80">Sponsored</p>
-                    <h3 className="mt-2 text-2xl font-bold leading-tight max-w-[15ch]">{offer.title}</h3>
-                    <p className="mt-1 text-sm text-white/90">{offer.subtitle}</p>
-                  </div>
-                  <span className="inline-flex w-fit px-3 py-1.5 rounded-full bg-white/20 backdrop-blur text-sm font-semibold border border-white/30">
+                <div className="absolute inset-0 bg-gradient-to-t from-[rgba(10,15,30,0.45)] via-transparent to-[rgba(10,15,30,0.12)]" />
+                <span className="glass-chip absolute left-3 top-3 rounded-full px-2.5 py-1 data-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-foreground">
+                  Sponsored
+                </span>
+                <div className="glass-panel absolute inset-x-3 bottom-3 rounded-xl p-4">
+                  <h3 className="text-lg font-bold leading-snug text-foreground">{offer.title}</h3>
+                  <p className="mt-0.5 text-xs text-muted">{offer.subtitle}</p>
+                  <span className="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold" style={{ color: 'var(--signal-600)' }}>
                     {offer.cta}
+                    <span aria-hidden="true">→</span>
                   </span>
                 </div>
               </article>
@@ -683,8 +815,9 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Exclusive Flight Coupons for Smarter Travelers */}
-      <section className="py-12 bg-[#F8FAFC] border-y border-gray-100">
+      {/* Exclusive Flight Coupons for Smarter Travelers — glass panels; the
+          promo code is data (like flight numbers), so it gets the mono chip. */}
+      <section className="glass-boost py-12 bg-white border-y" style={{ borderColor: 'rgba(27,42,82,0.08)' }}>
         <div className="max-w-6xl mx-auto px-6">
           <div className="mb-8">
             <h2 className="text-3xl font-bold text-foreground">Exclusive Flight Coupons for Smarter Travelers</h2>
@@ -693,37 +826,40 @@ export default function Home() {
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {couponAds.map((coupon) => (
-              <article key={coupon.code} className="relative bg-white border border-gray-200 rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow">
-                <p className="text-[10px] uppercase tracking-[0.16em] text-primary font-semibold">Sponsored</p>
-                <div className="mt-3 flex items-start justify-between gap-3">
-                  <div>
-                    <p className="text-lg font-bold text-foreground">{coupon.title}</p>
-                    <p className="text-xs text-muted mt-1">{coupon.desc}</p>
+              <article key={coupon.code} className="glass-panel relative rounded-2xl p-4 transition-shadow hover:shadow-md">
+                <div className="flex items-start justify-between gap-3">
+                  <span className="glass-chip rounded-full px-2.5 py-1 data-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-muted">
+                    Sponsored
+                  </span>
+                  <div className="glass-chip flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl">
+                    <img
+                      src={`https://images.kiwi.com/airlines/64/${coupon.iata}.png`}
+                      alt={coupon.airline}
+                      className="w-7 h-7 object-contain"
+                      onError={(e) => {
+                        const img = e.currentTarget;
+                        img.onerror = null;
+                        img.src = "/file.svg";
+                      }}
+                    />
                   </div>
-                  <img
-                    src={`https://images.kiwi.com/airlines/64/${coupon.iata}.png`}
-                    alt={coupon.airline}
-                    className="w-8 h-8 object-contain shrink-0"
-                    onError={(e) => {
-                      const img = e.currentTarget;
-                      img.onerror = null;
-                      img.src = "/file.svg";
-                    }}
-                  />
                 </div>
 
-                <div className="mt-4 pt-3 border-t border-dashed border-gray-200 flex items-center justify-between gap-2">
-                  <span className="text-xs font-mono font-semibold px-2.5 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">
+                <p className="mt-3 text-lg font-bold text-foreground">{coupon.title}</p>
+                <p className="text-xs text-muted mt-1">{coupon.desc}</p>
+
+                <div className="mt-4 pt-3 border-t border-dashed border-[var(--glass-border)] flex items-center justify-between gap-2">
+                  <span className="glass-chip data-mono rounded-md px-2.5 py-1 text-xs font-semibold text-foreground">
                     {coupon.code}
                   </span>
-                  <span className="text-[11px] text-muted">{coupon.expires}</span>
+                  <span className="data-mono text-[11px] text-muted">{coupon.expires}</span>
                 </div>
 
                 <a
                   href={coupon.url}
                   target="_blank"
                   rel="noreferrer"
-                  className="mt-3 w-full py-2.5 rounded-xl bg-primary text-white text-sm font-semibold hover:bg-primary/90 transition inline-flex items-center justify-center"
+                  className="mt-3 w-full py-2 rounded-full bg-primary text-white text-xs font-semibold hover:bg-primary/90 transition inline-flex items-center justify-center"
                 >
                   Official Offer Page
                 </a>
@@ -733,8 +869,11 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Explore Top Destinations */}
-      <section className="py-20" style={{ background: 'linear-gradient(180deg, #EEF8FF 0%, #ffffff 100%)' }}>
+      {/* Explore Top Destinations — the one interactive moment on the page */}
+      <section
+        className="py-20"
+        style={{ background: 'linear-gradient(180deg, color-mix(in srgb, var(--contrail-300) 14%, #ffffff) 0%, #ffffff 100%)' }}
+      >
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-foreground">Explore Top Destinations</h2>
@@ -742,34 +881,14 @@ export default function Home() {
           </div>
           <div className="grid md:grid-cols-3 gap-6">
             {destinationDeals.map((deal) => (
-              <article
-                key={deal.city}
-                className="relative h-80 overflow-hidden rounded-2xl shadow-lg cursor-pointer group hover:shadow-xl transition-all"
-              >
-                <div
-                  className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
-                  style={{ backgroundImage: `url(${deal.image})` }}
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/30 to-transparent" />
-                <div className="absolute inset-x-0 bottom-0 p-5 text-white">
-                  <p className="text-3xl font-bold leading-tight">{deal.city}</p>
-                  <p className="data-mono mt-1 text-xs text-white/80">{deal.dateRange}</p>
-                  <div className="mt-3 flex items-end justify-between">
-                    <div>
-                      <p className="text-[11px] uppercase tracking-wide text-white/80">Economy From</p>
-                      <p className="data-mono text-2xl font-bold">{deal.priceLabel}</p>
-                    </div>
-                    <span className="text-sm font-medium text-white/90">{deal.route}</span>
-                  </div>
-                </div>
-              </article>
+              <DestinationCard key={deal.city} deal={deal} />
             ))}
           </div>
         </div>
       </section>
 
       {/* Most Popular Airlines */}
-      <section className="py-16 bg-white">
+      <section className="glass-boost py-16" style={{ background: 'var(--paper-50)' }}>
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-10">
             <h2 className="text-3xl font-bold text-foreground">Most Popular Airlines</h2>
@@ -784,23 +903,23 @@ export default function Home() {
                   key={airline.key}
                   type="button"
                   onClick={() => setSelectedAirlineKey(airline.key)}
-                  className={`w-full rounded-2xl border px-4 py-3 flex items-center justify-between transition ${
-                    isActive
-                      ? "border-primary bg-primary/5 shadow-sm"
-                      : "border-gray-200 bg-white hover:border-primary/40"
-                  }`}
+                  className={`glass-panel glass-row w-full rounded-2xl px-4 py-3 flex items-center justify-between ${isActive ? "is-active" : ""}`}
                 >
                   <div className="flex items-center gap-3 min-w-0">
-                    <img
-                      src={`https://images.kiwi.com/airlines/64/${airline.iata}.png`}
-                      alt={airline.name}
-                      className="w-8 h-8 object-contain shrink-0"
-                      onError={(e) => {
-                        const img = e.currentTarget;
-                        img.onerror = null;
-                        img.src = "/file.svg";
-                      }}
-                    />
+                    {/* Real airline brand marks — never restyled, only their
+                        container is standardized into the glass-chip tile */}
+                    <span className="glass-chip flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl">
+                      <img
+                        src={`https://images.kiwi.com/airlines/64/${airline.iata}.png`}
+                        alt={airline.name}
+                        className="w-7 h-7 object-contain"
+                        onError={(e) => {
+                          const img = e.currentTarget;
+                          img.onerror = null;
+                          img.src = "/file.svg";
+                        }}
+                      />
+                    </span>
                     <span className="text-sm font-semibold text-foreground truncate text-left">{airline.name}</span>
                   </div>
                   <span className="text-muted">→</span>
@@ -809,19 +928,21 @@ export default function Home() {
             })}
           </div>
 
-          <div className="mt-6 rounded-2xl border border-gray-200 bg-[#F8FAFC] p-6">
+          <div className="glass-panel mt-6 rounded-2xl p-6">
             <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-5">
               <div className="flex items-start gap-4">
-                <img
-                  src={`https://images.kiwi.com/airlines/64/${selectedAirline.iata}.png`}
-                  alt={selectedAirline.name}
-                  className="w-12 h-12 object-contain"
-                  onError={(e) => {
-                    const img = e.currentTarget;
-                    img.onerror = null;
-                    img.src = "/file.svg";
-                  }}
-                />
+                <span className="glass-chip flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl">
+                  <img
+                    src={`https://images.kiwi.com/airlines/64/${selectedAirline.iata}.png`}
+                    alt={selectedAirline.name}
+                    className="w-10 h-10 object-contain"
+                    onError={(e) => {
+                      const img = e.currentTarget;
+                      img.onerror = null;
+                      img.src = "/file.svg";
+                    }}
+                  />
+                </span>
                 <div>
                   <h3 className="text-xl font-bold text-foreground">{selectedAirline.name}</h3>
                   <p className="text-sm text-muted mt-1 max-w-2xl">{selectedAirline.description}</p>
@@ -839,12 +960,12 @@ export default function Home() {
             </div>
 
             <div className="mt-5 grid md:grid-cols-2 gap-4">
-              <div className="bg-white rounded-xl border border-gray-200 p-4">
+              <div className="glass-chip rounded-xl p-4">
                 <p className="text-xs font-semibold uppercase tracking-wide text-muted">Recommended Route</p>
-                <p className="text-lg font-bold text-foreground mt-1">{selectedAirline.recommendedRoute}</p>
+                <p className="data-mono text-lg font-bold text-foreground mt-1">{selectedAirline.recommendedRoute}</p>
               </div>
 
-              <div className="bg-white rounded-xl border border-gray-200 p-4">
+              <div className="glass-chip rounded-xl p-4">
                 <p className="text-xs font-semibold uppercase tracking-wide text-muted">Fastest Schedule</p>
                 {fastestOfferForSelectedAirline ? (
                   <>
@@ -867,18 +988,19 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Stats Bar */}
-      <section className="py-16 bg-white border-y border-gray-100">
+      {/* Stats Bar — these numbers are data, so they get the mono data type
+          and a quiet glass container instead of floating bare in space */}
+      <section className="glass-boost py-16 bg-white border-y" style={{ borderColor: 'rgba(27,42,82,0.08)' }}>
         <div className="max-w-5xl mx-auto px-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
               { value: "500+", label: "Destinations" },
               { value: "50M+", label: "Happy Travelers" },
               { value: "200+", label: "Airlines" },
               { value: "4.9", label: "User Rating" },
-            ].map((stat, i) => (
-              <div key={i} className="text-center">
-                <p className="text-3xl md:text-4xl font-bold text-foreground">{stat.value}</p>
+            ].map((stat) => (
+              <div key={stat.label} className="glass-chip rounded-2xl px-4 py-5 text-center">
+                <p className="data-mono text-3xl md:text-4xl font-bold text-foreground">{stat.value}</p>
                 <p className="text-sm text-muted mt-1">{stat.label}</p>
               </div>
             ))}
@@ -888,7 +1010,7 @@ export default function Home() {
 
       {/* Popular Flights Section */}
       {!showResults && (
-        <section className="py-20 bg-[#F8FAFC]">
+        <section className="glass-boost py-20" style={{ background: 'var(--paper-50)' }}>
           <div className="max-w-5xl mx-auto px-6">
             <div className="flex items-center justify-between mb-10">
               <h2 className="text-3xl font-bold text-foreground">Choose Your Perfect Flight</h2>
@@ -1047,14 +1169,21 @@ export default function Home() {
         </section>
       )}
 
-      {/* Footer */}
-      <footer className="py-12 bg-white border-t border-gray-100">
+      {/* Footer — returns to the hero's night sky so the page ends where it
+          began; a plain white footer here would read as one more seam */}
+      <footer
+        className="py-12"
+        style={{
+          background: 'linear-gradient(180deg, var(--dusk-700) 0%, var(--ink-900) 100%)',
+          borderTop: '1px solid rgba(143,224,232,0.18)',
+        }}
+      >
         <div className="max-w-6xl mx-auto px-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="flex items-center gap-2">
-              <BrandLogo className="h-9 w-32 md:h-10 md:w-40" />
+              <BrandLogo className="h-9 w-32 md:h-10 md:w-40 brightness-0 invert" />
             </div>
-            <p className="text-sm text-muted">© 2026 Tern. All rights reserved.</p>
+            <p className="text-sm" style={{ color: 'rgba(246,248,251,0.65)' }}>© 2026 Tern. All rights reserved.</p>
           </div>
         </div>
       </footer>
