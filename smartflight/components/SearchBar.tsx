@@ -30,6 +30,7 @@ export interface SearchParams {
 interface SearchBarProps {
   onSearch: (params: SearchParams) => void;
   loading?: boolean;
+  routeLineRef?: React.Ref<HTMLDivElement>;
 }
 
 const fmt = (d: Date) => d.toISOString().split("T")[0];
@@ -54,7 +55,7 @@ const CABIN_LABELS: Record<string, string> = {
   first: "First Class",
 };
 
-export default function SearchBar({ onSearch, loading = false }: SearchBarProps) {
+export default function SearchBar({ onSearch, loading = false, routeLineRef }: SearchBarProps) {
   const [tripType, setTripType] = useState<"roundtrip" | "oneway">("roundtrip");
   const [cabinClass, setCabinClass] = useState<"economy" | "premium_economy" | "business" | "first">("economy");
   const [from, setFrom] = useState("ICN");
@@ -146,54 +147,68 @@ export default function SearchBar({ onSearch, loading = false }: SearchBarProps)
         <div
           style={{
             display: "flex",
+            flexWrap: "wrap",
             alignItems: "stretch",
             padding: "6px 8px 8px 8px",
             gap: 0,
           }}
         >
 
-          {/* ── FROM field ── */}
-          <div style={{ flex: "1 1 0", minWidth: 0 }}>
-            <AirportField
-              label="FROM"
-              value={from}
-              subValue={fromCity}
-              onChange={(code, city) => { setFrom(code); setFromCity(city); }}
-              placeholder="Origin"
-            />
-          </div>
-
-          {/* ── Swap button ── */}
-          <div style={{ display: "flex", alignItems: "center", padding: "0 4px", flexShrink: 0, zIndex: 2 }}>
-            <button
-              className="vol-swap"
-              onClick={handleSwap}
-              title="Swap airports"
-              style={{
-                transform: swapping ? "rotate(180deg) scale(0.9)" : "rotate(0deg) scale(1)",
-                transition: "transform 0.25s cubic-bezier(0.34,1.56,0.64,1)",
-              }}
+          {/* ── FROM / route line / TO — the route line is the hero contrail's landing point ── */}
+          <div style={{ display: "flex", alignItems: "stretch", flex: "2 1 220px", minWidth: 0, position: "relative" }}>
+            <div
+              ref={routeLineRef}
+              className="vol-route-line"
+              style={{ display: "flex", alignItems: "center", left: "22%", right: "22%", top: "50%", transform: "translateY(-50%)" }}
             >
-              <ArrowLeftRight size={14} strokeWidth={2.2} />
-            </button>
-          </div>
+              <span className="vol-route-dot" />
+              <span style={{ flex: 1, height: "1px", background: "var(--contrail-300)", opacity: 0.55 }} />
+              <span className="vol-route-dot" />
+            </div>
 
-          {/* ── TO field ── */}
-          <div style={{ flex: "1 1 0", minWidth: 0 }}>
-            <AirportField
-              label="TO"
-              value={to}
-              subValue={toCity}
-              onChange={(code, city) => { setTo(code); setToCity(city); }}
-              placeholder="Destination"
-            />
+            {/* ── FROM field ── */}
+            <div style={{ flex: "1 1 0", minWidth: 0 }}>
+              <AirportField
+                label="FROM"
+                value={from}
+                subValue={fromCity}
+                onChange={(code, city) => { setFrom(code); setFromCity(city); }}
+                placeholder="Origin"
+              />
+            </div>
+
+            {/* ── Swap button ── */}
+            <div style={{ display: "flex", alignItems: "center", padding: "0 4px", flexShrink: 0, zIndex: 2 }}>
+              <button
+                className="vol-swap"
+                onClick={handleSwap}
+                title="Swap airports"
+                style={{
+                  transform: swapping ? "rotate(180deg) scale(0.9)" : "rotate(0deg) scale(1)",
+                  transition: "transform 0.25s cubic-bezier(0.34,1.56,0.64,1)",
+                }}
+              >
+                <ArrowLeftRight size={14} strokeWidth={2.2} />
+              </button>
+            </div>
+
+            {/* ── TO field ── */}
+            <div style={{ flex: "1 1 0", minWidth: 0 }}>
+              <AirportField
+                label="TO"
+                value={to}
+                subValue={toCity}
+                onChange={(code, city) => { setTo(code); setToCity(city); }}
+                placeholder="Destination"
+              />
+            </div>
           </div>
 
           {/* ── Sculpted divider ── */}
           <div className="vol-divider" />
 
           {/* ── DEPARTURE date ── */}
-          <div style={{ flex: "0 0 128px" }}>
+          <div style={{ flex: "0 1 128px", minWidth: "110px" }}>
             <DateField
               label="DEPARTURE"
               value={departureDate}
@@ -210,7 +225,8 @@ export default function SearchBar({ onSearch, loading = false }: SearchBarProps)
           {/* ── RETURN date ── */}
           <div
             style={{
-              flex: "0 0 128px",
+              flex: "0 1 128px",
+              minWidth: "110px",
               opacity: tripType === "roundtrip" ? 1 : 0.35,
               pointerEvents: tripType === "roundtrip" ? "auto" : "none",
               transition: "opacity 0.25s ease",
@@ -228,7 +244,7 @@ export default function SearchBar({ onSearch, loading = false }: SearchBarProps)
           <div className="vol-divider" />
 
           {/* ── PASSENGERS field ── */}
-          <div style={{ flex: "0 0 152px", position: "relative" }} ref={passengerRef}>
+          <div style={{ flex: "0 1 152px", minWidth: "130px", position: "relative" }} ref={passengerRef}>
             <button
               onClick={() => setPassengerOpen(!passengerOpen)}
               className="vol-field"
@@ -360,7 +376,7 @@ export default function SearchBar({ onSearch, loading = false }: SearchBarProps)
               ) : (
                 <>
                   <Search size={15} strokeWidth={2.5} style={{ flexShrink: 0 }} />
-                  Search
+                  Search flights
                 </>
               )}
             </button>

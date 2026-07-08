@@ -27,9 +27,9 @@ export default function SignInPage() {
     try {
       await signInWithGoogle();
       router.push("/");
-    } catch (err: any) {
+    } catch (err) {
       console.error("Login failed:", err);
-      setError(err.message || "Failed to sign in. Please try again.");
+      setError(err instanceof Error && err.message ? err.message : "Failed to sign in. Please try again.");
     } finally {
       setLoading(false);
     }

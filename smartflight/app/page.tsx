@@ -19,15 +19,17 @@ import {
 import type { User } from "firebase/auth";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
+import Link from "next/link";
 import SearchBar, { type SearchParams } from "../components/SearchBar";
+import { usePriceAlerts } from "../hooks/usePriceAlerts";
+import type { Offer } from "../lib/offerUtils";
 
-interface PriceAlert {
-  id: string;
-  from: string;
-  to: string;
-  targetPrice: number;
-  setDate: string;
-}
+type PricePoint = { date: string; price: number; fullDate: string; isSelected: boolean };
+
+// Lazy, client-only: the 3D scene must never block first paint — the
+// headline and search form are usable before this finishes loading.
+const HeroSceneTern = dynamic(() => import("../components/HeroSceneTern"), { ssr: false });
 
 const PlaneIcon = () => (
   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -175,9 +177,9 @@ const FlightTicketCard = ({
 
         <div className="flex-[2] p-5 flex items-center justify-center gap-4">
           <div className="text-center">
-            <p className="text-2xl font-bold text-foreground">{from}</p>
+            <p className="data-mono text-2xl font-bold text-foreground">{from}</p>
             <p className="text-xs text-muted">{fromCity}</p>
-            <p className="text-sm font-medium text-foreground mt-1">{departureTime}</p>
+            <p className="data-mono text-sm font-medium text-foreground mt-1">{departureTime}</p>
           </div>
           <div className="flex-1 flex items-center gap-2 px-4">
             <div className="h-0.5 flex-1 border-t-2 border-dashed border-gray-300" />
@@ -185,17 +187,17 @@ const FlightTicketCard = ({
             <div className="h-0.5 flex-1 border-t-2 border-dashed border-gray-300" />
           </div>
           <div className="text-center">
-            <p className="text-2xl font-bold text-foreground">{to}</p>
+            <p className="data-mono text-2xl font-bold text-foreground">{to}</p>
             <p className="text-xs text-muted">{toCity}</p>
-            <p className="text-sm font-medium text-foreground mt-1">{arrivalTime}</p>
+            <p className="data-mono text-sm font-medium text-foreground mt-1">{arrivalTime}</p>
           </div>
         </div>
 
         <div className="w-px border-l-2 border-dashed border-gray-200 my-4" />
 
         <div className="w-48 p-5 flex flex-col items-center justify-center bg-gray-50/50">
-          <p className="text-sm text-muted mb-1">{duration} · {stops === 0 ? 'Direct' : `${stops} stop${stops > 1 ? 's' : ''}`}</p>
-          <p className="text-3xl font-bold text-foreground">${price.toLocaleString()}</p>
+          <p className="data-mono text-sm text-muted mb-1">{duration} · {stops === 0 ? 'Direct' : `${stops} stop${stops > 1 ? 's' : ''}`}</p>
+          <p className="data-mono text-3xl font-bold text-foreground">${price.toLocaleString()}</p>
           <button className="mt-3 px-5 py-2 bg-primary text-primary-foreground text-sm font-semibold rounded-full hover:bg-primary/90 transition">
             Book Now
           </button>
@@ -409,13 +411,14 @@ export default function Home() {
     departureDate: "", adults: 1, children: 0, infants: 0, cabinClass: "economy",
   });
   const [loading, setLoading] = useState(false);
-  const [results, setResults] = useState<any[]>([]);
+  const [results, setResults] = useState<Offer[]>([]);
   const [sortTab, setSortTab] = useState<"price" | "duration" | "ai">("price");
-  const [priceChartData, setPriceChartData] = useState<any[]>([]);
+  const [priceChartData, setPriceChartData] = useState<PricePoint[]>([]);
   const [chartLoading, setChartLoading] = useState(false);
-  const [alerts, setAlerts] = useState<PriceAlert[]>([]);
-  const [alertPrice, setAlertPrice] = useState("");
-  const [matchedAlert, setMatchedAlert] = useState<PriceAlert | null>(null);
+  const { alerts, alertPrice, setAlertPrice, matchedAlert, addAlert, deleteAlert } = usePriceAlerts({
+    from: lastSearch.from,
+    to: lastSearch.to,
+  });
   const [showResults, setShowResults] = useState(false);
   const [showOffers, setShowOffers] = useState(true);
   const [selectedAirlineKey, setSelectedAirlineKey] = useState("turkish");
@@ -424,13 +427,6 @@ export default function Home() {
     handleRedirectResult().then((u) => { if (u) setUser(u); });
     const unsubscribe = onAuthStateChanged(auth, (u) => setUser(u));
     return () => unsubscribe();
-  }, []);
-
-  useEffect(() => {
-    const savedAlerts = localStorage.getItem("priceAlerts");
-    if (savedAlerts) {
-      try { setAlerts(JSON.parse(savedAlerts)); } catch { console.error("Failed to load alerts"); }
-    }
   }, []);
 
   const handleSignIn = async () => { try { await signInWithGoogle(); } catch (err) { console.error("Login failed:", err); } };
@@ -457,7 +453,7 @@ export default function Home() {
     setLoading(false);
   };
 
-  const calculateDuration = (dep: string, arr: string) => {
+  const calculateDuration = (dep?: string, arr?: string) => {
     if (!dep || !arr) return Infinity;
     return new Date(arr).getTime() - new Date(dep).getTime();
   };
@@ -472,9 +468,9 @@ export default function Home() {
 
   const getFastestOfferForAirline = (airlineName?: string) => {
     if (!airlineName || results.length === 0) return null;
-    const filtered = results.filter((offer: any) => (offer.airline ?? "").toLowerCase() === airlineName.toLowerCase());
+    const filtered = results.filter((offer) => (offer.airline ?? "").toLowerCase() === airlineName.toLowerCase());
     if (filtered.length === 0) return null;
-    return filtered.reduce((fastest: any, current: any) => {
+    return filtered.reduce((fastest, current) => {
       return calculateDuration(current.departure, current.arrival) < calculateDuration(fastest.departure, fastest.arrival) ? current : fastest;
     }, filtered[0]);
   };
@@ -482,7 +478,7 @@ export default function Home() {
   const handlePriceTrend = async () => {
     if (!lastSearch.departureDate) return;
     setChartLoading(true);
-    const chartData: any[] = [];
+    const chartData: PricePoint[] = [];
     const selectedDate = new Date(lastSearch.departureDate);
     try {
       for (let i = -7; i <= 7; i++) {
@@ -492,7 +488,7 @@ export default function Home() {
         const res = await fetch("/api/search", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ origin: lastSearch.from, destination: lastSearch.to, departureDate: dateStr, adults: lastSearch.adults }) });
         const data = await res.json();
         if (res.ok && data.offers?.length > 0) {
-          const minPrice = Math.min(...data.offers.map((o: any) => Number(o.price)));
+          const minPrice = Math.min(...data.offers.map((o: { price: string }) => Number(o.price)));
           chartData.push({ date: new Date(dateStr).toLocaleDateString("en-US", { month: "short", day: "numeric" }), price: minPrice, fullDate: dateStr, isSelected: dateStr === lastSearch.departureDate });
         }
       }
@@ -502,23 +498,8 @@ export default function Home() {
 
   const cheapestDatePoint = priceChartData.length > 0 ? priceChartData.reduce((min, curr) => Number(curr.price) < Number(min.price) ? curr : min) : null;
 
-  const handleAddAlert = () => {
-    if (!alertPrice || isNaN(Number(alertPrice))) return;
-    const newAlert: PriceAlert = { id: Date.now().toString(), from: lastSearch.from, to: lastSearch.to, targetPrice: Number(alertPrice), setDate: new Date().toLocaleDateString("en-US") };
-    const updated = [...alerts, newAlert];
-    setAlerts(updated);
-    localStorage.setItem("priceAlerts", JSON.stringify(updated));
-    setAlertPrice("");
-  };
-
-  const handleDeleteAlert = (id: string) => {
-    const updated = alerts.filter((a) => a.id !== id);
-    setAlerts(updated);
-    localStorage.setItem("priceAlerts", JSON.stringify(updated));
-  };
-
-  const cheapestDirect = results.filter((f) => f.stops === 0).reduce((min: any, curr) => !min || Number(curr.price) < Number(min.price) ? curr : min, null);
-  const cheapestConnecting = results.filter((f) => (f.stops ?? 0) > 0).reduce((min: any, curr) => !min || Number(curr.price) < Number(min.price) ? curr : min, null);
+  const cheapestDirect = results.filter((f) => f.stops === 0).reduce<Offer | null>((min, curr) => !min || Number(curr.price) < Number(min.price) ? curr : min, null);
+  const cheapestConnecting = results.filter((f) => (f.stops ?? 0) > 0).reduce<Offer | null>((min, curr) => !min || Number(curr.price) < Number(min.price) ? curr : min, null);
   const selectedAirline = popularAirlines.find((a) => a.key === selectedAirlineKey) ?? popularAirlines[0];
   const fastestOfferForSelectedAirline = getFastestOfferForAirline(selectedAirline?.name);
 
@@ -534,20 +515,20 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-background text-foreground">
-      {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200/50">
+      {/* Navigation — glass-dark, sits directly on the twilight hero */}
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-[rgba(10,15,30,0.35)] backdrop-blur-md border-b border-[rgba(143,224,232,0.12)]">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <BrandLogo className="h-10 w-36 md:h-11 md:w-44" />
+            <BrandLogo className="h-10 w-36 md:h-11 md:w-44 brightness-0 invert" />
           </div>
           <div className="hidden md:flex items-center gap-8">
-            <a href="/" className="text-sm font-medium text-foreground hover:text-primary transition">Home</a>
-            <a href="/booking" className="text-sm font-medium text-muted hover:text-primary transition">Booking</a>
-            <a href="#deals" className="text-sm font-medium text-muted hover:text-primary transition">Deals</a>
-            <a href="#blog" className="text-sm font-medium text-muted hover:text-primary transition">Blog</a>
+            <Link href="/" className="text-sm font-medium text-white hover:text-[var(--contrail-300)] transition">Home</Link>
+            <a href="/booking" className="text-sm font-medium text-white/70 hover:text-[var(--contrail-300)] transition">Booking</a>
+            <a href="#deals" className="text-sm font-medium text-white/70 hover:text-[var(--contrail-300)] transition">Deals</a>
+            <a href="#blog" className="text-sm font-medium text-white/70 hover:text-[var(--contrail-300)] transition">Blog</a>
           </div>
           <div className="flex items-center gap-4">
-            <button className="flex items-center gap-1 text-sm text-muted hover:text-foreground transition">
+            <button className="flex items-center gap-1 text-sm text-white/70 hover:text-white transition">
               <GlobeIcon />
               <span className="hidden sm:inline">EN</span>
             </button>
@@ -556,8 +537,8 @@ export default function Home() {
                 {user.photoURL && (
                   <Image src={user.photoURL} alt={user.displayName ?? ""} width={32} height={32} className="rounded-full" />
                 )}
-                <span className="hidden sm:inline text-sm text-muted">{user.displayName}</span>
-                <button onClick={handleSignOut} className="px-4 py-2 rounded-full bg-gray-100 border border-gray-200 text-sm font-medium hover:bg-gray-200 transition">
+                <span className="hidden sm:inline text-sm text-white/70">{user.displayName}</span>
+                <button onClick={handleSignOut} className="px-4 py-2 rounded-full bg-white/10 border border-white/15 text-sm font-medium text-white hover:bg-white/15 transition">
                   Sign Out
                 </button>
               </div>
@@ -570,280 +551,21 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* ── Hero: Light Volumetric Sky — image_8.png ── */}
+      {/* ── Hero: Civil Twilight — 35,000ft, dawn/dusk horizon ── */}
       <section
+        className="hero-twilight"
         style={{
           position: 'relative',
           width: '100%',
           minHeight: '100vh',
           marginTop: '64px',
-          overflow: 'hidden',
-          background: 'linear-gradient(180deg, #c8dff5 0%, #a8c8e8 40%, #d8ecf8 75%, #e8f4fc 100%)',
         }}
       >
-        {/* ── Atmospheric depth layers ── */}
-        <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 1 }}>
-          <div style={{
-            position: 'absolute', top: 0, left: 0, right: 0, height: '45%',
-            background: 'radial-gradient(ellipse 140% 70% at 50% 0%, rgba(255,255,255,0.85) 0%, transparent 55%)',
-          }} />
-          <div style={{
-            position: 'absolute', top: '15%', left: '5%', width: '45%', height: '60%',
-            background: 'radial-gradient(ellipse at 40% 50%, rgba(168,200,232,0.45) 0%, transparent 65%)',
-            filter: 'blur(30px)',
-          }} />
-          <div style={{
-            position: 'absolute', top: '10%', right: '0%', width: '55%', height: '55%',
-            background: 'radial-gradient(ellipse at 60% 30%, rgba(200,223,245,0.35) 0%, transparent 60%)',
-            filter: 'blur(20px)',
-          }} />
-          <div style={{
-            position: 'absolute', bottom: 0, left: 0, right: 0, height: '25%',
-            background: 'linear-gradient(to top, rgba(232,244,252,0.8) 0%, transparent 100%)',
-          }} />
-        </div>
+        {/* Ambient stars — distant, drifting almost imperceptibly */}
+        <div className="hero-stars" aria-hidden="true" />
 
-        {/* ── Perspective grid overlay ── */}
-        <svg
-          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 2, overflow: 'visible' }}
-          viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice"
-          aria-hidden="true"
-        >
-          <defs>
-            <pattern id="perspGrid" x="0" y="0" width="80" height="80" patternUnits="userSpaceOnUse"
-              patternTransform="translate(720,900) perspective(600) rotateX(55deg) translate(-720,-900)">
-              <path d="M 80 0 L 0 0 0 80" fill="none" stroke="rgba(26,58,107,0.08)" strokeWidth="0.8"/>
-            </pattern>
-            <linearGradient id="gridFade" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="white" stopOpacity="0"/>
-              <stop offset="40%" stopColor="white" stopOpacity="0"/>
-              <stop offset="100%" stopColor="white" stopOpacity="0.9"/>
-            </linearGradient>
-            <mask id="gridMask">
-              <rect width="1440" height="900" fill="url(#gridFade)"/>
-            </mask>
-          </defs>
-          {/* Horizontal vanishing lines */}
-          {[0.35, 0.42, 0.50, 0.58, 0.66, 0.74, 0.82, 0.90, 1.0].map((y, i) => (
-            <line key={`h${i}`}
-              x1="0" y1={900 * y} x2="1440" y2={900 * y}
-              stroke="rgba(26,58,107,0.07)" strokeWidth="0.7"
-            />
-          ))}
-          {/* Vertical vanishing lines — converge to horizon center */}
-          {[-6,-5,-4,-3,-2,-1,0,1,2,3,4,5,6].map((n, i) => {
-            const vanishX = 720;
-            const vanishY = 900 * 0.35;
-            const baseX = 720 + n * 120;
-            return (
-              <line key={`v${i}`}
-                x1={vanishX} y1={vanishY}
-                x2={baseX} y2={900}
-                stroke="rgba(26,58,107,0.07)" strokeWidth="0.7"
-              />
-            );
-          })}
-        </svg>
-
-        {/* ── White/cyan data-stream arcs ── */}
-        <svg
-          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 4, overflow: 'visible' }}
-          viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice"
-          aria-hidden="true"
-        >
-          <defs>
-            <filter id="arcGlow">
-              <feGaussianBlur stdDeviation="4" result="blur"/>
-              <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-            </filter>
-            <filter id="arcGlowStrong">
-              <feGaussianBlur stdDeviation="8" result="blur"/>
-              <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-            </filter>
-          </defs>
-          {/* Primary white arc — sweeps left to right */}
-          <path d="M 80 600 Q 400 200 800 280 Q 1050 330 1360 180"
-            stroke="rgba(255,255,255,0.9)" strokeWidth="1.8" fill="none"
-            filter="url(#arcGlowStrong)" strokeDasharray="1400" strokeDashoffset="1400">
-            <animate attributeName="stroke-dashoffset" from="1400" to="0" dur="4s" repeatCount="indefinite" begin="0s"/>
-            <animate attributeName="opacity" values="0;1;1;0" dur="4s" repeatCount="indefinite" begin="0s"/>
-          </path>
-          {/* Cyan arc — parallel offset */}
-          <path d="M 60 560 Q 380 220 780 310 Q 1020 370 1320 220"
-            stroke="rgba(100,200,255,0.75)" strokeWidth="1.2" fill="none"
-            filter="url(#arcGlow)" strokeDasharray="1300" strokeDashoffset="1300">
-            <animate attributeName="stroke-dashoffset" from="1300" to="0" dur="4.5s" repeatCount="indefinite" begin="0.7s"/>
-            <animate attributeName="opacity" values="0;0.85;0.85;0" dur="4.5s" repeatCount="indefinite" begin="0.7s"/>
-          </path>
-          {/* Soft blue arc — lower */}
-          <path d="M 100 650 Q 420 380 760 420 Q 960 445 1200 360"
-            stroke="rgba(60,140,220,0.5)" strokeWidth="0.9" fill="none"
-            filter="url(#arcGlow)" strokeDasharray="1200" strokeDashoffset="1200">
-            <animate attributeName="stroke-dashoffset" from="1200" to="0" dur="5.5s" repeatCount="indefinite" begin="1.4s"/>
-            <animate attributeName="opacity" values="0;0.6;0.6;0" dur="5.5s" repeatCount="indefinite" begin="1.4s"/>
-          </path>
-          {/* Short upper-right arc */}
-          <path d="M 950 120 Q 1100 80 1260 110 Q 1360 130 1420 90"
-            stroke="rgba(255,255,255,0.7)" strokeWidth="1.1" fill="none"
-            filter="url(#arcGlow)" strokeDasharray="550" strokeDashoffset="550">
-            <animate attributeName="stroke-dashoffset" from="550" to="0" dur="3s" repeatCount="indefinite" begin="2s"/>
-            <animate attributeName="opacity" values="0;0.8;0.8;0" dur="3s" repeatCount="indefinite" begin="2s"/>
-          </path>
-          {/* Traveling dots on primary arc */}
-          <circle cx="0" cy="0" r="3.5" fill="rgba(255,255,255,0.95)" filter="url(#arcGlowStrong)">
-            <animateMotion dur="4s" repeatCount="indefinite" begin="0s"
-              path="M 80 600 Q 400 200 800 280 Q 1050 330 1360 180"/>
-            <animate attributeName="opacity" values="0;1;1;0" dur="4s" repeatCount="indefinite" begin="0s"/>
-          </circle>
-          <circle cx="0" cy="0" r="2.5" fill="rgba(100,200,255,0.9)" filter="url(#arcGlow)">
-            <animateMotion dur="4.5s" repeatCount="indefinite" begin="0.7s"
-              path="M 60 560 Q 380 220 780 310 Q 1020 370 1320 220"/>
-            <animate attributeName="opacity" values="0;0.9;0.9;0" dur="4.5s" repeatCount="indefinite" begin="0.7s"/>
-          </circle>
-        </svg>
-
-        {/* ── 3D Volumetric cloud structures ── */}
-        <svg
-          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 5, overflow: 'visible' }}
-          viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice"
-          aria-hidden="true"
-        >
-          <defs>
-            <filter id="cloudSoft"><feGaussianBlur stdDeviation="18"/></filter>
-            <filter id="cloudMid"><feGaussianBlur stdDeviation="10"/></filter>
-            <filter id="cloudSharp"><feGaussianBlur stdDeviation="5"/></filter>
-            <radialGradient id="cg1" cx="45%" cy="38%" r="52%">
-              <stop offset="0%" stopColor="rgba(255,255,255,1.0)"/>
-              <stop offset="35%" stopColor="rgba(235,245,255,0.92)"/>
-              <stop offset="70%" stopColor="rgba(200,225,248,0.6)"/>
-              <stop offset="100%" stopColor="rgba(168,200,232,0)"/>
-            </radialGradient>
-            <radialGradient id="cg2" cx="50%" cy="42%" r="50%">
-              <stop offset="0%" stopColor="rgba(255,255,255,0.95)"/>
-              <stop offset="40%" stopColor="rgba(220,238,255,0.8)"/>
-              <stop offset="100%" stopColor="rgba(168,200,232,0)"/>
-            </radialGradient>
-            <radialGradient id="cg3" cx="50%" cy="35%" r="50%">
-              <stop offset="0%" stopColor="rgba(255,255,255,0.88)"/>
-              <stop offset="50%" stopColor="rgba(210,232,252,0.65)"/>
-              <stop offset="100%" stopColor="rgba(168,200,232,0)"/>
-            </radialGradient>
-          </defs>
-
-          {/* Left cloud cluster */}
-          <ellipse cx="160" cy="580" rx="260" ry="110" fill="url(#cg1)" filter="url(#cloudSoft)" opacity="0.75"/>
-          <ellipse cx="120" cy="540" rx="180" ry="80" fill="url(#cg1)" filter="url(#cloudMid)" opacity="0.7"/>
-          <ellipse cx="200" cy="510" rx="140" ry="60" fill="rgba(255,255,255,0.85)" filter="url(#cloudSharp)" opacity="0.65"/>
-          {/* Cloud shadow */}
-          <ellipse cx="160" cy="620" rx="220" ry="40" fill="rgba(100,140,190,0.12)" filter="url(#cloudSoft)"/>
-
-          {/* Center-bottom cloud */}
-          <ellipse cx="680" cy="760" rx="340" ry="105" fill="url(#cg2)" filter="url(#cloudSoft)" opacity="0.65"/>
-          <ellipse cx="640" cy="730" rx="240" ry="75" fill="url(#cg2)" filter="url(#cloudMid)" opacity="0.6"/>
-          <ellipse cx="720" cy="710" rx="180" ry="55" fill="rgba(255,255,255,0.8)" filter="url(#cloudSharp)" opacity="0.55"/>
-
-          {/* Right cloud — partially behind airplane */}
-          <ellipse cx="1260" cy="480" rx="220" ry="90" fill="url(#cg3)" filter="url(#cloudSoft)" opacity="0.7"/>
-          <ellipse cx="1300" cy="450" rx="160" ry="65" fill="url(#cg3)" filter="url(#cloudMid)" opacity="0.65"/>
-          <ellipse cx="1240" cy="420" rx="120" ry="48" fill="rgba(255,255,255,0.82)" filter="url(#cloudSharp)" opacity="0.6"/>
-
-          {/* Upper-right wisp */}
-          <ellipse cx="1380" cy="180" rx="140" ry="42" fill="url(#cg3)" filter="url(#cloudSoft)" opacity="0.45"/>
-          <ellipse cx="1360" cy="160" rx="100" ry="30" fill="rgba(255,255,255,0.7)" filter="url(#cloudMid)" opacity="0.4"/>
-
-          {/* Upper-left wisp */}
-          <ellipse cx="80" cy="200" rx="120" ry="38" fill="url(#cg1)" filter="url(#cloudSoft)" opacity="0.4"/>
-        </svg>
-
-        {/* ── TERN-branded airplane — right side ── */}
-        <div
-          className="animate-plane-float"
-          style={{
-            position: 'absolute', right: '-1%', top: '48%', transform: 'translateY(-50%) rotate(-3deg)',
-            width: 'clamp(340px, 42vw, 660px)',
-            zIndex: 6, pointerEvents: 'none',
-          }}
-        >
-          <svg viewBox="0 0 800 420" fill="none" xmlns="http://www.w3.org/2000/svg"
-            style={{ width: '100%', height: 'auto', filter: 'drop-shadow(0 16px 48px rgba(26,58,107,0.22)) drop-shadow(0 4px 16px rgba(26,58,107,0.14))' }}>
-            <defs>
-              <linearGradient id="ternBody" x1="60" y1="185" x2="740" y2="235" gradientUnits="userSpaceOnUse">
-                <stop offset="0%" stopColor="#e8f0fa"/>
-                <stop offset="25%" stopColor="#f4f8fe"/>
-                <stop offset="55%" stopColor="#eaf2fc"/>
-                <stop offset="100%" stopColor="#c8d8ee"/>
-              </linearGradient>
-              <linearGradient id="ternWing" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#dce8f8"/>
-                <stop offset="100%" stopColor="#a0b8d8"/>
-              </linearGradient>
-              <linearGradient id="ternEngine" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stopColor="#a0b0c8"/>
-                <stop offset="50%" stopColor="#d0dcea"/>
-                <stop offset="100%" stopColor="rgba(80,100,130,0.8)"/>
-              </linearGradient>
-              <linearGradient id="ternTailStripe" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stopColor="#1a3a6b"/>
-                <stop offset="100%" stopColor="#2a5a9a"/>
-              </linearGradient>
-            </defs>
-
-            {/* Fuselage — white livery */}
-            <ellipse cx="400" cy="210" rx="340" ry="34" fill="url(#ternBody)"/>
-            {/* Upper deck highlight */}
-            <path d="M 200 196 Q 360 175 560 180 Q 640 182 680 192 Q 640 197 560 195 Q 360 188 200 207 Z"
-              fill="rgba(248,252,255,0.95)"/>
-            {/* Nose */}
-            <path d="M 62 210 Q 82 201 118 206 Q 100 210 118 214 Q 82 219 62 210 Z" fill="#d0dcea"/>
-            {/* Tail */}
-            <path d="M 718 210 Q 758 205 778 210 Q 758 215 718 210 Z" fill="#b8cce0"/>
-
-            {/* Vertical stabilizer — TERN teal accent */}
-            <path d="M 698 210 Q 708 158 728 126 Q 738 121 743 126 Q 738 158 738 210 Z"
-              fill="url(#ternWing)" opacity="0.92"/>
-            {/* Teal stripe on tail fin */}
-            <path d="M 710 185 Q 718 162 728 148 Q 733 144 736 148 Q 730 162 728 185 Z"
-              fill="#1a8a7a" opacity="0.75"/>
-
-            {/* Horizontal stabilizers */}
-            <path d="M 688 210 Q 718 200 758 195 Q 768 196 768 200 Q 748 205 718 212 Q 698 215 688 210 Z"
-              fill="url(#ternWing)" opacity="0.88"/>
-            <path d="M 688 210 Q 718 220 758 225 Q 768 224 768 220 Q 748 215 718 208 Q 698 205 688 210 Z"
-              fill="url(#ternWing)" opacity="0.72"/>
-
-            {/* Main wing upper */}
-            <path d="M 348 210 Q 378 215 418 242 Q 478 272 558 312 Q 598 332 638 342 Q 618 337 578 317 Q 498 277 428 250 Q 388 232 358 220 Z"
-              fill="url(#ternWing)" opacity="0.95"/>
-            {/* Main wing lower */}
-            <path d="M 348 210 Q 378 205 418 180 Q 478 153 558 118 Q 598 100 638 90 Q 618 96 578 116 Q 498 150 428 176 Q 388 190 358 200 Z"
-              fill="url(#ternWing)" opacity="0.9"/>
-
-            {/* Engines */}
-            <ellipse cx="458" cy="258" rx="37" ry="13" fill="url(#ternEngine)" opacity="0.95"/>
-            <ellipse cx="458" cy="258" rx="28" ry="8" fill="#1a2a40" opacity="0.8"/>
-            <ellipse cx="538" cy="298" rx="33" ry="11" fill="url(#ternEngine)" opacity="0.9"/>
-            <ellipse cx="538" cy="298" rx="25" ry="7" fill="#1a2a40" opacity="0.8"/>
-            <ellipse cx="458" cy="162" rx="37" ry="13" fill="url(#ternEngine)" opacity="0.95"/>
-            <ellipse cx="458" cy="162" rx="28" ry="8" fill="#1a2a40" opacity="0.8"/>
-            <ellipse cx="538" cy="122" rx="33" ry="11" fill="url(#ternEngine)" opacity="0.9"/>
-            <ellipse cx="538" cy="122" rx="25" ry="7" fill="#1a2a40" opacity="0.8"/>
-
-            {/* TERN navy cheatline */}
-            <path d="M 100 220 Q 400 224 700 220" stroke="url(#ternTailStripe)" strokeWidth="3" fill="none" opacity="0.7"/>
-            {/* Teal accent stripe */}
-            <path d="M 100 215 Q 400 219 700 215" stroke="#1a8a7a" strokeWidth="1.5" fill="none" opacity="0.55"/>
-
-            {/* Window row */}
-            {Array.from({ length: 22 }, (_, i) => (
-              <rect key={i} x={138 + i * 25} y={201} width="10" height="6" rx="2"
-                fill="rgba(180,215,248,0.75)"/>
-            ))}
-
-            {/* TERN logo text on fuselage */}
-            <text x="280" y="196" fontFamily="'Geist','Inter',sans-serif" fontSize="18" fontWeight="800"
-              fill="#1a3a6b" letterSpacing="3" opacity="0.85">TERN</text>
-          </svg>
-        </div>
+        {/* Signature sequence: glass tern → boarding pass */}
+        <HeroSceneTern />
 
         {/* ── Hero content (centered) ── */}
         <div style={{
@@ -853,46 +575,47 @@ export default function Home() {
           padding: '80px 24px',
           textAlign: 'center',
         }}>
-          {/* Headline */}
-          <h1 style={{
-            fontSize: 'clamp(2.6rem, 5.2vw, 4.2rem)',
-            fontWeight: 800,
-            lineHeight: 1.05,
-            letterSpacing: '-0.04em',
-            color: '#0d2040',
-            margin: '0 0 4px 0',
-            maxWidth: '820px',
-            animation: 'heroTextIn 0.7s cubic-bezier(0.16,1,0.3,1) both',
-          }}>
-            Find the best flight,
+          <h1
+            className="hero-headline animate-hero-text"
+            style={{
+              fontSize: 'clamp(2.6rem, 5.2vw, 4.2rem)',
+              fontWeight: 700,
+              lineHeight: 1.05,
+              letterSpacing: '-0.02em',
+              color: 'var(--paper-50)',
+              margin: '0 0 16px 0',
+              maxWidth: '820px',
+            }}
+          >
+            Chase the horizon.
           </h1>
-          <h1 style={{
-            fontSize: 'clamp(2.6rem, 5.2vw, 4.2rem)',
-            fontWeight: 800,
-            lineHeight: 1.05,
-            letterSpacing: '-0.04em',
-            color: '#0d2040',
-            margin: '0 0 52px 0',
-            maxWidth: '820px',
-            animation: 'heroTextIn 0.7s cubic-bezier(0.16,1,0.3,1) 0.1s both',
-          }}>
-            <span style={{ color: '#1a3a6b' }}>instantly.</span>
-          </h1>
+          <p
+            className="animate-hero-text"
+            style={{
+              fontSize: 'clamp(1rem, 1.6vw, 1.15rem)',
+              color: 'rgba(246,248,251,0.72)',
+              margin: '0 0 44px 0',
+              maxWidth: '580px',
+              animationDelay: '0.1s',
+            }}
+          >
+            We compare cheapest, fastest, lowest delay-risk, and best-value-with-points fares side by side, every search.
+          </p>
 
           {/* Search bar */}
-          <div style={{
-            width: '100%', maxWidth: '1000px',
-            animation: 'heroTextIn 0.7s cubic-bezier(0.16,1,0.3,1) 0.2s both',
-          }}>
+          <div className="animate-hero-text" style={{ width: '100%', maxWidth: '1000px', animationDelay: '0.2s' }}>
             <SearchBar onSearch={handleSearch} loading={loading} />
           </div>
 
           {/* Stats row */}
-          <div style={{
-            display: 'flex', alignItems: 'center',
-            marginTop: '36px', flexWrap: 'wrap', justifyContent: 'center',
-            animation: 'heroTextIn 0.7s cubic-bezier(0.16,1,0.3,1) 0.35s both',
-          }}>
+          <div
+            className="animate-hero-text"
+            style={{
+              display: 'flex', alignItems: 'center',
+              marginTop: '36px', flexWrap: 'wrap', justifyContent: 'center',
+              animationDelay: '0.35s',
+            }}
+          >
             {[
               { value: '500+', label: 'Airlines' },
               { value: '2M+', label: 'Routes' },
@@ -901,25 +624,32 @@ export default function Home() {
             ].map(({ value, label }, i, arr) => (
               <div key={label} style={{ display: 'flex', alignItems: 'center' }}>
                 <div style={{ textAlign: 'center', padding: '0 28px' }}>
-                  <div style={{ fontSize: '20px', fontWeight: 700, color: '#0d2040', letterSpacing: '-0.03em', lineHeight: 1.2 }}>{value}</div>
-                  <div style={{ fontSize: '12px', color: '#4a6080', marginTop: '2px', letterSpacing: '0.04em' }}>{label}</div>
+                  <div className="data-mono" style={{ fontSize: '20px', fontWeight: 700, color: 'var(--paper-50)', letterSpacing: '-0.01em', lineHeight: 1.2 }}>{value}</div>
+                  <div style={{ fontSize: '12px', color: 'rgba(246,248,251,0.6)', marginTop: '2px', letterSpacing: '0.04em' }}>{label}</div>
                 </div>
                 {i < arr.length - 1 && (
-                  <div style={{ width: '1px', height: '36px', background: 'rgba(26,58,107,0.15)', flexShrink: 0 }} />
+                  <div style={{ width: '1px', height: '36px', background: 'rgba(143,224,232,0.2)', flexShrink: 0 }} />
                 )}
               </div>
             ))}
           </div>
         </div>
-
-        <style>{`
-          @keyframes heroTextIn {
-            from { opacity: 0; transform: translateY(18px); }
-            to   { opacity: 1; transform: translateY(0); }
-          }
-        `}</style>
       </section>
 
+
+      {/* Why "Tern" — the name, stated plainly, not implied by an animation */}
+      <section className="py-10" style={{ background: 'var(--paper-50)', borderBottom: '1px solid rgba(27,42,82,0.08)' }}>
+        <div className="max-w-4xl mx-auto px-6 flex items-center justify-center gap-5 text-center md:text-left">
+          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" aria-hidden="true" className="hidden md:block shrink-0">
+            <path d="M2 15 L22 8 L12 12.5 L9.5 4.5 L7.5 5.5 L9 13.5 Z" fill="var(--dusk-700)" />
+          </svg>
+          <p className="text-[15px] leading-relaxed" style={{ color: 'var(--dusk-700)' }}>
+            <span className="data-mono text-[11px] font-semibold tracking-[0.18em] block mb-1" style={{ color: 'var(--signal-600)' }}>WHY &ldquo;TERN&rdquo;</span>
+            The Arctic Tern flies pole to pole every year — farther than any other animal alive — chasing an endless summer.
+            Tern helps you do the same, for less.
+          </p>
+        </div>
+      </section>
 
       {/* Explore the best offer for you */}
       <section className="py-14 bg-white">
@@ -1023,11 +753,11 @@ export default function Home() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/30 to-transparent" />
                 <div className="absolute inset-x-0 bottom-0 p-5 text-white">
                   <p className="text-3xl font-bold leading-tight">{deal.city}</p>
-                  <p className="mt-1 text-xs text-white/80">{deal.dateRange}</p>
+                  <p className="data-mono mt-1 text-xs text-white/80">{deal.dateRange}</p>
                   <div className="mt-3 flex items-end justify-between">
                     <div>
                       <p className="text-[11px] uppercase tracking-wide text-white/80">Economy From</p>
-                      <p className="text-2xl font-bold">{deal.priceLabel}</p>
+                      <p className="data-mono text-2xl font-bold">{deal.priceLabel}</p>
                     </div>
                     <span className="text-sm font-medium text-white/90">{deal.route}</span>
                   </div>
@@ -1118,10 +848,10 @@ export default function Home() {
                 <p className="text-xs font-semibold uppercase tracking-wide text-muted">Fastest Schedule</p>
                 {fastestOfferForSelectedAirline ? (
                   <>
-                    <p className="text-lg font-bold text-foreground mt-1">
+                    <p className="data-mono text-lg font-bold text-foreground mt-1">
                       {fastestOfferForSelectedAirline.departure?.slice(11, 16)} → {fastestOfferForSelectedAirline.arrival?.slice(11, 16)}
                     </p>
-                    <p className="text-sm text-muted mt-1">
+                    <p className="data-mono text-sm text-muted mt-1">
                       {Math.floor(calculateDuration(fastestOfferForSelectedAirline.departure, fastestOfferForSelectedAirline.arrival) / 3600000)}h {Math.floor((calculateDuration(fastestOfferForSelectedAirline.departure, fastestOfferForSelectedAirline.arrival) % 3600000) / 60000)}m
                       {" "}· ${Number(fastestOfferForSelectedAirline.price).toLocaleString()}
                     </p>
@@ -1202,7 +932,7 @@ export default function Home() {
 
                 {matchedAlert && (
                   <div className="p-4 rounded-xl bg-green-50 border border-green-200 text-green-700 text-sm font-medium text-center">
-                    Target price reached! {matchedAlert.from} to {matchedAlert.to} - Current lowest: ${Math.min(...results.map((o: any) => Number(o.price))).toLocaleString()} USD
+                    Target price reached! {matchedAlert.from} to {matchedAlert.to} - Current lowest: ${Math.min(...results.map((o) => Number(o.price))).toLocaleString()} USD
                   </div>
                 )}
 
@@ -1290,7 +1020,7 @@ export default function Home() {
                   <h3 className="text-lg font-semibold text-foreground mb-4">Set Price Alert</h3>
                   <div className="flex gap-3">
                     <input type="number" value={alertPrice} onChange={(e) => setAlertPrice(e.target.value)} placeholder="Target price (USD)" className="flex-1 p-3 rounded-xl bg-gray-50 text-foreground border border-gray-200 placeholder-gray-400 outline-none focus:border-primary transition" />
-                    <button onClick={handleAddAlert} disabled={!alertPrice} className="px-6 py-3 rounded-xl bg-primary text-white font-semibold hover:bg-primary/90 transition disabled:opacity-50">Set Alert</button>
+                    <button onClick={addAlert} disabled={!alertPrice} className="px-6 py-3 rounded-xl bg-primary text-white font-semibold hover:bg-primary/90 transition disabled:opacity-50">Set Alert</button>
                   </div>
                   {alerts.length > 0 && (
                     <div className="mt-4 space-y-2">
@@ -1301,7 +1031,7 @@ export default function Home() {
                             <p className="text-sm font-semibold text-foreground">{alert.from} → {alert.to}</p>
                             <p className="text-xs text-muted">${alert.targetPrice} USD · {alert.setDate}</p>
                           </div>
-                          <button onClick={() => handleDeleteAlert(alert.id)} className="px-3 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 text-xs font-medium transition">Remove</button>
+                          <button onClick={() => deleteAlert(alert.id)} className="px-3 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 text-xs font-medium transition">Remove</button>
                         </div>
                       ))}
                     </div>
