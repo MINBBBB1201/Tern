@@ -40,3 +40,6 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 .aider*
+
+# local editor/AI-assistant config (contains API keys)
+.continue/
