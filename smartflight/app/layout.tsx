@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Space_Grotesk, JetBrains_Mono } from "next/font/google";
+import GlobalCanvas from "../components/canvas/GlobalCanvas";
 import "./globals.css";
 
 const spaceGrotesk = Space_Grotesk({
@@ -28,6 +29,9 @@ export default function RootLayout({
   return (
     <html lang="ko" className={`${spaceGrotesk.variable} ${jetbrainsMono.variable}`}>
       <body>
+        {/* Site-wide 3D layer — single WebGL context, all page Views render
+            through it. Skipped under prefers-reduced-motion / low-power. */}
+        <GlobalCanvas />
         {/* Site-wide ambient drift — atmosphere, frozen under prefers-reduced-motion */}
         <div className="ambient-drift" aria-hidden="true" />
         {children}
