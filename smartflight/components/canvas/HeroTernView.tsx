@@ -350,6 +350,10 @@ function buildScene() {
       color: 0xdfeef5,
       metalness: 0.05,
       roughness: 0.12,
+      // Clearcoat picks up the twilight key/rim lights as a lacquered
+      // sheen — PBR polish without an HDR environment download.
+      clearcoat: 0.6,
+      clearcoatRoughness: 0.3,
       transparent: true,
       opacity: 0.34,
       side: THREE.DoubleSide,
@@ -406,6 +410,8 @@ function buildScene() {
       color: 0xffffff,
       metalness: 0,
       roughness: 0.08,
+      clearcoat: 1,
+      clearcoatRoughness: 0.22,
       transparent: true,
       opacity: 0.15,
       side: THREE.DoubleSide,
@@ -681,6 +687,12 @@ export default function HeroTernView() {
       <directionalLight color={0x8fe0e8} intensity={1.3} position={[-3, 4, 2]} />
       <directionalLight color={0xffffff} intensity={0.55} position={[0, 0, 5]} />
       <TernSequence />
+      {/* No EffectComposer here, deliberately: bloom was trialled (Stage 4)
+          and rejected on screenshots — inside a scissored drei View it
+          bloomed the trail points into blobs, washed out the pass face
+          text, and produced compositing artifacts over the transparent
+          canvas. The contrail's glow comes from additive blending + the
+          face texture's shadowBlur, which already reads as bloom. */}
     </View>
   );
 }
