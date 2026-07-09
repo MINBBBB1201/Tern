@@ -14,19 +14,15 @@
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.6.0",
     "@react-three/postprocessing": "^3.0.4",
-    "@tsparticles/react": "^3.0.0",
-    "@tsparticles/slim": "^3.9.1",
     "@types/three": "^0.183.1",
     "firebase": "^12.12.0",
-    "framer-motion": "^12.42.2",
     "gsap": "^3.15.0",
     "lucide-react": "^0.511.0",
     "next": "16.2.2",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "recharts": "^3.8.1",
-    "three": "^0.183.2",
-    "three-gltf-loader": "^1.111.0"
+    "three": "^0.183.2"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
