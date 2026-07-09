@@ -42,6 +42,7 @@ export default function GlobalCanvasInner() {
       <Canvas
         aria-hidden="true"
         frameloop="always"
+        flat
         dpr={mode === "lite" ? [1, 1.5] : [1, 2]}
         gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
         style={{ position: "fixed", inset: 0, zIndex: 1, pointerEvents: "none" }}

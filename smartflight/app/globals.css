@@ -409,7 +409,9 @@ body {
   position: relative;
   background: var(--hero-twilight-bg);
   overflow: hidden;
-  isolation: isolate;
+  /* No isolation: the tern/pass render in the site-wide canvas (fixed,
+     z-index 1 in the root stacking context); hero content at z-index 10
+     must participate in the same context to stay above them. */
 }
 
 .hero-headline {
@@ -677,6 +679,23 @@ body {
    Same glass substance as .vol-shell / .glass-panel-dark.
    ───────────────────────────────────────────── */
 
+.boarding-pass-static-wrap {
+  top: 9%;
+}
+
+/* Mobile: the hero content block nearly fills the viewport, so the pass
+   pins to a fixed offset under the nav and the content starts below it
+   instead of centering into a collision (headline used to overlap it). */
+@media (max-width: 767px) {
+  .boarding-pass-static-wrap {
+    top: 84px;
+  }
+  .hero-twilight .hero-content {
+    justify-content: flex-start !important;
+    padding-top: 320px !important;
+  }
+}
+
 .boarding-pass-static {
   background: linear-gradient(165deg, rgba(255,255,255,0.10) 0%, var(--glass-fill-dark) 55%, rgba(143,224,232,0.05) 100%);
   backdrop-filter: blur(var(--glass-blur));
@@ -786,7 +805,7 @@ body {
 .hero-stars {
   position: absolute;
   inset: 0;
-  z-index: 1;
+  z-index: 0; /* below the global canvas (z1): stars stay behind the tern */
   pointer-events: none;
   background-image:
     radial-gradient(rgba(246,248,251,0.32) 1px, transparent 1.7px),

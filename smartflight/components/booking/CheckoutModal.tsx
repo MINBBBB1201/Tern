@@ -1,6 +1,11 @@
 "use client";
 
+import { useRef } from "react";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
 import { buildBookingPrograms, dateLabel, durationLabel, formatMoney, type Offer } from "../../lib/offerUtils";
+
+gsap.registerPlugin(useGSAP);
 
 type CheckoutModalProps = {
   checkoutOffer: Offer | null;
@@ -13,12 +18,54 @@ type CheckoutModalProps = {
   onClose: () => void;
 };
 
-export default function CheckoutModal({ checkoutOffer, checkoutStep, fromCity, toCity, from, to, onAdvanceToBook, onClose }: CheckoutModalProps) {
-  if (!checkoutOffer) return null;
+export default function CheckoutModal(props: CheckoutModalProps) {
+  // Hook-safe gate: the animated shell mounts only while an offer is open,
+  // so its useGSAP entrance runs exactly once per open.
+  if (!props.checkoutOffer) return null;
+  return <CheckoutModalShell {...props} checkoutOffer={props.checkoutOffer} />;
+}
+
+function CheckoutModalShell({ checkoutOffer, checkoutStep, fromCity, toCity, from, to, onAdvanceToBook, onClose }: CheckoutModalProps & { checkoutOffer: Offer }) {
+  const rootRef = useRef<HTMLDivElement>(null);
+  const stepRef = useRef<HTMLDivElement>(null);
+
+  // "Sliding through glass": backdrop frosts in while the pass-shaped
+  // panel rises with real perspective depth and settles. Step changes
+  // crossfade the content quietly. Reduced motion: no tweens, the modal
+  // simply appears (its natural CSS state).
+  useGSAP(
+    () => {
+      const mm = gsap.matchMedia();
+      mm.add("(prefers-reduced-motion: no-preference)", () => {
+        gsap.from(rootRef.current, { autoAlpha: 0, duration: 0.22, ease: "power1.out" });
+        gsap.from("[data-modal-panel]", {
+          y: 56,
+          rotateX: 9,
+          transformPerspective: 1100,
+          transformOrigin: "50% 100%",
+          scale: 0.97,
+          autoAlpha: 0,
+          duration: 0.45,
+          ease: "power3.out",
+        });
+      });
+    },
+    { scope: rootRef }
+  );
+
+  useGSAP(
+    () => {
+      const mm = gsap.matchMedia();
+      mm.add("(prefers-reduced-motion: no-preference)", () => {
+        gsap.from(stepRef.current, { autoAlpha: 0, y: 10, duration: 0.28, ease: "power2.out" });
+      });
+    },
+    { scope: rootRef, dependencies: [checkoutStep] }
+  );
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 backdrop-blur-sm sm:items-center">
-      <div className="glass-panel-strong w-full max-w-lg rounded-t-3xl p-6 sm:rounded-3xl">
+    <div ref={rootRef} className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 backdrop-blur-sm sm:items-center">
+      <div data-modal-panel className="glass-panel-strong w-full max-w-lg rounded-t-3xl p-6 sm:rounded-3xl">
         {/* Static boarding-pass mark — the hero's signature object, flat and small */}
         <div className="boarding-pass-mark data-mono mb-5" aria-hidden="true">
           <span>{from}</span>
@@ -42,6 +89,7 @@ export default function CheckoutModal({ checkoutOffer, checkoutStep, fromCity, t
           </button>
         </div>
 
+        <div ref={stepRef}>
         {checkoutStep === "review" && (
           <div className="space-y-4">
             <div className="glass-chip rounded-2xl p-4">
@@ -96,6 +144,7 @@ export default function CheckoutModal({ checkoutOffer, checkoutStep, fromCity, t
             </button>
           </div>
         )}
+        </div>
       </div>
     </div>
   );

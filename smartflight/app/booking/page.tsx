@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import dynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
 import { getAirportGuide } from "../../lib/airportGuides";
 import { useOfferSearch } from "../../hooks/useOfferSearch";
@@ -19,6 +20,9 @@ import AirportGuideCards from "../../components/booking/AirportGuideCards";
 import LoyaltyCardTips from "../../components/booking/LoyaltyCardTips";
 import CheckoutModal from "../../components/booking/CheckoutModal";
 import { formatMoney } from "../../lib/offerUtils";
+
+// Client-only scroll choreography — see components/ScrollFX.tsx
+const ScrollFX = dynamic(() => import("../../components/ScrollFX"), { ssr: false });
 
 const BrandLogo = ({ className = "" }: { className?: string }) => (
   <div className={`relative overflow-hidden ${className}`}>
@@ -84,6 +88,7 @@ function BookingPageClient() {
 
   return (
     <main className="min-h-screen bg-[var(--paper-50)] text-foreground">
+      <ScrollFX />
       <header className="glass-nav sticky top-0 z-40">
         <div className="mx-auto flex h-16 w-full max-w-[min(100%,88rem)] items-center justify-between px-5">
           <BrandLogo className="h-10 w-36 md:h-11 md:w-44" />
@@ -99,7 +104,7 @@ function BookingPageClient() {
       </header>
 
       <section className="mx-auto w-full max-w-[min(100%,88rem)] px-4 py-6 sm:px-5">
-        <div className="glass-panel mb-4 rounded-2xl p-4 md:p-5">
+        <div data-fx-quick className="glass-panel mb-4 rounded-2xl p-4 md:p-5">
           <p className="text-xs font-semibold uppercase tracking-wide text-[#2563eb]">Why shop on Tern</p>
           <p className="mt-2 text-sm font-medium text-foreground md:text-base">
             Compare cheapest fares, fastest trips, earliest arrivals, AI-balanced picks, smart connection deals, and delay-risk signals—then book with points or cash in one flow.
@@ -109,7 +114,7 @@ function BookingPageClient() {
           </p>
         </div>
 
-        <div className="glass-panel rounded-[26px] p-4 md:p-5">
+        <div data-fx-quick className="glass-panel rounded-[26px] p-4 md:p-5">
           <div className="mb-3 grid gap-2 md:grid-cols-[1.1fr_1.1fr_0.9fr_0.9fr_auto]">
             <div className="glass-chip data-mono rounded-xl px-4 py-3 text-sm font-semibold">{fromCity} ({from})</div>
             <div className="glass-chip data-mono rounded-xl px-4 py-3 text-sm font-semibold">{toCity} ({to})</div>
@@ -201,24 +206,32 @@ function BookingPageClient() {
           </div>
         )}
 
-        <PriceTrendChart
-          priceChartData={priceTrend.priceChartData}
-          chartLoading={priceTrend.chartLoading}
-          onLoadTrend={priceTrend.loadTrend}
-          cheapestDatePoint={priceTrend.cheapestDatePoint}
-        />
+        <div data-fx-card>
+          <PriceTrendChart
+            priceChartData={priceTrend.priceChartData}
+            chartLoading={priceTrend.chartLoading}
+            onLoadTrend={priceTrend.loadTrend}
+            cheapestDatePoint={priceTrend.cheapestDatePoint}
+          />
+        </div>
 
-        <PriceAlertPanel
-          alerts={priceAlerts.alerts}
-          alertPrice={priceAlerts.alertPrice}
-          setAlertPrice={priceAlerts.setAlertPrice}
-          onAddAlert={priceAlerts.addAlert}
-          onDeleteAlert={priceAlerts.deleteAlert}
-        />
+        <div data-fx-card>
+          <PriceAlertPanel
+            alerts={priceAlerts.alerts}
+            alertPrice={priceAlerts.alertPrice}
+            setAlertPrice={priceAlerts.setAlertPrice}
+            onAddAlert={priceAlerts.addAlert}
+            onDeleteAlert={priceAlerts.deleteAlert}
+          />
+        </div>
 
-        <AirportGuideCards departureGuide={departureGuide} arrivalGuide={arrivalGuide} from={from} to={to} />
+        <div data-fx-card>
+          <AirportGuideCards departureGuide={departureGuide} arrivalGuide={arrivalGuide} from={from} to={to} />
+        </div>
 
-        <LoyaltyCardTips />
+        <div data-fx-card>
+          <LoyaltyCardTips />
+        </div>
       </section>
 
       <CheckoutModal

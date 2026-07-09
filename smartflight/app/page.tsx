@@ -30,7 +30,10 @@ type PricePoint = { date: string; price: number; fullDate: string; isSelected: b
 
 // Lazy, client-only: the 3D scene must never block first paint — the
 // headline and search form are usable before this finishes loading.
-const HeroSceneTern = dynamic(() => import("../components/HeroSceneTern"), { ssr: false });
+// Renders as a drei <View> into the site-wide canvas (see GlobalCanvas).
+const HeroTernView = dynamic(() => import("../components/canvas/HeroTernView"), { ssr: false });
+const RouteArcView = dynamic(() => import("../components/canvas/RouteArcView"), { ssr: false });
+const ScrollFX = dynamic(() => import("../components/ScrollFX"), { ssr: false });
 
 const PlaneIcon = () => (
   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -626,6 +629,8 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-background text-foreground">
+      {/* Scroll choreography: reveals for [data-fx-*] elements below */}
+      <ScrollFX />
       {/* Navigation — one glass bar, two states: dark fill over the twilight
           hero at the top, light fill once it sits over light content */}
       <nav className={`fixed top-0 left-0 right-0 z-50 ${navOverHero ? "glass-nav-dark" : "glass-nav"}`}>
@@ -685,10 +690,10 @@ export default function Home() {
         <div className="hero-stars" aria-hidden="true" />
 
         {/* Signature sequence: glass tern → boarding pass */}
-        <HeroSceneTern />
+        <HeroTernView />
 
         {/* ── Hero content (centered) ── */}
-        <div style={{
+        <div className="hero-content" style={{
           position: 'relative', zIndex: 10,
           display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
           minHeight: '100vh',
@@ -768,7 +773,7 @@ export default function Home() {
             'linear-gradient(180deg, var(--horizon-500) 0%, color-mix(in srgb, var(--horizon-500) 40%, var(--paper-50)) 30%, color-mix(in srgb, var(--horizon-500) 12%, var(--paper-50)) 62%, var(--paper-50) 100%)',
         }}
       >
-        <div className="max-w-4xl mx-auto px-6 flex items-center justify-center gap-5 text-center md:text-left">
+        <div data-fx-head className="max-w-4xl mx-auto px-6 flex items-center justify-center gap-5 text-center md:text-left">
           <svg width="34" height="34" viewBox="0 0 24 24" fill="none" aria-hidden="true" className="hidden md:block shrink-0">
             <path d="M2 15 L22 8 L12 12.5 L9.5 4.5 L7.5 5.5 L9 13.5 Z" fill="var(--dusk-700)" />
           </svg>
@@ -785,14 +790,14 @@ export default function Home() {
           content bar, glass-chip sponsored tag (kept for disclosure). */}
       <section className="py-14" style={{ background: 'var(--paper-50)' }}>
         <div className="max-w-6xl mx-auto px-6">
-          <div className="mb-8">
+          <div data-fx-head className="mb-8">
             <h2 className="text-3xl font-bold text-foreground">Explore the best offers for you</h2>
             <p className="text-muted mt-2">Curated fare campaigns and destination promotions from partner airlines.</p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-5">
             {bestOfferCards.map((offer) => (
-              <article key={offer.title} className="relative h-56 rounded-2xl overflow-hidden shadow-lg group cursor-pointer">
+              <article data-fx-card key={offer.title} className="relative h-56 rounded-2xl overflow-hidden shadow-lg group cursor-pointer">
                 <div
                   className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
                   style={{ backgroundImage: `url(${offer.image})` }}
@@ -819,14 +824,14 @@ export default function Home() {
           promo code is data (like flight numbers), so it gets the mono chip. */}
       <section className="glass-boost py-12 bg-white border-y" style={{ borderColor: 'rgba(27,42,82,0.08)' }}>
         <div className="max-w-6xl mx-auto px-6">
-          <div className="mb-8">
+          <div data-fx-head className="mb-8">
             <h2 className="text-3xl font-bold text-foreground">Exclusive Flight Coupons for Smarter Travelers</h2>
             <p className="text-muted mt-2">Ad-ready coupon placements for airline promotions and future in-app monetization.</p>
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {couponAds.map((coupon) => (
-              <article key={coupon.code} className="glass-panel relative rounded-2xl p-4 transition-shadow hover:shadow-md">
+              <article data-fx-card key={coupon.code} className="glass-panel relative rounded-2xl p-4 transition-shadow hover:shadow-md">
                 <div className="flex items-start justify-between gap-3">
                   <span className="glass-chip rounded-full px-2.5 py-1 data-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-muted">
                     Sponsored
@@ -875,13 +880,17 @@ export default function Home() {
         style={{ background: 'linear-gradient(180deg, color-mix(in srgb, var(--contrail-300) 14%, #ffffff) 0%, #ffffff 100%)' }}
       >
         <div className="max-w-6xl mx-auto px-6">
-          <div className="text-center mb-12">
+          <div data-fx-head className="text-center mb-6">
             <h2 className="text-3xl font-bold text-foreground">Explore Top Destinations</h2>
             <p className="text-muted mt-2">Get exclusive flight deals to your favorite cities</p>
           </div>
+          {/* Ink route arc traced on by scroll — the section's 3D moment */}
+          <RouteArcView />
           <div className="grid md:grid-cols-3 gap-6">
             {destinationDeals.map((deal) => (
-              <DestinationCard key={deal.city} deal={deal} />
+              <div data-fx-card key={deal.city}>
+                <DestinationCard deal={deal} />
+              </div>
             ))}
           </div>
         </div>
@@ -890,12 +899,12 @@ export default function Home() {
       {/* Most Popular Airlines */}
       <section className="glass-boost py-16" style={{ background: 'var(--paper-50)' }}>
         <div className="max-w-6xl mx-auto px-6">
-          <div className="text-center mb-10">
+          <div data-fx-head className="text-center mb-10">
             <h2 className="text-3xl font-bold text-foreground">Most Popular Airlines</h2>
             <p className="text-muted mt-2">Choose a carrier to see the fastest schedule and airline information</p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-4">
+          <div data-fx-card className="grid md:grid-cols-3 gap-4">
             {popularAirlines.map((airline) => {
               const isActive = selectedAirlineKey === airline.key;
               return (
@@ -999,7 +1008,7 @@ export default function Home() {
               { value: "200+", label: "Airlines" },
               { value: "4.9", label: "User Rating" },
             ].map((stat) => (
-              <div key={stat.label} className="glass-chip rounded-2xl px-4 py-5 text-center">
+              <div data-fx-card key={stat.label} className="glass-chip rounded-2xl px-4 py-5 text-center">
                 <p className="data-mono text-3xl md:text-4xl font-bold text-foreground">{stat.value}</p>
                 <p className="text-sm text-muted mt-1">{stat.label}</p>
               </div>
@@ -1012,7 +1021,7 @@ export default function Home() {
       {!showResults && (
         <section className="glass-boost py-20" style={{ background: 'var(--paper-50)' }}>
           <div className="max-w-5xl mx-auto px-6">
-            <div className="flex items-center justify-between mb-10">
+            <div data-fx-head className="flex items-center justify-between mb-10">
               <h2 className="text-3xl font-bold text-foreground">Choose Your Perfect Flight</h2>
               <div className="flex items-center gap-3">
                 <span className="text-sm text-muted">Show Offers</span>
@@ -1023,8 +1032,8 @@ export default function Home() {
             </div>
             <div className="space-y-4">
               {sampleFlights.map((flight) => (
+                <div data-fx-card key={flight.id}>
                 <FlightTicketCard
-                  key={flight.id}
                   airline={flight.airline}
                   airlineLogo={flight.airlineLogo}
                   cabinClass={flight.cabinClass}
@@ -1038,6 +1047,7 @@ export default function Home() {
                   stops={flight.stops}
                   price={flight.price}
                 />
+                </div>
               ))}
             </div>
           </div>

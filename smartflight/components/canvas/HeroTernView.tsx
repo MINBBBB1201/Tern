@@ -1,25 +1,32 @@
 "use client";
+/* eslint-disable react-hooks/immutability, react-hooks/refs --
+   Imperative three.js scene graph: objects are constructed once (lazy ref
+   init, sanctioned by the React docs) and mutated per-frame inside
+   useFrame callbacks, which is how react-three-fiber animation works.
+   The React Compiler rules assume render-path data flow that does not
+   apply to a WebGL scene graph. */
 import { useEffect, useRef, useState } from "react";
+import { useFrame, useThree } from "@react-three/fiber";
+import { View, PerspectiveCamera } from "@react-three/drei";
 import * as THREE from "three";
 
 /**
- * Civil Twilight signature sequence.
+ * Civil Twilight signature sequence — R3F port of the original raw-Three
+ * HeroSceneTern (same keypoints, phase timings, materials, and math).
  *
  * A low-poly translucent glass Arctic Tern crosses the hero along a
  * great-circle arc; its wingtrail condenses into the floating glass
  * boarding pass — one continuous object changing form, not two cuts.
  *
- * Raw Three.js, following the renderer/lighting/resize/cleanup
- * conventions established in components/AirplaneCursor.tsx (no R3F).
- * Mounted client-only via dynamic(..., { ssr: false }) in app/page.tsx,
- * so browser APIs are safe in lazy useState initializers.
+ * Rendered as a drei <View> into the site-wide canvas (GlobalCanvasInner)
+ * instead of owning a WebGL context: one GPU pipeline for the whole site,
+ * and the settled pass can react to page scroll (Phase C drifts with the
+ * hero as it leaves the viewport, handing motion off to the sections
+ * below). Mounted client-only via dynamic(..., { ssr: false }).
  */
 
 type PathPoint = { x: number; y: number };
 
-// Great-circle-style arc in fractional hero coordinates (0..1, y-down):
-// enters high over the "night" band, crests, and descends to the point
-// where the boarding pass crystallizes.
 const KEYPOINTS: PathPoint[] = [
   { x: -0.06, y: 0.36 },
   { x: 0.22, y: 0.16 },
@@ -36,6 +43,7 @@ const CONTRAIL = new THREE.Color("#8FE0E8");
 const PASS_W = 1.9;
 const PASS_H = 0.85;
 const TRAIL_N = 120;
+const TERN_SCALE = 0.6;
 
 /** Catmull-Rom sample through the flight-path keypoints. */
 function samplePath(points: PathPoint[], t: number): PathPoint {
@@ -292,7 +300,7 @@ const BARCODE = [3, 1, 2, 1, 3, 2, 1, 1, 3, 1, 2, 3, 1, 2, 1, 3, 1, 1, 2, 3, 1, 
 function StaticBoardingPass() {
   return (
     <div aria-hidden="true" style={{ position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none", zIndex: 2 }}>
-      <div style={{ position: "absolute", left: "50%", top: "9%", transform: "translateX(-50%)" }}>
+      <div className="boarding-pass-static-wrap" style={{ position: "absolute", left: "50%", transform: "translateX(-50%)" }}>
         <div className="boarding-pass-static" style={{ width: "min(86vw, 380px)", padding: "16px 20px 14px", color: "var(--paper-50)" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
             <span className="hero-headline" style={{ fontSize: 17, fontWeight: 700, letterSpacing: "0.02em" }}>TERN</span>
@@ -331,57 +339,14 @@ function StaticBoardingPass() {
   );
 }
 
-/* ── WebGL scene ── */
+/* ── The animated scene ── */
 
-export default function HeroSceneTern() {
-  const mountRef = useRef<HTMLDivElement>(null);
-  const [isStatic] = useState(
-    () =>
-      window.innerWidth < 768 ||
-      (navigator.hardwareConcurrency ?? 8) <= 4 ||
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches
-  );
-
-  useEffect(() => {
-    if (isStatic || !mountRef.current) return;
-    const mountEl = mountRef.current;
-    let disposed = false;
-
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(45, Math.max(mountEl.clientWidth / Math.max(mountEl.clientHeight, 1), 0.5), 0.1, 1000);
-    camera.position.set(0, 0, 6);
-
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setSize(mountEl.clientWidth, mountEl.clientHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.setClearColor(0x000000, 0);
-    mountEl.appendChild(renderer.domElement);
-
-    // Civil-twilight lighting: warm horizon key from below, cool sky rim.
-    scene.add(new THREE.AmbientLight(0x2a3a66, 1.4));
-    const warm = new THREE.DirectionalLight(0xf2934d, 1.7);
-    warm.position.set(2, -3, 4);
-    scene.add(warm);
-    const cool = new THREE.DirectionalLight(0x8fe0e8, 1.3);
-    cool.position.set(-3, 4, 2);
-    scene.add(cool);
-    const front = new THREE.DirectionalLight(0xffffff, 0.55);
-    front.position.set(0, 0, 5);
-    scene.add(front);
-
-    // Fractional hero coords → world point on the z=0 plane (resize-safe).
-    const raycaster = new THREE.Raycaster();
-    const zPlane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
-    const ndc = new THREE.Vector2();
-    const unproject = (p: PathPoint, out: THREE.Vector3) => {
-      ndc.set(p.x * 2 - 1, 1 - p.y * 2);
-      raycaster.setFromCamera(ndc, camera);
-      raycaster.ray.intersectPlane(zPlane, out);
-      return out;
-    };
-
-    // ── One glass material language for tern AND pass ──
-    const glassMat = new THREE.MeshPhysicalMaterial({
+/** Imperative scene assembly, ported verbatim from the raw-Three version.
+ *  Called once per mount (lazy ref init) — everything it returns is
+ *  mutable per-frame state, which is why it lives outside React's
+ *  memoization (three.js objects are mutated in useFrame by design). */
+function buildScene() {
+  const glassMat = new THREE.MeshPhysicalMaterial({
       color: 0xdfeef5,
       metalness: 0.05,
       roughness: 0.12,
@@ -393,12 +358,10 @@ export default function HeroSceneTern() {
     });
     const edgeMat = new THREE.LineBasicMaterial({ color: CONTRAIL, transparent: true, opacity: 0.85 });
 
-    // ── Tern ──
     const tern = new THREE.Group();
     const bodyGeo = buildTernBody();
-    const bodyMesh = new THREE.Mesh(bodyGeo, glassMat);
-    const bodyEdges = new THREE.LineSegments(new THREE.EdgesGeometry(bodyGeo, 12), edgeMat);
-    tern.add(bodyMesh, bodyEdges);
+    tern.add(new THREE.Mesh(bodyGeo, glassMat));
+    tern.add(new THREE.LineSegments(new THREE.EdgesGeometry(bodyGeo, 12), edgeMat));
 
     const wingGeos: THREE.BufferGeometry[] = [];
     const wingGroups: THREE.Group[] = [];
@@ -412,11 +375,9 @@ export default function HeroSceneTern() {
       wingGroups.push(wing);
       tern.add(wing);
     }
-    const TERN_SCALE = 0.6;
     tern.scale.setScalar(TERN_SCALE);
-    scene.add(tern);
 
-    // ── Wingtrail ──
+    // Wingtrail
     const trailPos = new Float32Array(TRAIL_N * 3);
     const trailCol = new Float32Array(TRAIL_N * 3);
     const trailGeo = new THREE.BufferGeometry();
@@ -433,11 +394,8 @@ export default function HeroSceneTern() {
     const trail = new THREE.Points(trailGeo, trailMat);
     trail.frustumCulled = false;
     trail.visible = false;
-    scene.add(trail);
-    let trailFilled = 0;
-    const trailSnapshot = new Float32Array(TRAIL_N * 3);
 
-    // ── Boarding pass — crystallized light from the tern's path ──
+    // Boarding pass — crystallized light from the tern's path
     const pass = new THREE.Group();
     const slabGeo = new THREE.ExtrudeGeometry(roundedRectShape(PASS_W, PASS_H, 0.09), {
       depth: 0.045,
@@ -453,39 +411,117 @@ export default function HeroSceneTern() {
       side: THREE.DoubleSide,
       depthWrite: false,
     });
-    const slab = new THREE.Mesh(slabGeo, slabMat);
     const passEdgeMat = new THREE.LineBasicMaterial({ color: CONTRAIL, transparent: true, opacity: 0 });
-    const slabEdges = new THREE.LineSegments(new THREE.EdgesGeometry(slabGeo, 30), passEdgeMat);
-    pass.add(slab, slabEdges);
+    pass.add(new THREE.Mesh(slabGeo, slabMat));
+    pass.add(new THREE.LineSegments(new THREE.EdgesGeometry(slabGeo, 30), passEdgeMat));
 
     const faceCanvas = document.createElement("canvas");
     drawPassFace(faceCanvas);
     const faceTex = new THREE.CanvasTexture(faceCanvas);
     faceTex.colorSpace = THREE.SRGBColorSpace;
-    faceTex.anisotropy = renderer.capabilities.getMaxAnisotropy();
-    // Redraw once the real display/mono webfonts are ready.
-    document.fonts?.ready.then(() => {
-      if (disposed) return;
-      drawPassFace(faceCanvas);
-      faceTex.needsUpdate = true;
-    });
     const faceMat = new THREE.MeshBasicMaterial({ map: faceTex, transparent: true, opacity: 0, depthWrite: false });
-    const face = new THREE.Mesh(new THREE.PlaneGeometry(PASS_W, PASS_H), faceMat);
+    const faceGeo = new THREE.PlaneGeometry(PASS_W, PASS_H);
+    const face = new THREE.Mesh(faceGeo, faceMat);
     face.position.z = 0.032;
     pass.add(face);
     pass.visible = false;
-    scene.add(pass);
 
-    // ── Animation ──
-    let animId = 0;
-    const start = performance.now();
-    const posA = new THREE.Vector3();
-    const posB = new THREE.Vector3();
-    const settleWorld = new THREE.Vector3();
-    const tailLocal = new THREE.Vector3();
-    let flapPhase = 0;
-    let lastNow = start;
-    let snapshotTaken = false;
+  const root = new THREE.Group();
+  root.add(tern, trail, pass);
+
+  return {
+    root, tern, wingGroups, wingGeos, bodyGeo,
+    trail, trailGeo, trailPos, trailCol, trailMat,
+    pass, slabGeo, slabMat, passEdgeMat, faceGeo, faceMat, faceTex, faceCanvas,
+    glassMat, edgeMat,
+  };
+}
+
+function TernSequence() {
+  const camera = useThree((s) => s.camera);
+  const gl = useThree((s) => s.gl);
+
+  // Lazy ref init: refs are the mutable container React sanctions, and
+  // this entire object graph is per-frame-mutable three.js state.
+  const builtRef = useRef<ReturnType<typeof buildScene> | null>(null);
+  if (builtRef.current === null) builtRef.current = buildScene();
+  const built = builtRef.current;
+
+  // Anisotropy needs the live renderer; fonts redraw the face when ready.
+  useEffect(() => {
+    built.faceTex.anisotropy = gl.capabilities.getMaxAnisotropy();
+    built.faceTex.needsUpdate = true;
+    let disposed = false;
+    document.fonts?.ready.then(() => {
+      if (disposed) return;
+      drawPassFace(built.faceCanvas);
+      built.faceTex.needsUpdate = true;
+    });
+    return () => {
+      disposed = true;
+      built.bodyGeo.dispose();
+      built.wingGeos.forEach((g) => g.dispose());
+      built.trailGeo.dispose();
+      built.slabGeo.dispose();
+      built.faceGeo.dispose();
+      [built.glassMat, built.edgeMat, built.trailMat, built.slabMat, built.passEdgeMat, built.faceMat].forEach((m) => m.dispose());
+      built.faceTex.dispose();
+      built.root.traverse((obj) => {
+        if (obj instanceof THREE.LineSegments) obj.geometry.dispose();
+      });
+    };
+  }, [built, gl]);
+
+  // Animation state (refs, not React state — mutated per frame)
+  const anim = useRef({
+    start: -1,
+    lastNow: 0,
+    flapPhase: 0,
+    trailFilled: 0,
+    snapshotTaken: false,
+    trailSnapshot: new Float32Array(TRAIL_N * 3),
+    heroEl: null as Element | null,
+  });
+  const tmpRef = useRef<{
+    posA: THREE.Vector3; posB: THREE.Vector3; settleWorld: THREE.Vector3;
+    tailLocal: THREE.Vector3; raycaster: THREE.Raycaster; zPlane: THREE.Plane; ndc: THREE.Vector2;
+  } | null>(null);
+  if (tmpRef.current === null) {
+    tmpRef.current = {
+      posA: new THREE.Vector3(),
+      posB: new THREE.Vector3(),
+      settleWorld: new THREE.Vector3(),
+      tailLocal: new THREE.Vector3(),
+      raycaster: new THREE.Raycaster(),
+      zPlane: new THREE.Plane(new THREE.Vector3(0, 0, 1), 0),
+      ndc: new THREE.Vector2(),
+    };
+  }
+  const { posA, posB, settleWorld, tailLocal, raycaster, zPlane, ndc } = tmpRef.current;
+
+  useFrame(() => {
+    const a = anim.current;
+    const {
+      tern, wingGroups, trail, trailGeo, trailPos, trailCol,
+      pass, slabMat, passEdgeMat, faceMat, glassMat, edgeMat,
+    } = built;
+
+    const now = performance.now();
+    if (a.start < 0) {
+      a.start = now;
+      a.lastNow = now;
+    }
+    const elapsed = now - a.start;
+    const dt = Math.min((now - a.lastNow) / 1000, 0.05);
+    a.lastNow = now;
+
+    // Fractional hero coords → world point on the z=0 plane (resize-safe).
+    const unproject = (p: PathPoint, out: THREE.Vector3) => {
+      ndc.set(p.x * 2 - 1, 1 - p.y * 2);
+      raycaster.setFromCamera(ndc, camera);
+      raycaster.ray.intersectPlane(zPlane, out);
+      return out;
+    };
 
     const orientTern = (t: number) => {
       unproject(samplePath(KEYPOINTS, t), posA);
@@ -501,144 +537,150 @@ export default function HeroSceneTern() {
       return heading;
     };
 
-    const animate = (now: number) => {
-      animId = requestAnimationFrame(animate);
-      const elapsed = now - start;
-      const dt = Math.min((now - lastNow) / 1000, 0.05);
-      lastNow = now;
-      unproject(SETTLE, settleWorld);
+    unproject(SETTLE, settleWorld);
 
-      if (elapsed < FLIGHT_MS) {
-        // Phase A — flight along the great-circle arc
-        const p = easeInOutSine(clamp01(elapsed / FLIGHT_MS));
-        orientTern(p * HANDOFF_T);
-        flapPhase += dt * (11 - 5 * p);
-        const amp = 0.62 - 0.25 * p;
-        wingGroups[0].rotation.x = Math.sin(flapPhase) * amp - 0.12;
-        wingGroups[1].rotation.x = -(Math.sin(flapPhase) * amp - 0.12);
+    if (elapsed < FLIGHT_MS) {
+      // Phase A — flight along the great-circle arc
+      const p = easeInOutSine(clamp01(elapsed / FLIGHT_MS));
+      orientTern(p * HANDOFF_T);
+      a.flapPhase += dt * (11 - 5 * p);
+      const amp = 0.62 - 0.25 * p;
+      wingGroups[0].rotation.x = Math.sin(a.flapPhase) * amp - 0.12;
+      wingGroups[1].rotation.x = -(Math.sin(a.flapPhase) * amp - 0.12);
 
-        // emit trail from the tail
-        tailLocal.set(-0.9, 0.1, 0).applyEuler(tern.rotation).multiplyScalar(TERN_SCALE).add(tern.position);
-        trailPos.copyWithin(3, 0, (TRAIL_N - 1) * 3);
-        trailPos[0] = tailLocal.x;
-        trailPos[1] = tailLocal.y;
-        trailPos[2] = tailLocal.z;
-        trailFilled = Math.min(trailFilled + 1, TRAIL_N);
-        for (let i = 0; i < TRAIL_N; i++) {
-          const fade = i < trailFilled ? Math.pow(1 - i / TRAIL_N, 2.2) : 0;
-          trailCol[i * 3] = 0.62 * fade;
-          trailCol[i * 3 + 1] = 0.92 * fade;
-          trailCol[i * 3 + 2] = 0.96 * fade;
-        }
-        trail.visible = true;
-        trailGeo.attributes.position.needsUpdate = true;
-        trailGeo.attributes.color.needsUpdate = true;
-      } else if (elapsed < FLIGHT_MS + HANDOFF_MS) {
-        // Phase B — the hand-off: trail condenses, tern folds into the pass
-        const q = easeOutCubic(clamp01((elapsed - FLIGHT_MS) / HANDOFF_MS));
+      // emit trail from the tail
+      tailLocal.set(-0.9, 0.1, 0).applyEuler(tern.rotation).multiplyScalar(TERN_SCALE).add(tern.position);
+      trailPos.copyWithin(3, 0, (TRAIL_N - 1) * 3);
+      trailPos[0] = tailLocal.x;
+      trailPos[1] = tailLocal.y;
+      trailPos[2] = tailLocal.z;
+      a.trailFilled = Math.min(a.trailFilled + 1, TRAIL_N);
+      for (let i = 0; i < TRAIL_N; i++) {
+        const fade = i < a.trailFilled ? Math.pow(1 - i / TRAIL_N, 2.2) : 0;
+        trailCol[i * 3] = 0.62 * fade;
+        trailCol[i * 3 + 1] = 0.92 * fade;
+        trailCol[i * 3 + 2] = 0.96 * fade;
+      }
+      trail.visible = true;
+      trailGeo.attributes.position.needsUpdate = true;
+      trailGeo.attributes.color.needsUpdate = true;
+    } else if (elapsed < FLIGHT_MS + HANDOFF_MS) {
+      // Phase B — the hand-off: trail condenses, tern folds into the pass
+      const q = easeOutCubic(clamp01((elapsed - FLIGHT_MS) / HANDOFF_MS));
 
-        const heading = orientTern(HANDOFF_T + q * (1 - HANDOFF_T));
-        // fold wings, shrink and dissolve as the pass takes over
-        const fold = smoothstep(q, 0.05, 0.6);
-        wingGroups[0].rotation.x = -0.12 * (1 - fold);
-        wingGroups[1].rotation.x = 0.12 * (1 - fold);
-        wingGroups[0].scale.z = 1 - 0.75 * fold;
-        wingGroups[1].scale.z = 1 - 0.75 * fold;
-        tern.scale.setScalar(TERN_SCALE * (1 - 0.94 * smoothstep(q, 0.25, 0.95)));
-        const dissolve = 1 - smoothstep(q, 0.4, 0.92);
-        glassMat.opacity = 0.34 * dissolve;
-        edgeMat.opacity = 0.85 * dissolve;
-        tern.visible = dissolve > 0.01;
+      const heading = orientTern(HANDOFF_T + q * (1 - HANDOFF_T));
+      // fold wings, shrink and dissolve as the pass takes over
+      const fold = smoothstep(q, 0.05, 0.6);
+      wingGroups[0].rotation.x = -0.12 * (1 - fold);
+      wingGroups[1].rotation.x = 0.12 * (1 - fold);
+      wingGroups[0].scale.z = 1 - 0.75 * fold;
+      wingGroups[1].scale.z = 1 - 0.75 * fold;
+      tern.scale.setScalar(TERN_SCALE * (1 - 0.94 * smoothstep(q, 0.25, 0.95)));
+      const dissolve = 1 - smoothstep(q, 0.4, 0.92);
+      glassMat.opacity = 0.34 * dissolve;
+      edgeMat.opacity = 0.85 * dissolve;
+      tern.visible = dissolve > 0.01;
 
-        if (!snapshotTaken) {
-          trailSnapshot.set(trailPos);
-          snapshotTaken = true;
-        }
-        // trail particles converge onto the pass outline — crystallizing
-        for (let i = 0; i < TRAIL_N; i++) {
-          const s = smoothstep(q, 0.04 + 0.5 * (i / TRAIL_N), 0.44 + 0.5 * (i / TRAIL_N));
-          const o = outlinePoint(i / TRAIL_N * 2.0 + 0.13, PASS_W, PASS_H);
-          const tx = settleWorld.x + o.x;
-          const ty = settleWorld.y + o.y;
-          trailPos[i * 3] = trailSnapshot[i * 3] + (tx - trailSnapshot[i * 3]) * s;
-          trailPos[i * 3 + 1] = trailSnapshot[i * 3 + 1] + (ty - trailSnapshot[i * 3 + 1]) * s;
-          trailPos[i * 3 + 2] = trailSnapshot[i * 3 + 2] * (1 - s);
-          const base = i < trailFilled ? Math.pow(1 - i / TRAIL_N, 2.2) : 0;
-          const glow = base * (1 - s) + (i < trailFilled ? 0.85 * s * (1 - q) : 0);
-          trailCol[i * 3] = 0.62 * glow;
-          trailCol[i * 3 + 1] = 0.92 * glow;
-          trailCol[i * 3 + 2] = 0.96 * glow;
-        }
-        trailGeo.attributes.position.needsUpdate = true;
-        trailGeo.attributes.color.needsUpdate = true;
-        trail.visible = q < 0.995;
+      if (!a.snapshotTaken) {
+        a.trailSnapshot.set(trailPos);
+        a.snapshotTaken = true;
+      }
+      // trail particles converge onto the pass outline — crystallizing
+      for (let i = 0; i < TRAIL_N; i++) {
+        const s = smoothstep(q, 0.04 + 0.5 * (i / TRAIL_N), 0.44 + 0.5 * (i / TRAIL_N));
+        const o = outlinePoint(i / TRAIL_N * 2.0 + 0.13, PASS_W, PASS_H);
+        const tx = settleWorld.x + o.x;
+        const ty = settleWorld.y + o.y;
+        trailPos[i * 3] = a.trailSnapshot[i * 3] + (tx - a.trailSnapshot[i * 3]) * s;
+        trailPos[i * 3 + 1] = a.trailSnapshot[i * 3 + 1] + (ty - a.trailSnapshot[i * 3 + 1]) * s;
+        trailPos[i * 3 + 2] = a.trailSnapshot[i * 3 + 2] * (1 - s);
+        const base = i < a.trailFilled ? Math.pow(1 - i / TRAIL_N, 2.2) : 0;
+        const glow = base * (1 - s) + (i < a.trailFilled ? 0.85 * s * (1 - q) : 0);
+        trailCol[i * 3] = 0.62 * glow;
+        trailCol[i * 3 + 1] = 0.92 * glow;
+        trailCol[i * 3 + 2] = 0.96 * glow;
+      }
+      trailGeo.attributes.position.needsUpdate = true;
+      trailGeo.attributes.color.needsUpdate = true;
+      trail.visible = q < 0.995;
 
-        // pass grows from a sliver aligned with the flight direction
-        const g = clamp01((q - 0.1) / 0.9);
-        if (g > 0) {
-          pass.visible = true;
-          const grow = easeOutBackSoft(g);
-          pass.position.copy(settleWorld);
-          pass.scale.set(0.08 + 0.92 * grow, 0.05 + 0.95 * easeOutBackSoft(clamp01(g * 1.18)), 1);
-          const align = 1 - easeOutCubic(g);
-          pass.rotation.set(-0.06 * (1 - align), -0.5 * align - 0.18 * (1 - align), heading * align);
-          slabMat.opacity = 0.15 * g;
-          passEdgeMat.opacity = 0.8 * g;
-          faceMat.opacity = Math.pow(g, 1.6);
-        }
-      } else {
-        // Phase C — settled: slow float + gentle rotation, faint text pulse
-        if (tern.visible) tern.visible = false;
-        if (trail.visible) trail.visible = false;
+      // pass grows from a sliver aligned with the flight direction
+      const g = clamp01((q - 0.1) / 0.9);
+      if (g > 0) {
         pass.visible = true;
-        const ti = (elapsed - FLIGHT_MS - HANDOFF_MS) / 1000;
-        pass.scale.set(1, 1, 1);
-        pass.position.set(settleWorld.x, settleWorld.y + Math.sin(ti * 0.9) * 0.05, 0);
-        pass.rotation.set(-0.06 + Math.sin(ti * 0.27) * 0.04, -0.18 + Math.sin(ti * 0.35) * 0.12, 0);
-        slabMat.opacity = 0.15;
-        passEdgeMat.opacity = 0.8;
-        faceMat.opacity = 0.9 + 0.1 * Math.sin(ti * 1.3);
+        const grow = easeOutBackSoft(g);
+        pass.position.copy(settleWorld);
+        pass.scale.set(0.08 + 0.92 * grow, 0.05 + 0.95 * easeOutBackSoft(clamp01(g * 1.18)), 1);
+        const align = 1 - easeOutCubic(g);
+        pass.rotation.set(-0.06 * (1 - align), -0.5 * align - 0.18 * (1 - align), heading * align);
+        slabMat.opacity = 0.15 * g;
+        passEdgeMat.opacity = 0.8 * g;
+        faceMat.opacity = Math.pow(g, 1.6);
+      }
+    } else {
+      // Phase C — settled: slow float + gentle rotation, faint text pulse,
+      // plus a scroll hand-off: as the hero leaves the viewport the pass
+      // rises a touch faster than the page and dims, passing motion to the
+      // scroll-driven sections below.
+      if (tern.visible) tern.visible = false;
+      if (trail.visible) trail.visible = false;
+      pass.visible = true;
+
+      if (!a.heroEl?.isConnected) {
+        a.heroEl = document.querySelector(".hero-twilight");
+      }
+      let scrollOut = 0; // 0 = hero fully on screen, 1 = fully scrolled past
+      if (a.heroEl) {
+        const r = a.heroEl.getBoundingClientRect();
+        scrollOut = clamp01(-r.top / Math.max(r.height, 1));
       }
 
-      renderer.render(scene, camera);
-    };
-    animId = requestAnimationFrame(animate);
+      const ti = (elapsed - FLIGHT_MS - HANDOFF_MS) / 1000;
+      pass.scale.set(1, 1, 1);
+      pass.position.set(
+        settleWorld.x,
+        settleWorld.y + Math.sin(ti * 0.9) * 0.05 + scrollOut * 1.6,
+        0
+      );
+      pass.rotation.set(
+        -0.06 + Math.sin(ti * 0.27) * 0.04 - scrollOut * 0.35,
+        -0.18 + Math.sin(ti * 0.35) * 0.12,
+        0
+      );
+      const dim = 1 - smoothstep(scrollOut, 0.35, 0.9);
+      slabMat.opacity = 0.15 * dim;
+      passEdgeMat.opacity = 0.8 * dim;
+      faceMat.opacity = (0.9 + 0.1 * Math.sin(ti * 1.3)) * dim;
+    }
+  });
 
-    const handleResize = () => {
-      camera.aspect = mountEl.clientWidth / Math.max(mountEl.clientHeight, 1);
-      camera.updateProjectionMatrix();
-      renderer.setSize(mountEl.clientWidth, mountEl.clientHeight);
-    };
-    window.addEventListener("resize", handleResize);
+  return <primitive object={built.root} />;
+}
 
-    return () => {
-      disposed = true;
-      cancelAnimationFrame(animId);
-      window.removeEventListener("resize", handleResize);
-      if (mountEl.contains(renderer.domElement)) {
-        mountEl.removeChild(renderer.domElement);
-      }
-      bodyGeo.dispose();
-      wingGeos.forEach((g) => g.dispose());
-      trailGeo.dispose();
-      slabGeo.dispose();
-      face.geometry.dispose();
-      [glassMat, edgeMat, trailMat, slabMat, passEdgeMat, faceMat].forEach((m) => m.dispose());
-      faceTex.dispose();
-      scene.traverse((obj) => {
-        if (obj instanceof THREE.LineSegments) obj.geometry.dispose();
-      });
-      renderer.dispose();
-    };
-  }, [isStatic]);
+/* ── Public component: gate + View ── */
+
+export default function HeroTernView() {
+  const [isStatic] = useState(
+    () =>
+      window.innerWidth < 768 ||
+      (navigator.hardwareConcurrency ?? 8) <= 4 ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  );
 
   if (isStatic) return <StaticBoardingPass />;
 
   return (
-    <div
-      ref={mountRef}
+    <View
       aria-hidden="true"
-      style={{ position: "absolute", inset: 0, width: "100%", height: "100%", zIndex: 2, pointerEvents: "none" }}
-    />
+      style={{ position: "absolute", inset: 0, pointerEvents: "none" }}
+    >
+      <PerspectiveCamera makeDefault fov={45} position={[0, 0, 6]} near={0.1} far={1000} />
+      {/* Civil-twilight lighting: warm horizon key from below, cool sky rim. */}
+      <ambientLight color={0x2a3a66} intensity={1.4} />
+      <directionalLight color={0xf2934d} intensity={1.7} position={[2, -3, 4]} />
+      <directionalLight color={0x8fe0e8} intensity={1.3} position={[-3, 4, 2]} />
+      <directionalLight color={0xffffff} intensity={0.55} position={[0, 0, 5]} />
+      <TernSequence />
+    </View>
   );
 }
