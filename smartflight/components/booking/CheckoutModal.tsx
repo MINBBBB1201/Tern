@@ -16,6 +16,7 @@ type CheckoutModalProps = {
   toCity: string;
   onAdvanceToBook: () => void;
   onClose: () => void;
+  aviasalesUrl: string | null;
 };
 
 export default function CheckoutModal(props: CheckoutModalProps) {
@@ -25,7 +26,7 @@ export default function CheckoutModal(props: CheckoutModalProps) {
   return <CheckoutModalShell {...props} checkoutOffer={props.checkoutOffer} />;
 }
 
-function CheckoutModalShell({ checkoutOffer, checkoutStep, fromCity, toCity, from, to, onAdvanceToBook, onClose }: CheckoutModalProps & { checkoutOffer: Offer }) {
+function CheckoutModalShell({ checkoutOffer, checkoutStep, fromCity, toCity, from, to, onAdvanceToBook, onClose, aviasalesUrl }: CheckoutModalProps & { checkoutOffer: Offer }) {
   const rootRef = useRef<HTMLDivElement>(null);
   const stepRef = useRef<HTMLDivElement>(null);
 
@@ -191,6 +192,27 @@ function CheckoutModalShell({ checkoutOffer, checkoutStep, fromCity, toCity, fro
             >
               {checkoutLoading ? "Opening secure checkout…" : "Continue to secure checkout"}
             </button>
+            {/* Second revenue path (Travelpayouts). Same honesty bar as the Duffel
+                copy above: the deep link is search-level, so it opens an Aviasales
+                search for this route/date — the exact offer does not carry over. */}
+            {aviasalesUrl && (
+              <div className="space-y-2">
+                <p className="text-xs text-muted">
+                  Prefer to compare first? The link below opens an Aviasales search for{" "}
+                  <strong>{from} → {to}</strong> on your dates — you&apos;ll re-select your
+                  flight there, and prices may differ. It&apos;s an affiliate link: Tern may
+                  earn a commission at no extra cost to you.
+                </p>
+                <a
+                  href={aviasalesUrl}
+                  target="_blank"
+                  rel="sponsored noopener noreferrer"
+                  className="block w-full rounded-2xl border border-[#d5dfec] py-3 text-center text-sm font-semibold hover:bg-gray-50 transition-colors"
+                >
+                  Compare on Aviasales ↗
+                </a>
+              </div>
+            )}
             <button
               type="button"
               onClick={onClose}

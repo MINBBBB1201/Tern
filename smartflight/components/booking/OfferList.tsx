@@ -12,9 +12,10 @@ type OfferListProps = {
   cheapestDirect: Offer | null;
   cheapestConnecting: Offer | null;
   onSelectOffer: (offer: Offer) => void;
+  aviasalesUrl: string | null;
 };
 
-export default function OfferList({ offers, from, to, cabinClass, cheapestDirect, cheapestConnecting, onSelectOffer }: OfferListProps) {
+export default function OfferList({ offers, from, to, cabinClass, cheapestDirect, cheapestConnecting, onSelectOffer, aviasalesUrl }: OfferListProps) {
   const [expandedOfferId, setExpandedOfferId] = useState<string | null>(null);
 
   if (offers.length === 0) return null;
@@ -37,6 +38,14 @@ export default function OfferList({ offers, from, to, cabinClass, cheapestDirect
         </div>
       )}
 
+      {/* Affiliate disclosure — must precede the per-card Aviasales links */}
+      {aviasalesUrl && (
+        <p className="text-xs text-muted">
+          &ldquo;Compare on Aviasales&rdquo; links are affiliate links: they open an Aviasales
+          search for your route and dates, and Tern may earn a commission at no extra cost to you.
+        </p>
+      )}
+
       {offers.map((offer) => (
         <OfferCard
           key={offer.id}
@@ -47,6 +56,7 @@ export default function OfferList({ offers, from, to, cabinClass, cheapestDirect
           from={from}
           to={to}
           cabinClass={cabinClass}
+          aviasalesUrl={aviasalesUrl}
         />
       ))}
     </div>

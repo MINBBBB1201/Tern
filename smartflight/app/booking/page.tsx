@@ -6,6 +6,7 @@ import Image from "next/image";
 import dynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
 import { getAirportGuide } from "../../lib/airportGuides";
+import { buildAviasalesLink } from "../../lib/affiliateLinks";
 import { useOfferSearch } from "../../hooks/useOfferSearch";
 import { useOfferFilters } from "../../hooks/useOfferFilters";
 import { usePriceAlerts } from "../../hooks/usePriceAlerts";
@@ -61,6 +62,24 @@ function BookingPageClient() {
 
   const departureGuide = useMemo(() => getAirportGuide(from), [from]);
   const arrivalGuide = useMemo(() => getAirportGuide(to), [to]);
+
+  // Aviasales affiliate deep link (second revenue path alongside Duffel Links).
+  // Search-level only: it pre-fills route/dates/pax/cabin on Aviasales, not the
+  // specific offer — the CTAs are worded as "compare", never "book this flight".
+  const aviasalesUrl = useMemo(
+    () =>
+      buildAviasalesLink({
+        from,
+        to,
+        departureDate,
+        returnDate: tripType === "oneway" ? "" : returnDate,
+        adults,
+        children,
+        infants,
+        cabinClass,
+      }),
+    [from, to, departureDate, returnDate, tripType, adults, children, infants, cabinClass]
+  );
 
   const { results, loading, error, fetchOffers } = useOfferSearch({
     from,
@@ -202,6 +221,7 @@ function BookingPageClient() {
             cheapestDirect={filters.cheapestDirect}
             cheapestConnecting={filters.cheapestConnecting}
             onSelectOffer={checkout.openCheckout}
+            aviasalesUrl={aviasalesUrl}
           />
         )}
 
@@ -254,6 +274,7 @@ function BookingPageClient() {
         toCity={toCity}
         onAdvanceToBook={checkout.advanceToBook}
         onClose={checkout.closeCheckout}
+        aviasalesUrl={aviasalesUrl}
       />
     </main>
   );

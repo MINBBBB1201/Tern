@@ -21,9 +21,10 @@ type OfferCardProps = {
   from: string;
   to: string;
   cabinClass: string;
+  aviasalesUrl: string | null;
 };
 
-function OfferCardImpl({ offer, isExpanded, onToggleExpand, onSelect, from, to, cabinClass }: OfferCardProps) {
+function OfferCardImpl({ offer, isExpanded, onToggleExpand, onSelect, from, to, cabinClass, aviasalesUrl }: OfferCardProps) {
   const delayRisk = computeDelayRiskScore(offer);
   const riskColor = delayRisk < 25 ? "text-success-strong" : delayRisk < 55 ? "text-warning-strong" : "text-danger-strong";
   const aircraftImg = getAircraftImage(offer.aircraftIata);
@@ -110,6 +111,18 @@ function OfferCardImpl({ offer, isExpanded, onToggleExpand, onSelect, from, to, 
               Select
             </button>
           </div>
+          {/* Second revenue path: search-level deep link, so it can only open an
+              Aviasales search for this route/date — "compare", not "book this". */}
+          {aviasalesUrl && (
+            <a
+              href={aviasalesUrl}
+              target="_blank"
+              rel="sponsored noopener noreferrer"
+              className="text-[11px] font-medium text-primary-hover hover:underline"
+            >
+              Compare on Aviasales ↗
+            </a>
+          )}
         </div>
       </div>
 
@@ -184,7 +197,8 @@ const OfferCard = memo(OfferCardImpl, (prev, next) => {
     prev.isExpanded === next.isExpanded &&
     prev.from === next.from &&
     prev.to === next.to &&
-    prev.cabinClass === next.cabinClass
+    prev.cabinClass === next.cabinClass &&
+    prev.aviasalesUrl === next.aviasalesUrl
   );
 });
 
