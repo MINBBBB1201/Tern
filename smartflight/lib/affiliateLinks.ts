@@ -1,11 +1,16 @@
 // Travelpayouts / Aviasales affiliate deep link — a pure URL template, no API.
 // The tp.media redirect wraps an Aviasales search URL and credits the click to
-// our marker. Format confirmed against Travelpayouts' docs (July 2026):
+// our marker:
 //   https://tp.media/r?campaign_id=..&marker=..&p=..&trs=..&u=<encoded inner URL>
-//   inner: https://search.aviasales.com/flights/?origin_iata=..&destination_iata=..
-//          &depart_date=YYYY-MM-DD[&return_date=YYYY-MM-DD]&adults=..&children=..
-//          &infants=..&trip_class=0|1|2&locale=en&one_way=true|false
-// Round trip = return_date present AND one_way=false; one-way = one_way=true.
+//   inner: https://www.aviasales.com/search/{ORIGIN}{DDMM}{DEST}[{DDMM}][class]{pax}
+//
+// Why the route-code format and not the documented query-param one
+// (search.aviasales.com/flights/?origin_iata=..&locale=en&..): that host now
+// 302s to the aviasales.ru homepage and drops every param — Russian UI, empty
+// search (verified July 2026). Aviasales picks language by DOMAIN, not by a
+// locale param, so pinning www.aviasales.com is what actually forces English.
+// The route code is what Aviasales' own search UI generates; verified in a
+// real browser to land on .com, lang="en", pre-filled, with live fares.
 //
 // NEXT_PUBLIC_ prefix is required: the link is assembled in client components,
 // and these IDs are not secrets — they are visible in the final URL anyway.
@@ -17,13 +22,22 @@ const TP_CONFIG = {
   trs: process.env.NEXT_PUBLIC_TRAVELPAYOUTS_TRS,
 };
 
-// Aviasales trip_class: Economy=0, Business=1, First=2. Premium economy has no
-// documented value in this format, so it falls back to economy.
-const TRIP_CLASS: Record<string, string> = {
-  economy: "0",
-  premium_economy: "0",
-  business: "1",
-  first: "2",
+// Route-code cabin letters (airline booking-class convention). Economy is the
+// default and takes no letter. Aviasales normalizes "b" to "c" for business;
+// we emit the canonical letters it generates itself. "w" renders as "Comfort"
+// (their premium-economy label).
+const CABIN_LETTER: Record<string, string> = {
+  economy: "",
+  premium_economy: "w",
+  business: "c",
+  first: "f",
+};
+
+// YYYY-MM-DD → DDMM (route codes carry no year; Aviasales reads them as the
+// next occurrence within 12 months, which always matches a flight search).
+const toDDMM = (isoDate: string): string | null => {
+  const m = isoDate.match(/^\d{4}-(\d{2})-(\d{2})$/);
+  return m ? `${m[2]}${m[1]}` : null;
 };
 
 export type AviasalesLinkParams = {
@@ -45,21 +59,24 @@ export const buildAviasalesLink = (params: AviasalesLinkParams): string | null =
   if (!campaignId || !marker || !p || !trs) return null;
   if (!params.from || !params.to || !params.departureDate) return null;
 
-  const isRoundTrip = Boolean(params.returnDate);
+  const departDDMM = toDDMM(params.departureDate);
+  if (!departDDMM) return null;
+  const returnDDMM = params.returnDate ? toDDMM(params.returnDate) : "";
+  if (params.returnDate && !returnDDMM) return null;
 
-  const inner = new URLSearchParams({
-    origin_iata: params.from.toUpperCase(),
-    destination_iata: params.to.toUpperCase(),
-    depart_date: params.departureDate,
-    ...(isRoundTrip ? { return_date: params.returnDate! } : {}),
-    adults: String(params.adults || 1),
-    children: String(params.children || 0),
-    infants: String(params.infants || 0),
-    trip_class: TRIP_CLASS[params.cabinClass || "economy"] ?? "0",
-    locale: "en",
-    one_way: String(!isRoundTrip),
-  });
-  const innerUrl = `https://search.aviasales.com/flights/?${inner.toString()}`;
+  const cabin = CABIN_LETTER[params.cabinClass || "economy"] ?? "";
+
+  // Passenger digits: adults, then children, then infants — trailing zeros
+  // are omitted the way Aviasales' own URLs do (1 adult economy = "...NRT1").
+  const children = params.children || 0;
+  const infants = params.infants || 0;
+  const pax =
+    String(params.adults || 1) +
+    (children || infants ? String(children) : "") +
+    (infants ? String(infants) : "");
+
+  const routeCode = `${params.from.toUpperCase()}${departDDMM}${params.to.toUpperCase()}${returnDDMM}${cabin}${pax}`;
+  const innerUrl = `https://www.aviasales.com/search/${routeCode}`;
 
   const outer = new URLSearchParams({
     campaign_id: campaignId,
