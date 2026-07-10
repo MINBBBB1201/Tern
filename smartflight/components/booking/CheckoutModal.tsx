@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { buildBookingPrograms, dateLabel, durationLabel, formatMoney, type Offer } from "../../lib/offerUtils";
@@ -28,6 +28,38 @@ export default function CheckoutModal(props: CheckoutModalProps) {
 function CheckoutModalShell({ checkoutOffer, checkoutStep, fromCity, toCity, from, to, onAdvanceToBook, onClose }: CheckoutModalProps & { checkoutOffer: Offer }) {
   const rootRef = useRef<HTMLDivElement>(null);
   const stepRef = useRef<HTMLDivElement>(null);
+
+  // Duffel Links handoff (TEST MODE / DEMO): payment and ticketing happen on
+  // Duffel's hosted checkout, never in Tern. We mint a session server-side,
+  // then navigate the whole tab there — Duffel redirects back to /booking
+  // with `order_id` on success. Runs against the test token today; goes live
+  // by swapping the env token once the business-side activation is resolved.
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
+
+  const startHostedCheckout = async () => {
+    setCheckoutLoading(true);
+    setCheckoutError(null);
+    try {
+      const res = await fetch("/api/checkout-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          reference: checkoutOffer.id,
+          currency: checkoutOffer.currency,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.url) {
+        throw new Error("Could not create a checkout session");
+      }
+      window.location.assign(data.url);
+      // Keep the spinner while the browser navigates away.
+    } catch {
+      setCheckoutError("Couldn't open the secure checkout. Please try again.");
+      setCheckoutLoading(false);
+    }
+  };
 
   // "Sliding through glass": backdrop frosts in while the pass-shaped
   // panel rises with real perspective depth and settles. Step changes
@@ -127,14 +159,38 @@ function CheckoutModalShell({ checkoutOffer, checkoutStep, fromCity, toCity, fro
 
         {checkoutStep === "book" && (
           <div className="space-y-4">
+            {/* Honest handoff copy: Duffel Links opens a fresh search — the
+                selected offer does NOT carry over (confirmed against the live
+                API; only currency and branding transfer). Never imply the
+                exact flight is pre-loaded and ready to pay for. */}
             <p className="text-sm text-muted">
-              You&apos;re about to book with <strong>{checkoutOffer.airline || "Partner Airline"}</strong> for{" "}
-              <strong>{formatMoney(Number(checkoutOffer.price), checkoutOffer.currency)}</strong>.
-              This is a demo — no real booking will be made.
+              Payment and ticketing are handled by our secure checkout partner, Duffel.
+              Your selection doesn&apos;t carry over automatically — on the next page,
+              search <strong>{from} → {to}</strong> again and re-select your flight:
             </p>
-            <div className="rounded-2xl border border-[color-mix(in_srgb,var(--color-success)_30%,white)] bg-success-subtle p-4 text-sm text-success-strong">
-              ✅ Booking confirmed (demo). Check your email for confirmation details.
+            <div className="glass-chip rounded-2xl p-4 text-sm">
+              <p className="font-semibold">{checkoutOffer.airline || "Partner Airline"}</p>
+              <p className="text-muted">
+                {fromCity} ({from}) → {toCity} ({to}) · {dateLabel(checkoutOffer.departure)}
+              </p>
+              <p className="text-muted">
+                Around {formatMoney(Number(checkoutOffer.price), checkoutOffer.currency)} — final price is shown at checkout
+              </p>
             </div>
+            <div className="glass-chip rounded-2xl p-4 text-sm text-muted">
+              🧪 <strong>Test mode</strong> — this demo checkout accepts test cards only and issues no real tickets.
+            </div>
+            {checkoutError && (
+              <p className="text-sm text-red-600" role="alert">{checkoutError}</p>
+            )}
+            <button
+              type="button"
+              onClick={startHostedCheckout}
+              disabled={checkoutLoading}
+              className="w-full rounded-2xl bg-primary py-3 text-sm font-bold text-white hover:bg-primary/90 transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {checkoutLoading ? "Opening secure checkout…" : "Continue to secure checkout"}
+            </button>
             <button
               type="button"
               onClick={onClose}

@@ -55,6 +55,10 @@ function BookingPageClient() {
 
   const totalPassengers = adults + children + infants;
 
+  // Duffel Links return leg (test-mode demo): on a completed hosted checkout,
+  // Duffel redirects back here with `order_id` + `reference` appended.
+  const linkOrderId = searchParams.get("order_id");
+
   const departureGuide = useMemo(() => getAirportGuide(from), [from]);
   const arrivalGuide = useMemo(() => getAirportGuide(to), [to]);
 
@@ -104,6 +108,13 @@ function BookingPageClient() {
       </header>
 
       <section className="mx-auto w-full max-w-[min(100%,88rem)] px-4 py-6 sm:px-5">
+        {linkOrderId && (
+          <div className="glass-panel mb-4 rounded-2xl border border-[color-mix(in_srgb,var(--color-success)_30%,white)] bg-success-subtle p-4 text-sm text-success-strong">
+            ✅ Booking confirmed on Tern&apos;s secure checkout (test mode — no real ticket issued).{" "}
+            <span className="data-mono">Order {linkOrderId}</span>
+          </div>
+        )}
+
         <div data-fx-quick className="glass-panel mb-4 rounded-2xl p-4 md:p-5">
           <p className="text-xs font-semibold uppercase tracking-wide text-[#2563eb]">Why shop on Tern</p>
           <p className="mt-2 text-sm font-medium text-foreground md:text-base">
