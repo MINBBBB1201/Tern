@@ -50,10 +50,13 @@ export async function POST(req: NextRequest) {
         data: {
           // Ties the Duffel order back to the offer the user picked in Tern.
           // Links can't deep-link a specific offer or pre-fill the search —
-          // confirmed empirically: the API silently discards injected
-          // origin/destination/date fields and the hosted UI opens with an
-          // empty search form. Only traveller_currency and branding carry
-          // over, so this reference is our only reconciliation handle.
+          // re-confirmed July 2026 against the live API and the official JS
+          // client's SessionParameters type: injected origin/destination/date
+          // fields are silently discarded and the hosted UI opens with an
+          // empty search form. The API's one deep-link field, `open_path`,
+          // is Stays-only (changelog 2024-07-01) and 422s on flights-style
+          // paths. Only traveller_currency and branding carry over, so this
+          // reference is our only reconciliation handle.
           reference: reference || `tern-demo-${Date.now()}`,
           success_url: returnUrl,
           failure_url: returnUrl,
