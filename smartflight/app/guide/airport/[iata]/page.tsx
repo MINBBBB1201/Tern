@@ -56,6 +56,34 @@ export default async function AirportGuidePage({ params }: Props) {
           </ul>
         </section>
 
+        <section id="accessibility" className="mt-6 rounded-2xl border border-[#e1eaf6] bg-white p-6 shadow-sm">
+          <h2 className="text-lg font-bold">Accessibility & special assistance</h2>
+          <p className="mt-2 text-sm text-muted leading-relaxed">{guide.accessibility.summary}</p>
+          <ul className="mt-4 space-y-3">
+            {guide.accessibility.services.map((s) => (
+              <li key={s.label} className="text-sm">
+                <span className="font-semibold">{s.label}</span>
+                <span className="text-muted"> — {s.detail}</span>
+              </li>
+            ))}
+          </ul>
+          {guide.accessibility.officialLinks.length > 0 && (
+            <div className="mt-4 flex flex-wrap gap-2">
+              {guide.accessibility.officialLinks.map((l) => (
+                <a
+                  key={l.href}
+                  href={l.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rounded-full border border-[#dbe5f3] px-3 py-1.5 text-xs font-semibold text-primary hover:bg-[#f8fbff]"
+                >
+                  {l.label} ↗
+                </a>
+              ))}
+            </div>
+          )}
+        </section>
+
         <h2 className="mt-12 text-xl font-bold">Ground transport</h2>
         <p className="mt-2 text-sm text-muted">
           Taxi vs bus vs rail depends on group size, luggage, and traffic. Always verify prices at official desks or trusted apps.

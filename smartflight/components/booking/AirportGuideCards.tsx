@@ -19,12 +19,20 @@ export default function AirportGuideCards({ departureGuide, arrivalGuide, from, 
         <div key={idx} className="glass-panel rounded-[20px] p-5">
           <p className="mb-1 text-sm font-semibold">{guide.name}</p>
           <p className="text-xs text-muted mb-3">{guide.summary}</p>
-          <Link
-            href={`/guide/airport/${idx === 0 ? from : to}`}
-            className="inline-flex items-center gap-1 rounded-full bg-[#eff5ff] px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary hover:text-white transition-colors"
-          >
-            Airport guide →
-          </Link>
+          <div className="flex flex-wrap items-center gap-2">
+            <Link
+              href={`/guide/airport/${idx === 0 ? from : to}`}
+              className="inline-flex items-center gap-1 rounded-full bg-[#eff5ff] px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary hover:text-white transition-colors"
+            >
+              Airport guide →
+            </Link>
+            <Link
+              href={`/guide/airport/${idx === 0 ? from : to}#accessibility`}
+              className="inline-flex items-center gap-1 rounded-full border border-[#dbe5f3] px-3 py-1.5 text-xs font-medium text-muted hover:text-primary hover:border-primary transition-colors"
+            >
+              ♿ Accessibility
+            </Link>
+          </div>
         </div>
       ))}
     </div>

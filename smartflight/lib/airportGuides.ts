@@ -12,6 +12,17 @@ export type AirportTransitSection = {
   officialLinks?: { label: string; href: string }[];
 };
 
+export type AccessibilityService = {
+  label: string;
+  detail: string;
+};
+
+export type AirportAccessibility = {
+  summary: string;
+  services: AccessibilityService[];
+  officialLinks: { label: string; href: string }[];
+};
+
 export type AirportGuide = {
   iata: string;
   name: string;
@@ -22,6 +33,7 @@ export type AirportGuide = {
   beforeYouFly: string[];
   afterYouLand: string[];
   transit: Record<TransitMode, AirportTransitSection>;
+  accessibility: AirportAccessibility;
 };
 
 const DEFAULT_GUIDE = (iata: string): AirportGuide => ({
@@ -75,6 +87,16 @@ const DEFAULT_GUIDE = (iata: string): AirportGuide => ({
       ],
     },
   },
+  accessibility: {
+    summary:
+      "Contact your airline at least 48 hours before travel to arrange wheelchair or mobility assistance—airports provide the on-the-ground service, but airlines coordinate the request. Most major international airports offer free wheelchair loans, accessible restrooms, and staff assistance through security and to the gate.",
+    services: [
+      { label: "Wheelchair assistance", detail: "Request through your airline in advance; most airports also have loaner wheelchairs at information desks for walk-ups." },
+      { label: "Accessible restrooms", detail: "Available throughout most terminals—ask any staff member or check terminal maps." },
+      { label: "Assistance animals", detail: "Generally welcome; check your airline's and destination country's documentation requirements ahead of travel." },
+    ],
+    officialLinks: [],
+  },
 });
 
 const GUIDES: Record<string, AirportGuide> = {
@@ -126,6 +148,18 @@ const GUIDES: Record<string, AirportGuide> = {
         avoidScams: [],
       },
     },
+    accessibility: {
+      summary:
+        "Rated among the world's most accessible airports. Free wheelchair rental (including power-assist and electric models), dedicated priority lanes for reduced-mobility travelers, and an electric shuttle between the long-term parking lot and terminal.",
+      services: [
+        { label: "Wheelchair rental", detail: "Free manual and electric wheelchairs near Gates 7–8 (3rd floor, Terminal 1); help phones throughout connect directly to the nearest information desk." },
+        { label: "Priority lane for reduced mobility", detail: "Verify eligibility at your airline's check-in counter to receive a Priority Card, then use the dedicated security lane." },
+        { label: "Electric vehicle transport", detail: "Free EV shuttle for wheelchair users between long-term parking and the terminal." },
+      ],
+      officialLinks: [
+        { label: "Incheon Airport accessibility services", href: "https://www.airport.kr/ap_en/1478/subview.do" },
+      ],
+    },
   },
   NRT: {
     iata: "NRT",
@@ -167,6 +201,18 @@ const GUIDES: Record<string, AirportGuide> = {
         avoidScams: [],
       },
     },
+    accessibility: {
+      summary:
+        "Free wheelchair loans at every terminal information counter, dedicated assistance staff reachable 24/7 via help intercoms, and daily mobility-equipment rental (manual/electric wheelchairs, scooters, strollers) at Terminal 1.",
+      services: [
+        { label: "Wheelchair rental", detail: "Free at any terminal information counter; return to the nearest counter when finished." },
+        { label: "24/7 assistance intercom", detail: "Intercoms throughout the terminals connect directly to staff who will escort you to check-in." },
+        { label: "Mobility equipment rental (MoVA by ANA)", detail: "Daily rental of electric wheelchairs and scooters at Terminal 1, South Wing 1F." },
+      ],
+      officialLinks: [
+        { label: "Narita Airport — Customers Requiring Assistance", href: "https://www.narita-airport.jp/en/bf/" },
+      ],
+    },
   },
   HND: {
     iata: "HND",
@@ -201,6 +247,18 @@ const GUIDES: Record<string, AirportGuide> = {
         ],
         avoidScams: [],
       },
+    },
+    accessibility: {
+      summary:
+        "Step-free access throughout all three terminals with elevators between every floor. 'Care-Fitter' trained staff provide special assistance, plus quiet 'Calm Down, Cool Down' spaces and free sunflower lanyards for non-visible disabilities.",
+      services: [
+        { label: "Special assistance reservation", detail: "Book online in advance or call +81-3-5757-8111; Care-Fitter staff assist with check-in, security, and boarding." },
+        { label: "Hidden Disabilities Sunflower", detail: "Free lanyards available at Information Counters to signal staff that you may need extra help." },
+        { label: "Calm Down, Cool Down spaces", detail: "Quiet retreat areas for travelers who are overwhelmed or need sensory relief—check the airport map for current locations." },
+      ],
+      officialLinks: [
+        { label: "Haneda Airport — Customers Requiring Special Assistance", href: "https://tokyo-haneda.com/en/service/barrier-free_information/index.html" },
+      ],
     },
   },
   JFK: {
@@ -240,6 +298,18 @@ const GUIDES: Record<string, AirportGuide> = {
         avoidScams: [],
       },
     },
+    accessibility: {
+      summary:
+        "Wheelchair and mobility services must be requested through your airline (ideally 48–72h ahead) rather than the airport directly. All restrooms, AirTrain, and Service Animal Relief Areas are accessible; note user reports of long wheelchair-service wait times, especially at peak hours—build in buffer time.",
+      services: [
+        { label: "Wheelchair service", detail: "Request via your airline in advance; reconfirm at the check-in counter on arrival. Waits can exceed an hour at peak times per traveler reports." },
+        { label: "TSA Cares", detail: "Request assistance getting through the security checkpoint by submitting the TSA Cares form in advance." },
+        { label: "Service Animal Relief Areas (SARAs)", detail: "Indoor and outdoor relief areas available at all terminals, before and after security." },
+      ],
+      officialLinks: [
+        { label: "JFK Airport accessibility services", href: "https://www.jfkairport.com/explore-jfk/accessibility-services" },
+      ],
+    },
   },
   LHR: {
     iata: "LHR",
@@ -276,6 +346,18 @@ const GUIDES: Record<string, AirportGuide> = {
         ],
         avoidScams: [],
       },
+    },
+    accessibility: {
+      summary:
+        "Dedicated Assistance areas (staffed by 'Heathrow Helpers' in purple) in every terminal, free sunflower lanyards for non-visible disabilities, and accessible lifts throughout—escalators aren't suitable for wheelchairs or heavy bags. All 22,000 licensed London black cabs have wheelchair access.",
+      services: [
+        { label: "Pre-book assistance", detail: "Tell your airline at least 48 hours before travel; Heathrow's Assistance team will meet you at dedicated areas in each terminal." },
+        { label: "Sunflower lanyard", detail: "Free for non-visible disabilities—signals staff you may need extra help, available at Assistance areas." },
+        { label: "Help points", detail: "Located throughout car parks, drop-off points, and transport stations; press to reach the Assistance team directly, or call +44 (0)20 8757 2700." },
+      ],
+      officialLinks: [
+        { label: "Heathrow — Assistance and accessibility", href: "https://www.heathrow.com/at-the-airport/assistance-and-accessibility" },
+      ],
     },
   },
 };
