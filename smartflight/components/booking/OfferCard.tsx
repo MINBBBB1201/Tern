@@ -3,6 +3,8 @@
 import { memo } from "react";
 import Image from "next/image";
 import { useHoverTilt } from "../../hooks/useHoverTilt";
+import { LayoverBadge } from "./LayoverBadge";
+import { AirportWeatherChip } from "./AirportWeatherChip";
 import { getAircraftImage, getAircraftName } from "../../lib/aircraftImages";
 import {
   buildBookingPrograms,
@@ -62,6 +64,7 @@ function OfferCardImpl({ offer, isExpanded, onToggleExpand, onSelect, from, to, 
           <div className="text-center">
             <p className="data-mono text-xl font-bold">{timeLabel(offer.departure)}</p>
             <p className="text-xs text-muted">{offer.originAirport || from}</p>
+            <AirportWeatherChip iataCode={offer.originAirport || from} />
           </div>
           <div className="flex flex-col items-center gap-0.5 flex-1 min-w-[80px]">
             <p className="data-mono text-xs text-muted">{durationLabel(offer.duration)}</p>
@@ -77,6 +80,7 @@ function OfferCardImpl({ offer, isExpanded, onToggleExpand, onSelect, from, to, 
           <div className="text-center">
             <p className="data-mono text-xl font-bold">{timeLabel(offer.arrival)}</p>
             <p className="text-xs text-muted">{offer.destinationAirport || to}</p>
+            <AirportWeatherChip iataCode={offer.destinationAirport || to} />
           </div>
         </div>
 
@@ -137,19 +141,33 @@ function OfferCardImpl({ offer, isExpanded, onToggleExpand, onSelect, from, to, 
               <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">Flight segments</p>
               {(offer.segments || []).length > 0 ? (
                 <div className="space-y-2">
-                  {offer.segments!.map((seg, i) => (
-                    <div key={i} className="glass-chip rounded-xl p-3 text-xs">
-                      <div className="flex items-center justify-between">
-                        <span className="font-semibold">{seg.origin} → {seg.destination}</span>
-                        <span className="data-mono text-muted">{durationLabel(seg.duration)}</span>
+                  {offer.segments!.map((seg, i) => {
+                    const nextSeg = offer.segments![i + 1];
+                    return (
+                      <div key={i}>
+                        <div className="glass-chip rounded-xl p-3 text-xs">
+                          <div className="flex items-center justify-between">
+                            <span className="font-semibold">{seg.origin} → {seg.destination}</span>
+                            <span className="data-mono text-muted">{durationLabel(seg.duration)}</span>
+                          </div>
+                          <div className="data-mono mt-1 flex gap-3 text-muted">
+                            <span>{timeLabel(seg.departing_at)} → {timeLabel(seg.arriving_at)}</span>
+                            <span>{seg.marketing_carrier || seg.operating_carrier || ""}</span>
+                            {seg.aircraft && <span>{seg.aircraft}</span>}
+                          </div>
+                        </div>
+                        {nextSeg && (
+                          <div className="my-1.5 flex justify-center">
+                            <LayoverBadge
+                              arrivingAt={seg.arriving_at}
+                              nextDepartingAt={nextSeg.departing_at}
+                              nextOrigin={nextSeg.origin}
+                            />
+                          </div>
+                        )}
                       </div>
-                      <div className="data-mono mt-1 flex gap-3 text-muted">
-                        <span>{timeLabel(seg.departing_at)} → {timeLabel(seg.arriving_at)}</span>
-                        <span>{seg.marketing_carrier || seg.operating_carrier || ""}</span>
-                        {seg.aircraft && <span>{seg.aircraft}</span>}
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               ) : (
                 <p className="text-xs text-muted">No segment data available.</p>

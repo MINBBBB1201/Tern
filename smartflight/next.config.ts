@@ -19,6 +19,11 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "images.kiwi.com",
       },
+      {
+        // Weather condition icons in AirportWeatherChip
+        protocol: "https",
+        hostname: "openweathermap.org",
+      },
     ],
   },
 };
