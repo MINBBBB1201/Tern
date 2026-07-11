@@ -177,7 +177,7 @@ function OfferCardImpl({ offer, isExpanded, onToggleExpand, onSelect, from, to, 
             {/* Aircraft + loyalty */}
             <div className="space-y-3">
               {aircraftImg && (
-                <div className="overflow-hidden rounded-xl border border-[var(--glass-border)]">
+                <div className="relative overflow-hidden rounded-xl border border-[var(--glass-border)]">
                   <Image
                     src={aircraftImg}
                     alt={aircraftName || "Aircraft"}
@@ -186,8 +186,22 @@ function OfferCardImpl({ offer, isExpanded, onToggleExpand, onSelect, from, to, 
                     className="h-32 w-full object-cover"
                     onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
                   />
+                  {offer.airlineLogo && (
+                    <div className="glass-chip absolute right-2 top-2 flex h-9 w-9 items-center justify-center overflow-hidden rounded-lg">
+                      <Image
+                        src={offer.airlineLogo}
+                        alt={offer.airline || "Airline"}
+                        width={30}
+                        height={30}
+                        className="object-contain"
+                        onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+                      />
+                    </div>
+                  )}
                   {aircraftName && (
-                    <p className="px-3 py-1.5 text-xs text-muted">{aircraftName}</p>
+                    <p className="px-3 py-1.5 text-xs text-muted">
+                      {offer.airline ? `${offer.airline} · ${aircraftName}` : aircraftName}
+                    </p>
                   )}
                 </div>
               )}
