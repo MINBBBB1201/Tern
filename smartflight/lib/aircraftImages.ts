@@ -25,18 +25,21 @@ export const AIRCRAFT_IMAGE_MAP: AircraftImageEntry[] = [
     name: "Airbus A321"
   },
   {
+    // Verified: "blue and white Airbus airplane" / real A330 widebody, distinct from A380/747/E-Jet
     key: /A330|33E|333|332|330/i,
-    image: "https://images.unsplash.com/photo-1583792498986-c8c61f49e1e6?w=1200&q=85",
+    image: "https://images.unsplash.com/photo-1571138444207-dbde45f282ca?w=1200&q=85",
     name: "Airbus A330"
   },
   {
+    // Verified: real Singapore Airlines A350 widebody (Unsplash alt: "white Singapore Airlines airplane")
     key: /A350|359|35K|350/i,
-    image: "https://images.unsplash.com/photo-1540962351504-03099e0a754b?w=1200&q=85",
+    image: "https://images.unsplash.com/photo-1561461888-70c48ccb280d?w=1200&q=85",
     name: "Airbus A350"
   },
   {
+    // Verified: Unsplash alt text explicitly "Airbus A380 airplane" (double-decker, distinct from A330/747)
     key: /A380|388|380/i,
-    image: "https://images.unsplash.com/photo-1583792498986-c8c61f49e1e6?w=1200&q=85",
+    image: "https://images.unsplash.com/photo-1543903905-cee4ab46985c?w=1200&q=85",
     name: "Airbus A380"
   },
   {
@@ -45,8 +48,9 @@ export const AIRCRAFT_IMAGE_MAP: AircraftImageEntry[] = [
     name: "Boeing 737"
   },
   {
+    // Verified: real Lufthansa 747 airliner, distinct from A380/A330/E-Jet
     key: /747|748|744/i,
-    image: "https://images.unsplash.com/photo-1583792498986-c8c61f49e1e6?w=1200&q=85",
+    image: "https://images.unsplash.com/photo-1504723246034-0977641ea907?w=1200&q=85",
     name: "Boeing 747"
   },
   {
@@ -59,16 +63,23 @@ export const AIRCRAFT_IMAGE_MAP: AircraftImageEntry[] = [
     image: "https://images.unsplash.com/photo-1474302770737-173ee21bab63?w=1200&q=85",
     name: "Boeing 787 Dreamliner"
   },
-  {
-    key: /E190|E195|ERJ|E90|E95/i,
-    image: "https://images.unsplash.com/photo-1583792498986-c8c61f49e1e6?w=1200&q=85",
-    name: "Embraer E-Jet"
-  },
-  {
-    key: /A220|CS3|223/i,
-    image: "https://images.unsplash.com/photo-1464037866556-6812c9d1c72e?w=1200&q=85",
-    name: "Airbus A220"
-  },
+  // E190/E195 (Embraer regional jets) and A220 removed from this map: no
+  // Unsplash photo could be verified as actually showing these smaller
+  // narrowbody types (searches kept returning generic widebody stock).
+  // They fall through to DEFAULT_AIRCRAFT_IMAGE below rather than
+  // silently showing the wrong aircraft. Revisit if a verified source
+  // turns up.
+];
+
+
+/**
+ * Name-only fallback for types we removed from AIRCRAFT_IMAGE_MAP because
+ * no verified photo exists for them. Caption text still reads correctly;
+ * only the photo falls back to DEFAULT_AIRCRAFT_IMAGE.
+ */
+const AIRCRAFT_NAME_ONLY_MAP: { key: RegExp; name: string }[] = [
+  { key: /E190|E195|ERJ|E90|E95/i, name: "Embraer E-Jet" },
+  { key: /A220|CS3|223/i, name: "Airbus A220" },
 ];
 
 /**
@@ -91,5 +102,8 @@ export function getAircraftImage(aircraftType?: string, aircraftIata?: string): 
 export function getAircraftName(aircraftType?: string, aircraftIata?: string): string {
   const model = `${aircraftType || ""} ${aircraftIata || ""}`;
   const match = AIRCRAFT_IMAGE_MAP.find((entry) => entry.key.test(model));
-  return match?.name || aircraftType || "Commercial Aircraft";
+  if (match) return match.name;
+  const nameOnly = AIRCRAFT_NAME_ONLY_MAP.find((entry) => entry.key.test(model));
+  if (nameOnly) return nameOnly.name;
+  return aircraftType || "Commercial Aircraft";
 }
