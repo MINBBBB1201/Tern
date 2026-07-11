@@ -152,7 +152,7 @@ const GUIDES: Record<string, AirportGuide> = {
       summary:
         "Rated among the world's most accessible airports. Free wheelchair rental (including power-assist and electric models), dedicated priority lanes for reduced-mobility travelers, and an electric shuttle between the long-term parking lot and terminal.",
       services: [
-        { label: "Wheelchair rental", detail: "Free manual and electric wheelchairs near Gates 7–8 (3rd floor, Terminal 1); help phones throughout connect directly to the nearest information desk." },
+        { label: "Wheelchair rental", detail: "Free manual and electric wheelchairs near Exit 7 and Exit 8 (outside), 3rd floor, Terminal 1; help phones throughout connect directly to the nearest information desk." },
         { label: "Priority lane for reduced mobility", detail: "Verify eligibility at your airline's check-in counter to receive a Priority Card, then use the dedicated security lane." },
         { label: "Electric vehicle transport", detail: "Free EV shuttle for wheelchair users between long-term parking and the terminal." },
       ],
@@ -203,11 +203,11 @@ const GUIDES: Record<string, AirportGuide> = {
     },
     accessibility: {
       summary:
-        "Free wheelchair loans at every terminal information counter, dedicated assistance staff reachable 24/7 via help intercoms, and daily mobility-equipment rental (manual/electric wheelchairs, scooters, strollers) at Terminal 1.",
+        "Free wheelchair loans at every terminal information counter, and dedicated assistance staff reachable 24/7 via help intercoms placed throughout the terminals.",
       services: [
         { label: "Wheelchair rental", detail: "Free at any terminal information counter; return to the nearest counter when finished." },
         { label: "24/7 assistance intercom", detail: "Intercoms throughout the terminals connect directly to staff who will escort you to check-in." },
-        { label: "Mobility equipment rental (MoVA by ANA)", detail: "Daily rental of electric wheelchairs and scooters at Terminal 1, South Wing 1F." },
+        { label: "Taxi stand assistance", detail: "If you use a wheelchair, speak to staff at the taxi stand—they'll assist you into a waiting vehicle." },
       ],
       officialLinks: [
         { label: "Narita Airport — Customers Requiring Assistance", href: "https://www.narita-airport.jp/en/bf/" },
@@ -258,6 +258,7 @@ const GUIDES: Record<string, AirportGuide> = {
       ],
       officialLinks: [
         { label: "Haneda Airport — Customers Requiring Special Assistance", href: "https://tokyo-haneda.com/en/service/barrier-free_information/index.html" },
+        { label: "Haneda Airport — Special Assistance Reservation", href: "https://tokyo-haneda.com/en/service/facilities/assist.html" },
       ],
     },
   },
@@ -349,7 +350,7 @@ const GUIDES: Record<string, AirportGuide> = {
     },
     accessibility: {
       summary:
-        "Dedicated Assistance areas (staffed by 'Heathrow Helpers' in purple) in every terminal, free sunflower lanyards for non-visible disabilities, and accessible lifts throughout—escalators aren't suitable for wheelchairs or heavy bags. All 22,000 licensed London black cabs have wheelchair access.",
+        "Dedicated Assistance areas (staffed by 'Heathrow Helpers' in purple) in every terminal, free sunflower lanyards for non-visible disabilities, and accessible lifts throughout—escalators aren't suitable for wheelchairs or heavy bags. Licensed London black cabs are wheelchair accessible by law.",
       services: [
         { label: "Pre-book assistance", detail: "Tell your airline at least 48 hours before travel; Heathrow's Assistance team will meet you at dedicated areas in each terminal." },
         { label: "Sunflower lanyard", detail: "Free for non-visible disabilities—signals staff you may need extra help, available at Assistance areas." },
@@ -357,6 +358,8 @@ const GUIDES: Record<string, AirportGuide> = {
       ],
       officialLinks: [
         { label: "Heathrow — Assistance and accessibility", href: "https://www.heathrow.com/at-the-airport/assistance-and-accessibility" },
+        { label: "Heathrow — Assistance departure guide", href: "https://www.heathrow.com/at-the-airport/assistance-and-accessibility/assistance-departure-guide" },
+        { label: "Heathrow — Help in the terminal", href: "https://www.heathrow.com/at-the-airport/assistance-and-accessibility/help-in-the-terminal" },
       ],
     },
   },
