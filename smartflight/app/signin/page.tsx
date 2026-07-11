@@ -4,6 +4,21 @@ import { useRouter } from "next/navigation";
 import { signInWithGoogle, auth, onAuthStateChanged } from "../../lib/auth";
 import type { User } from "firebase/auth";
 import Link from "next/link";
+import Image from "next/image";
+
+const BrandLogo = ({ className = "" }: { className?: string }) => (
+  <div className={`relative overflow-hidden ${className}`}>
+    <Image
+      src="/logos/tern-logo-purepick.png"
+      alt="Tern"
+      fill
+      className="object-cover object-center"
+      sizes="(max-width: 768px) 160px, 220px"
+      priority
+      quality={100}
+    />
+  </div>
+);
 
 export default function SignInPage() {
   const router = useRouter();
@@ -50,9 +65,7 @@ export default function SignInPage() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <Link href="/" className="inline-block">
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-              SMARTFLIGHT
-            </h1>
+            <BrandLogo className="h-10 w-36 md:h-11 md:w-44" />
           </Link>
           <p className="mt-2 text-gray-600">Sign in to continue your journey</p>
         </div>
