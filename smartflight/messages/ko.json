@@ -25,6 +25,14 @@
     "safestLabel": "지연 위험 최저",
     "safestSub": "휴리스틱 기준 일정 안정성"
   },
+  "Hero": {
+    "title": "지평선을 쫓아서.",
+    "subtitle": "최저가, 최단 시간, 최저 지연 위험, 포인트 결합 최고 가치 요금을 검색할 때마다 나란히 비교해드려요.",
+    "statAirlines": "항공사",
+    "statRoutes": "노선",
+    "statRating": "평점",
+    "statTravelers": "여행자"
+  },
   "Search": {
     "roundTrip": "왕복",
     "oneWay": "편도",
@@ -35,7 +43,14 @@
     "cabinEconomy": "이코노미",
     "cabinPremiumEconomy": "프리미엄 이코노미",
     "cabinBusiness": "비즈니스",
-    "cabinFirst": "퍼스트 클래스"
+    "cabinFirst": "퍼스트 클래스",
+    "labelFrom": "출발지",
+    "labelTo": "도착지",
+    "labelDeparture": "출발일",
+    "labelReturn": "귀국일",
+    "labelPassengers": "탑승객",
+    "searchFlights": "항공편 검색",
+    "searching": "검색 중…"
   },
   "Offer": {
     "details": "상세보기",

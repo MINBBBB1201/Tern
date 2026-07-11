@@ -170,7 +170,8 @@ export default function SearchBar({ onSearch, loading = false, routeLineRef }: S
             {/* ── FROM field ── */}
             <div style={{ flex: "1 1 0", minWidth: 0 }}>
               <AirportField
-                label="FROM"
+                label={t("labelFrom")}
+                isOrigin
                 value={from}
                 subValue={fromCity}
                 onChange={(code, city) => { setFrom(code); setFromCity(city); }}
@@ -196,7 +197,7 @@ export default function SearchBar({ onSearch, loading = false, routeLineRef }: S
             {/* ── TO field ── */}
             <div style={{ flex: "1 1 0", minWidth: 0 }}>
               <AirportField
-                label="TO"
+                label={t("labelTo")}
                 value={to}
                 subValue={toCity}
                 onChange={(code, city) => { setTo(code); setToCity(city); }}
@@ -211,7 +212,7 @@ export default function SearchBar({ onSearch, loading = false, routeLineRef }: S
           {/* ── DEPARTURE date ── */}
           <div style={{ flex: "0 1 128px", minWidth: "110px" }}>
             <DateField
-              label="DEPARTURE"
+              label={t("labelDeparture")}
               value={departureDate}
               onChange={setDepartureDate}
             />
@@ -234,7 +235,7 @@ export default function SearchBar({ onSearch, loading = false, routeLineRef }: S
             }}
           >
             <DateField
-              label="RETURN"
+              label={t("labelReturn")}
               value={returnDate}
               onChange={setReturnDate}
               placeholder={t("returnPlaceholder")}
@@ -262,7 +263,7 @@ export default function SearchBar({ onSearch, loading = false, routeLineRef }: S
             >
               <div className="vol-label">
                 <Users size={9} strokeWidth={2.5} style={{ opacity: 0.7 }} />
-                PASSENGERS
+                {t("labelPassengers")}
               </div>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                 <span className="vol-value" style={{ fontSize: "16px", fontWeight: 700 }}>
@@ -372,12 +373,12 @@ export default function SearchBar({ onSearch, loading = false, routeLineRef }: S
                   >
                     <path d="M21 12a9 9 0 1 1-6.219-8.56" />
                   </svg>
-                  Searching…
+                  {t("searching")}
                 </>
               ) : (
                 <>
                   <Search size={15} strokeWidth={2.5} style={{ flexShrink: 0 }} />
-                  Search flights
+                  {t("searchFlights")}
                 </>
               )}
             </button>
@@ -399,13 +400,14 @@ export default function SearchBar({ onSearch, loading = false, routeLineRef }: S
 
 interface AirportFieldProps {
   label: string;
+  isOrigin?: boolean;
   value: string;
   subValue: string;
   onChange: (code: string, city: string) => void;
   placeholder?: string;
 }
 
-function AirportField({ label, value, subValue, onChange, placeholder }: AirportFieldProps) {
+function AirportField({ label, isOrigin, value, subValue, onChange, placeholder }: AirportFieldProps) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -424,7 +426,7 @@ function AirportField({ label, value, subValue, onChange, placeholder }: Airport
     setEditing(false);
   };
 
-  const isFrom = label === "FROM";
+  const isFrom = isOrigin;
 
   return (
     <button

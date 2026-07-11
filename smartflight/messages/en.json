@@ -25,6 +25,14 @@
     "safestLabel": "Lowest delay risk",
     "safestSub": "Heuristic schedule stability"
   },
+  "Hero": {
+    "title": "Chase the horizon.",
+    "subtitle": "We compare cheapest, fastest, lowest delay-risk, and best-value-with-points fares side by side, every search.",
+    "statAirlines": "Airlines",
+    "statRoutes": "Routes",
+    "statRating": "Rating",
+    "statTravelers": "Travelers"
+  },
   "Search": {
     "roundTrip": "Round trip",
     "oneWay": "One-way",
@@ -35,7 +43,14 @@
     "cabinEconomy": "Economy",
     "cabinPremiumEconomy": "Prem. Economy",
     "cabinBusiness": "Business",
-    "cabinFirst": "First Class"
+    "cabinFirst": "First Class",
+    "labelFrom": "FROM",
+    "labelTo": "TO",
+    "labelDeparture": "DEPARTURE",
+    "labelReturn": "RETURN",
+    "labelPassengers": "PASSENGERS",
+    "searchFlights": "Search flights",
+    "searching": "Searching…"
   },
   "Offer": {
     "details": "Details",

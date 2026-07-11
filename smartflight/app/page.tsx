@@ -502,6 +502,7 @@ const popularAirlines = [
 export default function Home() {
   const router = useRouter();
   const tNav = useTranslations("Nav");
+  const tHero = useTranslations("Hero");
   const [user, setUser] = useState<User | null>(null);
 
   // Search params are owned by SearchBar; page tracks last submitted for downstream use
@@ -706,7 +707,7 @@ export default function Home() {
               maxWidth: '820px',
             }}
           >
-            Chase the horizon.
+            {tHero("title")}
           </h1>
           <p
             className="animate-hero-text"
@@ -718,7 +719,7 @@ export default function Home() {
               animationDelay: '0.1s',
             }}
           >
-            We compare cheapest, fastest, lowest delay-risk, and best-value-with-points fares side by side, every search.
+            {tHero("subtitle")}
           </p>
 
           {/* Search bar */}
@@ -736,10 +737,10 @@ export default function Home() {
             }}
           >
             {[
-              { value: '500+', label: 'Airlines' },
-              { value: '2M+', label: 'Routes' },
-              { value: '4.9/5', label: 'Rating' },
-              { value: '10M+', label: 'Travelers' },
+              { value: '500+', label: tHero("statAirlines") },
+              { value: '2M+', label: tHero("statRoutes") },
+              { value: '4.9/5', label: tHero("statRating") },
+              { value: '10M+', label: tHero("statTravelers") },
             ].map(({ value, label }, i, arr) => (
               <div key={label} style={{ display: 'flex', alignItems: 'center' }}>
                 <div style={{ textAlign: 'center', padding: '0 28px' }}>

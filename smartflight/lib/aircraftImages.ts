@@ -60,11 +60,12 @@ export const AIRCRAFT_IMAGE_MAP: AircraftImageEntry[] = [
     image: "https://images.unsplash.com/photo-1542296332-2e4473faf563?w=1200&q=85",
     name: "Boeing 777"
   },
-  {
-    key: /787|788|789|78X/i,
-    image: "https://images.unsplash.com/photo-1474302770737-173ee21bab63?w=1200&q=85",
-    name: "Boeing 787 Dreamliner"
-  },
+  // 787 removed from this map: repeated verification attempts (fetching
+  // each Unsplash photo page directly) turned up only generically-tagged
+  // "airplane"/"jetliner" photos with no explicit 787 confirmation, and
+  // one ANA-tagged photo that doesn't disambiguate from ANA's 767/777
+  // fleet. Falls through to DEFAULT_AIRCRAFT_IMAGE + name-only fallback
+  // below rather than guessing again.
   // E190/E195 (Embraer regional jets) and A220 removed from this map: no
   // Unsplash photo could be verified as actually showing these smaller
   // narrowbody types (searches kept returning generic widebody stock).
@@ -80,6 +81,7 @@ export const AIRCRAFT_IMAGE_MAP: AircraftImageEntry[] = [
  * only the photo falls back to DEFAULT_AIRCRAFT_IMAGE.
  */
 const AIRCRAFT_NAME_ONLY_MAP: { key: RegExp; name: string }[] = [
+  { key: /787|788|789|78X/i, name: "Boeing 787 Dreamliner" },
   { key: /E190|E195|ERJ|E90|E95/i, name: "Embraer E-Jet" },
   { key: /A220|CS3|223/i, name: "Airbus A220" },
 ];
