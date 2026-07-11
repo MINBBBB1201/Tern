@@ -63,9 +63,9 @@ function BookingPageClient() {
   const departureGuide = useMemo(() => getAirportGuide(from), [from]);
   const arrivalGuide = useMemo(() => getAirportGuide(to), [to]);
 
-  // Aviasales affiliate deep link (second revenue path alongside Duffel Links).
-  // Search-level only: it pre-fills route/dates/pax/cabin on Aviasales, not the
-  // specific offer — the CTAs are worded as "compare", never "book this flight".
+  // White Label deep link to book.flytern.site (second revenue path alongside
+  // Duffel Links). Search-level only: it pre-fills route/dates/pax/cabin, not
+  // the specific offer — the CTAs say "book this route", never "book this flight".
   const aviasalesUrl = useMemo(
     () =>
       buildAviasalesLink({

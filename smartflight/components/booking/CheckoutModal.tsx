@@ -192,16 +192,17 @@ function CheckoutModalShell({ checkoutOffer, checkoutStep, fromCity, toCity, fro
             >
               {checkoutLoading ? "Opening secure checkout…" : "Continue to secure checkout"}
             </button>
-            {/* Second revenue path (Travelpayouts). Same honesty bar as the Duffel
-                copy above: the deep link is search-level, so it opens an Aviasales
-                search for this route/date — the exact offer does not carry over. */}
+            {/* Second revenue path (Travelpayouts White Label on our own
+                book.flytern.site). Same honesty bar as the Duffel copy above:
+                the deep link is search-level, so it opens a pre-filled search
+                for this route/date — the exact offer does not carry over. */}
             {aviasalesUrl && (
               <div className="space-y-2">
                 <p className="text-xs text-muted">
-                  Prefer to compare first? The link below opens an Aviasales search for{" "}
-                  <strong>{from} → {to}</strong> on your dates — you&apos;ll re-select your
-                  flight there, and prices may differ. It&apos;s an affiliate link: Tern may
-                  earn a commission at no extra cost to you.
+                  Or book through our booking site, book.flytern.site: the link below opens
+                  it with <strong>{from} → {to}</strong> and your dates pre-filled —
+                  you&apos;ll re-select your flight there, and prices may differ. Tern earns
+                  a commission on bookings made there, at no extra cost to you.
                 </p>
                 <a
                   href={aviasalesUrl}
@@ -209,7 +210,7 @@ function CheckoutModalShell({ checkoutOffer, checkoutStep, fromCity, toCity, fro
                   rel="sponsored noopener noreferrer"
                   className="block w-full rounded-2xl border border-[#d5dfec] py-3 text-center text-sm font-semibold hover:bg-gray-50 transition-colors"
                 >
-                  Compare on Aviasales ↗
+                  Book this route ↗
                 </a>
               </div>
             )}

@@ -111,8 +111,10 @@ function OfferCardImpl({ offer, isExpanded, onToggleExpand, onSelect, from, to, 
               Select
             </button>
           </div>
-          {/* Second revenue path: search-level deep link, so it can only open an
-              Aviasales search for this route/date — "compare", not "book this". */}
+          {/* Second revenue path: search-level deep link into our White Label
+              at book.flytern.site, so it opens a pre-filled search for this
+              route/date — the user re-selects a flight there, hence "this
+              route", never "book this flight". */}
           {aviasalesUrl && (
             <a
               href={aviasalesUrl}
@@ -120,7 +122,7 @@ function OfferCardImpl({ offer, isExpanded, onToggleExpand, onSelect, from, to, 
               rel="sponsored noopener noreferrer"
               className="text-[11px] font-medium text-primary-hover hover:underline"
             >
-              Compare on Aviasales ↗
+              Book this route ↗
             </a>
           )}
         </div>

@@ -38,11 +38,13 @@ export default function OfferList({ offers, from, to, cabinClass, cheapestDirect
         </div>
       )}
 
-      {/* Affiliate disclosure — must precede the per-card Aviasales links */}
+      {/* Commission disclosure — must precede the per-card booking links */}
       {aviasalesUrl && (
         <p className="text-xs text-muted">
-          &ldquo;Compare on Aviasales&rdquo; links are affiliate links: they open an Aviasales
-          search for your route and dates, and Tern may earn a commission at no extra cost to you.
+          &ldquo;Book this route&rdquo; opens our booking site, book.flytern.site, with your
+          route, dates, and passengers pre-filled — you&apos;ll pick your exact flight there,
+          and prices may differ. Tern earns a commission on bookings made there, at no extra
+          cost to you.
         </p>
       )}
 
