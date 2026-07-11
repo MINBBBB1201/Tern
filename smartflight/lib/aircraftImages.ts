@@ -25,15 +25,17 @@ export const AIRCRAFT_IMAGE_MAP: AircraftImageEntry[] = [
     name: "Airbus A321"
   },
   {
-    // Verified: "blue and white Airbus airplane" / real A330 widebody, distinct from A380/747/E-Jet
+    // Verified: Unsplash caption explicitly "A Qatar Airways wide-body
+    // aircraft, an Airbus A330, stationary on the airport tarmac."
     key: /A330|33E|333|332|330/i,
-    image: "https://images.unsplash.com/photo-1571138444207-dbde45f282ca?w=1200&q=85",
+    image: "https://images.unsplash.com/photo-1743637087680-7244d1287629?w=1200&q=85",
     name: "Airbus A330"
   },
   {
-    // Verified: real Singapore Airlines A350 widebody (Unsplash alt: "white Singapore Airlines airplane")
+    // Verified via direct fetch of the Unsplash photo page: photographer
+    // tags include "a350" + "singapore airlines" (Tim Dennert, Düsseldorf).
     key: /A350|359|35K|350/i,
-    image: "https://images.unsplash.com/photo-1561461888-70c48ccb280d?w=1200&q=85",
+    image: "https://images.unsplash.com/photo-1532883308578-f782356e38de?w=1200&q=85",
     name: "Airbus A350"
   },
   {
