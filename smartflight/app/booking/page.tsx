@@ -192,6 +192,10 @@ function BookingPageClient() {
           }}
         />
 
+        <div data-fx-card>
+          <AirportGuideCards departureGuide={departureGuide} arrivalGuide={arrivalGuide} from={from} to={to} />
+        </div>
+
         {/* Matched alert banner */}
         {priceAlerts.matchedAlert && (
           <div className="mt-4 rounded-2xl border border-[color-mix(in_srgb,var(--color-success)_30%,white)] bg-success-subtle p-4 text-sm text-success-strong">
@@ -259,10 +263,6 @@ function BookingPageClient() {
             onAddAlert={priceAlerts.addAlert}
             onDeleteAlert={priceAlerts.deleteAlert}
           />
-        </div>
-
-        <div data-fx-card>
-          <AirportGuideCards departureGuide={departureGuide} arrivalGuide={arrivalGuide} from={from} to={to} />
         </div>
 
         <div data-fx-card>
