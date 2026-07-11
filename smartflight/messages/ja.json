@@ -1,0 +1,71 @@
+{
+  "Nav": {
+    "home": "ホーム",
+    "booking": "予約",
+    "deals": "特典",
+    "blog": "ブログ",
+    "changeSearch": "検索を変更"
+  },
+  "WhyShop": {
+    "title": "Ternを選ぶ理由",
+    "body": "最安値、最短時間、最速到着、AIおすすめ、お得な乗継便、遅延リスクまで一度に比較。マイルまたは現金でそのまま予約できます。",
+    "disclaimer": "遅延リスクは端末内のヒューリスティック(乗継・深夜便など)に基づく推定であり、リアルタイムの管制データではありません。出発当日は必ず航空会社にご確認ください。"
+  },
+  "SmartPicks": {
+    "cheapestLabel": "最安値",
+    "cheapestSub": "表示中で最も安い運賃",
+    "fastestLabel": "最短時間",
+    "fastestSub": "最も短い所要時間",
+    "earliestLabel": "最速到着",
+    "earliestSub": "現地に最も早く到着",
+    "aiLabel": "AIおすすめ",
+    "aiSub": "価格と時間のバランス",
+    "connectionLabel": "お得な乗継便",
+    "connectionSub": "乗継の中で最もお得",
+    "safestLabel": "遅延リスク最小",
+    "safestSub": "推定スケジュール安定性"
+  },
+  "Hero": {
+    "title": "地平線を追いかけて。",
+    "subtitle": "検索のたびに、最安値・最短時間・最低遅延リスク・マイル込み最高コスパの運賃を並べて比較します。",
+    "statAirlines": "航空会社",
+    "statRoutes": "路線",
+    "statRating": "評価",
+    "statTravelers": "利用者"
+  },
+  "Search": {
+    "roundTrip": "往復",
+    "oneWay": "片道",
+    "originPlaceholder": "出発地",
+    "destinationPlaceholder": "目的地",
+    "returnPlaceholder": "復路を追加",
+    "swapAirports": "出発地と目的地を入れ替え",
+    "cabinEconomy": "エコノミー",
+    "cabinPremiumEconomy": "プレミアムエコノミー",
+    "cabinBusiness": "ビジネス",
+    "cabinFirst": "ファーストクラス",
+    "labelFrom": "出発地",
+    "labelTo": "目的地",
+    "labelDeparture": "出発日",
+    "labelReturn": "復路",
+    "labelPassengers": "乗客数",
+    "searchFlights": "検索する",
+    "searching": "検索中…"
+  },
+  "Offer": {
+    "details": "詳細",
+    "less": "閉じる",
+    "select": "選択",
+    "perPerson": "お一人様",
+    "nonStop": "直行便",
+    "stop": "経由{count}回",
+    "stops": "経由{count}回",
+    "risk": "リスク {score}/98",
+    "bookThisRoute": "この路線を予約 ↗",
+    "flightSegments": "フライト区間",
+    "noSegmentData": "区間情報がありません。",
+    "bookWithPoints": "マイルで予約",
+    "layover": "乗継待ち",
+    "layoverAt": "{airport}にて"
+  }
+}

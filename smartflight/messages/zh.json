@@ -1,0 +1,71 @@
+{
+  "Nav": {
+    "home": "首页",
+    "booking": "预订",
+    "deals": "优惠",
+    "blog": "博客",
+    "changeSearch": "修改搜索"
+  },
+  "WhyShop": {
+    "title": "为什么选择 Tern",
+    "body": "一次比较最低价、最短飞行时间、最早到达、AI 智能推荐、超值中转组合和延误风险——用积分或现金一键预订。",
+    "disclaimer": "延误风险是基于设备本地推算的启发式指标(中转、红眼航班等),并非实时空管数据。出发当天请务必与航空公司再次确认。"
+  },
+  "SmartPicks": {
+    "cheapestLabel": "最低价",
+    "cheapestSub": "当前显示中的最低票价",
+    "fastestLabel": "最短时间",
+    "fastestSub": "飞行时间最短",
+    "earliestLabel": "最早到达",
+    "earliestSub": "最先抵达目的地",
+    "aiLabel": "AI 推荐",
+    "aiSub": "价格与时间的平衡之选",
+    "connectionLabel": "超值中转",
+    "connectionSub": "中转航班中性价比最高",
+    "safestLabel": "延误风险最低",
+    "safestSub": "基于行程稳定性推算"
+  },
+  "Hero": {
+    "title": "追逐地平线。",
+    "subtitle": "每次搜索,我们都会并列比较最低价、最快、延误风险最低及积分兑换最划算的票价。",
+    "statAirlines": "航空公司",
+    "statRoutes": "航线",
+    "statRating": "评分",
+    "statTravelers": "旅客"
+  },
+  "Search": {
+    "roundTrip": "往返",
+    "oneWay": "单程",
+    "originPlaceholder": "出发地",
+    "destinationPlaceholder": "目的地",
+    "returnPlaceholder": "添加返程",
+    "swapAirports": "交换出发地和目的地",
+    "cabinEconomy": "经济舱",
+    "cabinPremiumEconomy": "超级经济舱",
+    "cabinBusiness": "商务舱",
+    "cabinFirst": "头等舱",
+    "labelFrom": "出发地",
+    "labelTo": "目的地",
+    "labelDeparture": "出发日期",
+    "labelReturn": "返程日期",
+    "labelPassengers": "乘客人数",
+    "searchFlights": "搜索航班",
+    "searching": "搜索中…"
+  },
+  "Offer": {
+    "details": "详情",
+    "less": "收起",
+    "select": "选择",
+    "perPerson": "每人",
+    "nonStop": "直飞",
+    "stop": "{count} 次中转",
+    "stops": "{count} 次中转",
+    "risk": "风险 {score}/98",
+    "bookThisRoute": "预订该航线 ↗",
+    "flightSegments": "航班行程",
+    "noSegmentData": "暂无行程数据。",
+    "bookWithPoints": "积分兑换",
+    "layover": "中转等待",
+    "layoverAt": "于{airport}"
+  }
+}
