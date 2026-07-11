@@ -2,6 +2,7 @@
 
 import { memo } from "react";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { useHoverTilt } from "../../hooks/useHoverTilt";
 import { LayoverBadge } from "./LayoverBadge";
 import { AirportWeatherChip } from "./AirportWeatherChip";
@@ -27,6 +28,7 @@ type OfferCardProps = {
 };
 
 function OfferCardImpl({ offer, isExpanded, onToggleExpand, onSelect, from, to, cabinClass, aviasalesUrl }: OfferCardProps) {
+  const t = useTranslations("Offer");
   const delayRisk = computeDelayRiskScore(offer);
   const riskColor = delayRisk < 25 ? "text-success-strong" : delayRisk < 55 ? "text-warning-strong" : "text-danger-strong";
   const aircraftImg = getAircraftImage(offer.aircraftIata);
@@ -75,7 +77,7 @@ function OfferCardImpl({ offer, isExpanded, onToggleExpand, onSelect, from, to, 
               </svg>
               <div className="h-px flex-1 bg-gray-200" />
             </div>
-            <p className="text-xs text-muted">{offer.stops === 0 ? "Non-stop" : `${offer.stops} stop${offer.stops > 1 ? "s" : ""}`}</p>
+            <p className="text-xs text-muted">{offer.stops === 0 ? t("nonStop") : t(offer.stops > 1 ? "stops" : "stop", { count: offer.stops })}</p>
           </div>
           <div className="text-center">
             <p className="data-mono text-xl font-bold">{timeLabel(offer.arrival)}</p>
@@ -89,7 +91,7 @@ function OfferCardImpl({ offer, isExpanded, onToggleExpand, onSelect, from, to, 
           <p className="text-sm font-semibold">{offer.airline || "Partner Airline"}</p>
           <p className="text-xs text-muted capitalize">{(offer.cabinClass || cabinClass).replace("_", " ")}</p>
           <span className={`glass-chip data-mono mt-0.5 inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold ${riskColor}`}>
-            Risk {delayRisk}/98
+            {t("risk", { score: delayRisk })}
           </span>
         </div>
 
@@ -98,21 +100,21 @@ function OfferCardImpl({ offer, isExpanded, onToggleExpand, onSelect, from, to, 
           <p className="data-mono text-2xl font-black text-foreground">
             {formatMoney(Number(offer.price), offer.currency)}
           </p>
-          <p className="text-xs text-muted">per person</p>
+          <p className="text-xs text-muted">{t("perPerson")}</p>
           <div className="flex gap-2">
             <button
               type="button"
               onClick={onToggleExpand}
               className="rounded-full border border-[#d5dfec] px-3 py-1.5 text-xs font-medium hover:bg-gray-50 transition-colors"
             >
-              {isExpanded ? "Less" : "Details"}
+              {isExpanded ? t("less") : t("details")}
             </button>
             <button
               type="button"
               onClick={onSelect}
               className="rounded-full bg-primary px-4 py-1.5 text-xs font-semibold text-white hover:bg-primary/90 transition-colors"
             >
-              Select
+              {t("select")}
             </button>
           </div>
           {/* Second revenue path: search-level deep link into our White Label
@@ -126,7 +128,7 @@ function OfferCardImpl({ offer, isExpanded, onToggleExpand, onSelect, from, to, 
               rel="sponsored noopener noreferrer"
               className="text-[11px] font-medium text-primary-hover hover:underline"
             >
-              Book this route ↗
+              {t("bookThisRoute")}
             </a>
           )}
         </div>
@@ -138,7 +140,7 @@ function OfferCardImpl({ offer, isExpanded, onToggleExpand, onSelect, from, to, 
           <div className="grid gap-4 md:grid-cols-2">
             {/* Segments */}
             <div>
-              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">Flight segments</p>
+              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">{t("flightSegments")}</p>
               {(offer.segments || []).length > 0 ? (
                 <div className="space-y-2">
                   {offer.segments!.map((seg, i) => {
@@ -170,7 +172,7 @@ function OfferCardImpl({ offer, isExpanded, onToggleExpand, onSelect, from, to, 
                   })}
                 </div>
               ) : (
-                <p className="text-xs text-muted">No segment data available.</p>
+                <p className="text-xs text-muted">{t("noSegmentData")}</p>
               )}
             </div>
 
@@ -207,7 +209,7 @@ function OfferCardImpl({ offer, isExpanded, onToggleExpand, onSelect, from, to, 
               )}
 
               <div>
-                <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-muted">Book with points</p>
+                <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-muted">{t("bookWithPoints")}</p>
                 <div className="space-y-1">
                   {programs.easyPicks.map((p) => (
                     <div key={p.label} className="glass-chip flex items-center justify-between rounded-lg px-3 py-2 text-xs">

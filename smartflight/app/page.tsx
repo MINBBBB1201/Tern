@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
+import { useTranslations } from "next-intl";
 import {
   LineChart,
   Line,
@@ -22,6 +23,7 @@ import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import SearchBar, { type SearchParams } from "../components/SearchBar";
+import { LocaleSwitcher } from "../components/LocaleSwitcher";
 import { useHoverTilt } from "../hooks/useHoverTilt";
 import { usePriceAlerts } from "../hooks/usePriceAlerts";
 import type { Offer } from "../lib/offerUtils";
@@ -56,12 +58,6 @@ const SwapIcon = () => (
 const CalendarIcon = () => (
   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-  </svg>
-);
-
-const GlobeIcon = () => (
-  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
   </svg>
 );
 
@@ -505,6 +501,7 @@ const popularAirlines = [
 
 export default function Home() {
   const router = useRouter();
+  const tNav = useTranslations("Nav");
   const [user, setUser] = useState<User | null>(null);
 
   // Search params are owned by SearchBar; page tracks last submitted for downstream use
@@ -639,16 +636,13 @@ export default function Home() {
             <BrandLogo className={`h-10 w-36 md:h-11 md:w-44 transition ${navOverHero ? "brightness-0 invert" : ""}`} />
           </div>
           <div className="hidden md:flex items-center gap-8">
-            <Link href="/" className={`text-sm font-medium hover:text-[var(--contrail-300)] transition ${navOverHero ? "text-white" : "text-foreground"}`}>Home</Link>
-            <a href="/booking" className={`text-sm font-medium transition ${navOverHero ? "text-white/70 hover:text-[var(--contrail-300)]" : "text-muted hover:text-primary-hover"}`}>Booking</a>
-            <a href="#deals" className={`text-sm font-medium transition ${navOverHero ? "text-white/70 hover:text-[var(--contrail-300)]" : "text-muted hover:text-primary-hover"}`}>Deals</a>
-            <a href="#blog" className={`text-sm font-medium transition ${navOverHero ? "text-white/70 hover:text-[var(--contrail-300)]" : "text-muted hover:text-primary-hover"}`}>Blog</a>
+            <Link href="/" className={`text-sm font-medium hover:text-[var(--contrail-300)] transition ${navOverHero ? "text-white" : "text-foreground"}`}>{tNav("home")}</Link>
+            <a href="/booking" className={`text-sm font-medium transition ${navOverHero ? "text-white/70 hover:text-[var(--contrail-300)]" : "text-muted hover:text-primary-hover"}`}>{tNav("booking")}</a>
+            <a href="#deals" className={`text-sm font-medium transition ${navOverHero ? "text-white/70 hover:text-[var(--contrail-300)]" : "text-muted hover:text-primary-hover"}`}>{tNav("deals")}</a>
+            <a href="#blog" className={`text-sm font-medium transition ${navOverHero ? "text-white/70 hover:text-[var(--contrail-300)]" : "text-muted hover:text-primary-hover"}`}>{tNav("blog")}</a>
           </div>
           <div className="flex items-center gap-4">
-            <button className={`flex items-center gap-1 text-sm transition ${navOverHero ? "text-white/70 hover:text-white" : "text-muted hover:text-foreground"}`}>
-              <GlobeIcon />
-              <span className="hidden sm:inline">EN</span>
-            </button>
+            <LocaleSwitcher dark={navOverHero} />
             {user ? (
               <div className="flex items-center gap-3">
                 {user.photoURL && (

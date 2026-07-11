@@ -1,0 +1,56 @@
+{
+  "Nav": {
+    "home": "Home",
+    "booking": "Booking",
+    "deals": "Deals",
+    "blog": "Blog",
+    "changeSearch": "Change Search"
+  },
+  "WhyShop": {
+    "title": "Why shop on Tern",
+    "body": "Compare cheapest fares, fastest trips, earliest arrivals, AI-balanced picks, smart connection deals, and delay-risk signals—then book with points or cash in one flow.",
+    "disclaimer": "Delay risk is an on-device heuristic (connections, redeyes)—not live ATC data. Always confirm at the airline on day of travel."
+  },
+  "SmartPicks": {
+    "cheapestLabel": "Cheapest",
+    "cheapestSub": "Lowest fare in view",
+    "fastestLabel": "Fastest",
+    "fastestSub": "Shortest travel time",
+    "earliestLabel": "Earliest arrival",
+    "earliestSub": "First to land locally",
+    "aiLabel": "AI pick",
+    "aiSub": "Balanced price & time",
+    "connectionLabel": "Best connection deal",
+    "connectionSub": "Great value with stops",
+    "safestLabel": "Lowest delay risk",
+    "safestSub": "Heuristic schedule stability"
+  },
+  "Search": {
+    "roundTrip": "Round trip",
+    "oneWay": "One-way",
+    "originPlaceholder": "Origin",
+    "destinationPlaceholder": "Destination",
+    "returnPlaceholder": "Add return",
+    "swapAirports": "Swap airports",
+    "cabinEconomy": "Economy",
+    "cabinPremiumEconomy": "Prem. Economy",
+    "cabinBusiness": "Business",
+    "cabinFirst": "First Class"
+  },
+  "Offer": {
+    "details": "Details",
+    "less": "Less",
+    "select": "Select",
+    "perPerson": "per person",
+    "nonStop": "Non-stop",
+    "stop": "{count} stop",
+    "stops": "{count} stops",
+    "risk": "Risk {score}/98",
+    "bookThisRoute": "Book this route ↗",
+    "flightSegments": "Flight segments",
+    "noSegmentData": "No segment data available.",
+    "bookWithPoints": "Book with points",
+    "layover": "layover",
+    "layoverAt": "at {airport}"
+  }
+}

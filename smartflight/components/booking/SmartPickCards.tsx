@@ -3,6 +3,7 @@
 import { useRef } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
+import { useTranslations } from "next-intl";
 import { useHoverTilt } from "../../hooks/useHoverTilt";
 import { formatMoney, type Offer, type SortTab } from "../../lib/offerUtils";
 
@@ -25,6 +26,7 @@ type SmartPickCardsProps = {
 
 export default function SmartPickCards({ smartPicks, onPick }: SmartPickCardsProps) {
   const gridRef = useRef<HTMLDivElement>(null);
+  const t = useTranslations("SmartPicks");
 
   // Mounts when offers arrive (after page-level ScrollFX has run), so the
   // entrance is owned here. Wrappers animate, not the buttons — tilt-card
@@ -49,14 +51,14 @@ export default function SmartPickCards({ smartPicks, onPick }: SmartPickCardsPro
   if (!smartPicks) return null;
 
   const smartPickCards = [
-    { key: "cheap", label: "Cheapest", sub: "Lowest fare in view", offer: smartPicks.cheapest, sort: "price" as SortTab },
-    { key: "fast", label: "Fastest", sub: "Shortest travel time", offer: smartPicks.fastest, sort: "duration" as SortTab },
-    { key: "early", label: "Earliest arrival", sub: "First to land locally", offer: smartPicks.earliestArr, sort: "arrival" as SortTab },
-    { key: "ai", label: "AI pick", sub: "Balanced price & time", offer: smartPicks.ai, sort: "ai" as SortTab },
+    { key: "cheap", label: t("cheapestLabel"), sub: t("cheapestSub"), offer: smartPicks.cheapest, sort: "price" as SortTab },
+    { key: "fast", label: t("fastestLabel"), sub: t("fastestSub"), offer: smartPicks.fastest, sort: "duration" as SortTab },
+    { key: "early", label: t("earliestLabel"), sub: t("earliestSub"), offer: smartPicks.earliestArr, sort: "arrival" as SortTab },
+    { key: "ai", label: t("aiLabel"), sub: t("aiSub"), offer: smartPicks.ai, sort: "ai" as SortTab },
     ...(smartPicks.bestConnection
-      ? [{ key: "conn", label: "Best connection deal", sub: "Great value with stops", offer: smartPicks.bestConnection, sort: "connecting_value" as SortTab }]
+      ? [{ key: "conn", label: t("connectionLabel"), sub: t("connectionSub"), offer: smartPicks.bestConnection, sort: "connecting_value" as SortTab }]
       : []),
-    { key: "safe", label: "Lowest delay risk", sub: "Heuristic schedule stability", offer: smartPicks.safest, sort: "delay_low" as SortTab },
+    { key: "safe", label: t("safestLabel"), sub: t("safestSub"), offer: smartPicks.safest, sort: "delay_low" as SortTab },
   ];
 
   if (smartPickCards.length === 0) return null;

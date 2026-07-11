@@ -1,6 +1,7 @@
 "use client";
 
 import { Suspense, useEffect, useMemo } from "react";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import Image from "next/image";
 import dynamic from "next/dynamic";
@@ -20,6 +21,7 @@ import PriceAlertPanel from "../../components/booking/PriceAlertPanel";
 import AirportGuideCards from "../../components/booking/AirportGuideCards";
 import LoyaltyCardTips from "../../components/booking/LoyaltyCardTips";
 import CheckoutModal from "../../components/booking/CheckoutModal";
+import { LocaleSwitcher } from "../../components/LocaleSwitcher";
 import { formatMoney } from "../../lib/offerUtils";
 
 // Client-only scroll choreography — see components/ScrollFX.tsx
@@ -41,6 +43,8 @@ const BrandLogo = ({ className = "" }: { className?: string }) => (
 
 function BookingPageClient() {
   const searchParams = useSearchParams();
+  const tNav = useTranslations("Nav");
+  const tWhyShop = useTranslations("WhyShop");
 
   const from = (searchParams.get("from") || "ICN").toUpperCase();
   const to = (searchParams.get("to") || "NRT").toUpperCase();
@@ -119,8 +123,9 @@ function BookingPageClient() {
             <span className="hidden rounded-full bg-primary-subtle px-3 py-1.5 text-primary-hover md:inline-flex">
               {tripType}
             </span>
+            <LocaleSwitcher />
             <Link href="/" className="rounded-full bg-primary px-4 py-2 font-semibold text-white">
-              Change Search
+              {tNav("changeSearch")}
             </Link>
           </div>
         </div>
@@ -135,12 +140,12 @@ function BookingPageClient() {
         )}
 
         <div data-fx-quick className="glass-panel mb-4 rounded-2xl p-4 md:p-5">
-          <p className="text-xs font-semibold uppercase tracking-wide text-[#2563eb]">Why shop on Tern</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-[#2563eb]">{tWhyShop("title")}</p>
           <p className="mt-2 text-sm font-medium text-foreground md:text-base">
-            Compare cheapest fares, fastest trips, earliest arrivals, AI-balanced picks, smart connection deals, and delay-risk signals—then book with points or cash in one flow.
+            {tWhyShop("body")}
           </p>
           <p className="mt-2 text-xs text-muted">
-            Delay risk is an on-device heuristic (connections, redeyes)—not live ATC data. Always confirm at the airline on day of travel.
+            {tWhyShop("disclaimer")}
           </p>
         </div>
 

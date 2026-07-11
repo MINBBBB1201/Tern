@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Space_Grotesk, JetBrains_Mono } from "next/font/google";
+import { NextIntlClientProvider } from "next-intl";
+import { getLocale, getMessages } from "next-intl/server";
 import GlobalCanvas from "../components/canvas/GlobalCanvas";
 import "./globals.css";
 
@@ -15,26 +17,31 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: "Tern ✈️",
-  description: "Tern에서 최적 항공권을 찾아보세요",
+  description: "Find the best flight deals with Tern",
   icons: {
     icon: "/logos/tern-logo-purepick.png",
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getLocale();
+  const messages = await getMessages();
+
   return (
-    <html lang="ko" className={`${spaceGrotesk.variable} ${jetbrainsMono.variable}`}>
+    <html lang={locale} className={`${spaceGrotesk.variable} ${jetbrainsMono.variable}`}>
       <body>
-        {/* Site-wide 3D layer — single WebGL context, all page Views render
-            through it. Skipped under prefers-reduced-motion / low-power. */}
-        <GlobalCanvas />
-        {/* Site-wide ambient drift — atmosphere, frozen under prefers-reduced-motion */}
-        <div className="ambient-drift" aria-hidden="true" />
-        {children}
+        <NextIntlClientProvider messages={messages}>
+          {/* Site-wide 3D layer — single WebGL context, all page Views render
+              through it. Skipped under prefers-reduced-motion / low-power. */}
+          <GlobalCanvas />
+          {/* Site-wide ambient drift — atmosphere, frozen under prefers-reduced-motion */}
+          <div className="ambient-drift" aria-hidden="true" />
+          {children}
+        </NextIntlClientProvider>
       </body>
     </html>
   );

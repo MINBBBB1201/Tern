@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import {
   ArrowLeftRight,
   Calendar,
@@ -48,14 +49,14 @@ const displayWeekday = (iso: string) => {
   return new Date(iso + "T00:00:00").toLocaleDateString("en-US", { weekday: "short" });
 };
 
-const CABIN_LABELS: Record<string, string> = {
-  economy: "Economy",
-  premium_economy: "Prem. Economy",
-  business: "Business",
-  first: "First Class",
-};
-
 export default function SearchBar({ onSearch, loading = false, routeLineRef }: SearchBarProps) {
+  const t = useTranslations("Search");
+  const CABIN_LABELS: Record<string, string> = {
+    economy: t("cabinEconomy"),
+    premium_economy: t("cabinPremiumEconomy"),
+    business: t("cabinBusiness"),
+    first: t("cabinFirst"),
+  };
   const [tripType, setTripType] = useState<"roundtrip" | "oneway">("roundtrip");
   const [cabinClass, setCabinClass] = useState<"economy" | "premium_economy" | "business" | "first">("economy");
   const [from, setFrom] = useState("ICN");
@@ -126,7 +127,7 @@ export default function SearchBar({ onSearch, loading = false, routeLineRef }: S
               onClick={() => setTripType(type)}
               className={`vol-pill-option${tripType === type ? " active" : ""}`}
             >
-              {type === "roundtrip" ? "Round trip" : "One-way"}
+              {type === "roundtrip" ? t("roundTrip") : t("oneWay")}
             </button>
           ))}
 
@@ -173,7 +174,7 @@ export default function SearchBar({ onSearch, loading = false, routeLineRef }: S
                 value={from}
                 subValue={fromCity}
                 onChange={(code, city) => { setFrom(code); setFromCity(city); }}
-                placeholder="Origin"
+                placeholder={t("originPlaceholder")}
               />
             </div>
 
@@ -182,7 +183,7 @@ export default function SearchBar({ onSearch, loading = false, routeLineRef }: S
               <button
                 className="vol-swap"
                 onClick={handleSwap}
-                title="Swap airports"
+                title={t("swapAirports")}
                 style={{
                   transform: swapping ? "rotate(180deg) scale(0.9)" : "rotate(0deg) scale(1)",
                   transition: "transform 0.25s cubic-bezier(0.34,1.56,0.64,1)",
@@ -199,7 +200,7 @@ export default function SearchBar({ onSearch, loading = false, routeLineRef }: S
                 value={to}
                 subValue={toCity}
                 onChange={(code, city) => { setTo(code); setToCity(city); }}
-                placeholder="Destination"
+                placeholder={t("destinationPlaceholder")}
               />
             </div>
           </div>
@@ -236,7 +237,7 @@ export default function SearchBar({ onSearch, loading = false, routeLineRef }: S
               label="RETURN"
               value={returnDate}
               onChange={setReturnDate}
-              placeholder="Add return"
+              placeholder={t("returnPlaceholder")}
             />
           </div>
 
