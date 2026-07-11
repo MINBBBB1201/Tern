@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getAirportGuide } from "../../../../lib/airportGuides";
+import { buildAirportUberLink } from "../../../../lib/rideDeepLinks";
 
 type Props = { params: Promise<{ iata: string }> };
 
@@ -91,6 +92,7 @@ export default async function AirportGuidePage({ params }: Props) {
 
         {(["taxi", "bus", "rail"] as const).map((mode) => {
           const block = guide.transit[mode];
+          const uberLink = mode === "taxi" ? buildAirportUberLink(guide.iata) : null;
           return (
             <section
               key={mode}
@@ -113,6 +115,21 @@ export default async function AirportGuidePage({ params }: Props) {
                     ))}
                   </ul>
                 </>
+              )}
+              {uberLink && (
+                <div className="mt-4">
+                  <a
+                    href={uberLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 rounded-full bg-black px-4 py-2 text-xs font-semibold text-white hover:bg-black/85"
+                  >
+                    Get a ride with Uber ↗
+                  </a>
+                  <p className="mt-1.5 text-[11px] text-muted">
+                    Opens Uber with pickup set at {guide.iata}. Availability, fares, and vehicle types vary by city—check the app for current options.
+                  </p>
+                </div>
               )}
               {block.officialLinks && block.officialLinks.length > 0 && (
                 <div className="mt-4 flex flex-wrap gap-2">

@@ -1,6 +1,17 @@
 /**
  * Transport Service - Mock Data Provider
- * Provides realistic simulated data for Last-Mile Logistics
+ *
+ * ⚠️ UNUSED: nothing in app/components/hooks imports this file (verified
+ * 2026-07-11). It predates real research into ride-hailing integration
+ * options — see lib/rideDeepLinks.ts for the actual working feature
+ * (Uber's genuinely public deep-link API, wired into the airport guide
+ * page). Kakao T, Grab, and Bolt do NOT have public/self-serve booking
+ * APIs or affiliate programs as of this research — the "SMARTFLIGHT_KR"
+ * / "SMARTFLIGHT_UBER" affiliateTracking blocks below were placeholders
+ * invented before that was confirmed, not real partner IDs. Left in
+ * place as illustrative mock data structure only; do not wire this into
+ * the UI without replacing affiliateTracking with real data (or removing
+ * it, since no real program currently exists to attach one to).
  */
 
 import type {
@@ -382,9 +393,12 @@ export const ICN_RIDEHAILING: RideHailingProvider[] = [
       web: "https://t.kakao.com",
     },
     affiliateTracking: {
-      enabled: true,
-      partnerId: "SMARTFLIGHT_KR",
-      trackingUrl: "https://t.kakao.com/affiliate/SMARTFLIGHT_KR",
+      // No real Kakao T booking/affiliate API exists (confirmed via
+      // developers.kakao.com — map/nav APIs only). This block is
+      // illustrative mock shape only, not a real program.
+      enabled: false,
+      partnerId: "MOCK_NOT_REAL",
+      trackingUrl: "",
       commission: {
         type: "percentage",
         value: 3.5,
@@ -430,9 +444,12 @@ export const ICN_RIDEHAILING: RideHailingProvider[] = [
       web: "https://uber.com",
     },
     affiliateTracking: {
-      enabled: true,
-      partnerId: "SMARTFLIGHT_UBER",
-      trackingUrl: "https://uber.com/invite/SMARTFLIGHT",
+      // Uber has no commission-bearing affiliate program for basic deep
+      // links either — see lib/rideDeepLinks.ts for the real (revenue-
+      // free, convenience-only) deep-link implementation actually in use.
+      enabled: false,
+      partnerId: "MOCK_NOT_REAL",
+      trackingUrl: "",
       commission: {
         type: "fixed",
         value: 5000,
