@@ -1,8 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import type { AirportGuide } from "../../lib/airportGuides";
-import { buildAirportUberLink } from "../../lib/rideDeepLinks";
+import { buildAirportUberLink, buildAirportUberLinkWithDropoff } from "../../lib/rideDeepLinks";
+import { DestinationSearch, type DestinationPoint } from "../DestinationSearch";
 
 type AirportGuideCardsProps = {
   departureGuide: AirportGuide;
@@ -12,6 +14,8 @@ type AirportGuideCardsProps = {
 };
 
 export default function AirportGuideCards({ departureGuide, arrivalGuide, from, to }: AirportGuideCardsProps) {
+  const [destinations, setDestinations] = useState<Record<number, DestinationPoint | null>>({});
+
   if (!departureGuide && !arrivalGuide) return null;
 
   return (
@@ -19,7 +23,10 @@ export default function AirportGuideCards({ departureGuide, arrivalGuide, from, 
       {[departureGuide, arrivalGuide].map((guide, idx) => {
         if (!guide) return null;
         const iata = idx === 0 ? from : to;
-        const uberLink = buildAirportUberLink(iata);
+        const dropoff = destinations[idx];
+        const uberLink = dropoff
+          ? buildAirportUberLinkWithDropoff(iata, dropoff)
+          : buildAirportUberLink(iata);
 
         return (
           <div key={idx} className="glass-panel rounded-[20px] p-5">
@@ -28,6 +35,9 @@ export default function AirportGuideCards({ departureGuide, arrivalGuide, from, 
 
             {uberLink && (
               <>
+                <DestinationSearch
+                  onSelect={(point) => setDestinations((prev) => ({ ...prev, [idx]: point }))}
+                />
                 <a
                   href={uberLink}
                   target="_blank"
@@ -36,7 +46,9 @@ export default function AirportGuideCards({ departureGuide, arrivalGuide, from, 
                 >
                   <div className="flex items-center gap-2.5">
                     <span className="text-2xl font-black tracking-tight text-white">Uber</span>
-                    <span className="hidden text-xs text-white/60 sm:inline">Get a ride from {guide.iata}</span>
+                    <span className="hidden text-xs text-white/60 sm:inline">
+                      {dropoff ? `${guide.iata} → destination` : `Get a ride from ${guide.iata}`}
+                    </span>
                   </div>
                   <span className="rounded-full bg-white px-3 py-1.5 text-xs font-bold text-black">
                     Open ↗

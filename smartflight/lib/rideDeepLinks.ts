@@ -63,3 +63,19 @@ export function buildAirportUberLink(iataCode: string): string | null {
     nickname: `${iataCode} Airport`,
   });
 }
+
+/**
+ * Same as buildAirportUberLink, but also sets a dropoff point — used
+ * once the traveler enters a destination via the geocoding search box.
+ */
+export function buildAirportUberLinkWithDropoff(
+  iataCode: string,
+  dropoff: RidePoint
+): string | null {
+  const airport = getAirport(iataCode);
+  if (!airport) return null;
+  return buildUberDeepLink(
+    { lat: airport.lat, lon: airport.lon, nickname: `${iataCode} Airport` },
+    dropoff
+  );
+}
