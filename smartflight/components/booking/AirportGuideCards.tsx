@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import type { AirportGuide } from "../../lib/airportGuides";
 import { buildAirportUberLink, buildAirportUberLinkWithDropoff } from "../../lib/rideDeepLinks";
+import { getAirport } from "../../lib/airportData";
 import { DestinationSearch, type DestinationPoint } from "../DestinationSearch";
 
 type AirportGuideCardsProps = {
@@ -27,6 +28,7 @@ export default function AirportGuideCards({ departureGuide, arrivalGuide, from, 
         const uberLink = dropoff
           ? buildAirportUberLinkWithDropoff(iata, dropoff)
           : buildAirportUberLink(iata);
+        const countryCode = getAirport(iata)?.country;
 
         return (
           <div key={idx} className="glass-panel rounded-[20px] p-5">
@@ -36,6 +38,7 @@ export default function AirportGuideCards({ departureGuide, arrivalGuide, from, 
             {uberLink && (
               <>
                 <DestinationSearch
+                  countryCode={countryCode}
                   onSelect={(point) => setDestinations((prev) => ({ ...prev, [idx]: point }))}
                 />
                 <a

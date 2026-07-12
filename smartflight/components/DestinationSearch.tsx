@@ -10,15 +10,18 @@ export type DestinationPoint = {
 
 type DestinationSearchProps = {
   onSelect: (point: DestinationPoint | null) => void;
+  /** ISO 3166-1 alpha-2 country code to restrict suggestions to (e.g. the airport's country). */
+  countryCode?: string;
 };
 
 type Suggestion = {
   displayName: string;
+  shortName: string;
   lat: number;
   lon: number;
 };
 
-export function DestinationSearch({ onSelect }: DestinationSearchProps) {
+export function DestinationSearch({ onSelect, countryCode }: DestinationSearchProps) {
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [open, setOpen] = useState(false);
@@ -36,7 +39,9 @@ export function DestinationSearch({ onSelect }: DestinationSearchProps) {
     debounceRef.current = setTimeout(async () => {
       setLoading(true);
       try {
-        const res = await fetch(`/api/geocode?q=${encodeURIComponent(query)}`);
+        const params = new URLSearchParams({ q: query });
+        if (countryCode) params.set("country", countryCode);
+        const res = await fetch(`/api/geocode?${params.toString()}`);
         const data = await res.json();
         setSuggestions(data.results || []);
         setOpen(true);
@@ -50,12 +55,16 @@ export function DestinationSearch({ onSelect }: DestinationSearchProps) {
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
-  }, [query]);
+  }, [query, countryCode]);
 
   const handlePick = (s: Suggestion) => {
     setQuery(s.displayName);
     setOpen(false);
-    onSelect({ lat: s.lat, lon: s.lon, nickname: s.displayName });
+    // shortName (e.g. "Empire State Building"), not the full comma-heavy
+    // displayName — passing the long address string to Uber as
+    // addressLine1 caused Uber's own re-geocoder to override our precise
+    // lat/lon and land on the wrong place.
+    onSelect({ lat: s.lat, lon: s.lon, nickname: s.shortName });
   };
 
   const handleClear = () => {
