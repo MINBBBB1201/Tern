@@ -530,6 +530,72 @@ const GUIDES: Record<string, AirportGuide> = {
       { floor: "Level B", label: "Airport Rail Link (ARL) platform" },
     ],
   },
+  IST: {
+    iata: "IST",
+    name: "Istanbul Airport",
+    city: "Istanbul",
+    country: "Turkey",
+    summary: "A single massive terminal building (one of the largest in the world) with five concourses (A, B, D, F international; G domestic) — no internal train between them, all connected on foot.",
+    terminals: ["Single terminal, Concourses A/B/D/F/G"],
+    beforeYouFly: [],
+    afterYouLand: [
+      "Arrival gates are on Level 1; go down to Ground floor for immigration, baggage claim, and customs.",
+    ],
+    transit: {
+      taxi: { title: "Taxi", bullets: ["Main taxi stands are outside the domestic and international exit doors — orange (cheapest), turquoise, and black (most expensive) taxis available."], avoidScams: [] },
+      bus: { title: "Bus", bullets: ["Buses depart from the transportation floor (Level -2)."], avoidScams: [] },
+      rail: { title: "Metro", bullets: ["M11 line connects to Gayrettepe, with onward connections to the wider Istanbul metro network."], avoidScams: [] },
+    },
+    accessibility: {
+      summary: "Contact your airline at least 48 hours before travel to arrange wheelchair or mobility assistance. The terminal has elevators and ramps at all level changes, tactile floor strips, and accessible restrooms on every level.",
+      services: [
+        { label: "Wheelchair assistance", detail: "Request through your airline in advance." },
+        { label: "Accessible restrooms", detail: "Available on every level." },
+      ],
+      officialLinks: [
+        { label: "Istanbul Airport — iGA Cares (Accessibility)", href: "https://www.istairport.com/en/flights/airport-guides/iga-cares-accessibility/" },
+      ],
+    },
+    floorGuide: [
+      { floor: "Ground floor", label: "Arrivals — immigration, baggage claim, customs" },
+      { floor: "Level 1", label: "Arrival gates" },
+      { floor: "Level 2", label: "Departures — check-in, security, boarding gates" },
+      { floor: "Level -2", label: "Bus station, some pick-up/drop-off" },
+    ],
+  },
+  TPE: {
+    iata: "TPE",
+    name: "Taiwan Taoyuan International Airport",
+    city: "Taipei",
+    country: "Taiwan",
+    summary: "Two terminals connected by Skytrain and MRT — Terminal 1 (mainly regional/low-cost carriers) and Terminal 2 (long-haul and premium airlines), both following the same basic floor pattern.",
+    terminals: ["Terminal 1", "Terminal 2"],
+    beforeYouFly: [],
+    afterYouLand: [
+      "Arrivals and baggage claim are on 1F in both terminals.",
+    ],
+    transit: {
+      taxi: { title: "Taxi", bullets: ["Taxis available 24/7 at designated stands in both terminals."], avoidScams: [] },
+      bus: { title: "Bus", bullets: ["Airport buses to Taipei depart from the arrivals level of each terminal."], avoidScams: [] },
+      rail: { title: "Airport MRT", bullets: ["Boarding is on B2 (Terminal 2) or accessed via B1 (Terminal 1) — fastest way to central Taipei."], avoidScams: [] },
+    },
+    accessibility: {
+      summary: "Contact your airline at least 48 hours before travel to arrange wheelchair or mobility assistance.",
+      services: [
+        { label: "Wheelchair assistance", detail: "Request through your airline in advance." },
+        { label: "Accessible restrooms", detail: "Available throughout both terminals." },
+      ],
+      officialLinks: [
+        { label: "Taoyuan Airport — Passenger Guide", href: "https://www.taoyuan-airport.com/" },
+      ],
+    },
+    floorGuide: [
+      { floor: "1F", label: "Arrivals — immigration, baggage claim, customs (both terminals)" },
+      { floor: "2F", label: "Arrival concourses and transfers" },
+      { floor: "3F", label: "Departures — check-in, security (both terminals)" },
+      { floor: "B1/B2", label: "Airport MRT platform" },
+    ],
+  },
 };
 
 export function getAirportGuide(iata: string): AirportGuide {
