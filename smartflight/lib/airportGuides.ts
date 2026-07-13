@@ -464,6 +464,38 @@ const GUIDES: Record<string, AirportGuide> = {
       { floor: "Level 7", label: "Check-in hall — airline counters, self-service kiosks" },
     ],
   },
+  DXB: {
+    iata: "DXB",
+    name: "Dubai International Airport",
+    city: "Dubai",
+    country: "United Arab Emirates",
+    summary: "One of the world's busiest hubs; Emirates operates from Terminal 3, the world's largest airport terminal by floor area. Terminal 1 serves most other international airlines, Terminal 2 mainly regional/budget carriers.",
+    terminals: ["Terminal 1", "Terminal 2", "Terminal 3 (Emirates)"],
+    beforeYouFly: [],
+    afterYouLand: [
+      "Confirm your terminal before heading to the airport — Emirates uses Terminal 3, most other international carriers use Terminal 1.",
+    ],
+    transit: {
+      taxi: { title: "Taxi", bullets: ["RTA-licensed taxis available 24/7 outside arrivals — use the official rank."], avoidScams: [] },
+      bus: { title: "Bus", bullets: ["RTA bus routes connect the airport to Deira and Bur Dubai."], avoidScams: [] },
+      rail: { title: "Metro", bullets: ["Dubai Metro Red Line serves Terminal 1 and Terminal 3 directly."], avoidScams: [] },
+    },
+    accessibility: {
+      summary: "Contact your airline at least 48 hours before travel to arrange wheelchair or mobility assistance.",
+      services: [
+        { label: "Wheelchair assistance", detail: "Request through your airline in advance." },
+        { label: "Accessible restrooms", detail: "Available throughout all terminals." },
+      ],
+      officialLinks: [
+        { label: "Dubai Airports — Special Assistance", href: "https://dubaiairports.ae/information/special-assistance" },
+      ],
+    },
+    floorGuide: [
+      { floor: "Level 1", label: "Terminal 3 arrivals — immigration, baggage claim" },
+      { floor: "Level 3", label: "Terminal 3 departures — check-in, security" },
+      { floor: "Level 4", label: "Terminal 3 secondary arrivals area" },
+    ],
+  },
 };
 
 export function getAirportGuide(iata: string): AirportGuide {
