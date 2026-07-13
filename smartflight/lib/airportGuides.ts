@@ -496,6 +496,40 @@ const GUIDES: Record<string, AirportGuide> = {
       { floor: "Level 4", label: "Terminal 3 secondary arrivals area" },
     ],
   },
+  BKK: {
+    iata: "BKK",
+    name: "Suvarnabhumi Airport",
+    city: "Bangkok",
+    country: "Thailand",
+    summary: "Thailand's main international gateway; a single terminal building stacked over multiple levels, with a newer satellite terminal (SAT-1) reached by automated people mover.",
+    terminals: ["Main Terminal", "Satellite Terminal SAT-1"],
+    beforeYouFly: [],
+    afterYouLand: [
+      "Arrivals (immigration, baggage claim, customs) are on Level 2.",
+    ],
+    transit: {
+      taxi: { title: "Taxi", bullets: ["Official public taxi queue is on Level 1 — use the ticket machine, not touts approaching you in the arrivals hall."], avoidScams: ["Unofficial drivers approaching arriving passengers directly in the terminal, especially quoting flat fares well above the metered rate."] },
+      bus: { title: "Bus", bullets: ["Airport buses and interprovincial coaches depart from Level 1."], avoidScams: [] },
+      rail: { title: "Rail (Airport Rail Link)", bullets: ["ARL to Phaya Thai (city center connection) departs from Level B (basement), one floor below arrivals."], avoidScams: [] },
+    },
+    accessibility: {
+      summary: "Contact your airline at least 48 hours before travel to arrange wheelchair or mobility assistance.",
+      services: [
+        { label: "Wheelchair assistance", detail: "Request through your airline in advance." },
+        { label: "Accessible restrooms", detail: "Available throughout the terminal." },
+      ],
+      officialLinks: [
+        { label: "Suvarnabhumi Airport — Passenger Guide", href: "https://suvarnabhumi.airportthai.co.th/service/airport-guide" },
+      ],
+    },
+    floorGuide: [
+      { floor: "Level 1", label: "Bus lobby, public taxi queue" },
+      { floor: "Level 2", label: "Arrivals — immigration, baggage claim, customs" },
+      { floor: "Level 3", label: "Restaurants, shops, airline lounges" },
+      { floor: "Level 4", label: "Departures — check-in, security, immigration" },
+      { floor: "Level B", label: "Airport Rail Link (ARL) platform" },
+    ],
+  },
 };
 
 export function getAirportGuide(iata: string): AirportGuide {
