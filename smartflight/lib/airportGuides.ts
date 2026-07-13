@@ -774,6 +774,39 @@ const GUIDES: Record<string, AirportGuide> = {
       { floor: "TBIT (Terminal B), Level 4", label: "Security, departures" },
     ],
   },
+  ORD: {
+    iata: "ORD",
+    name: "Chicago O'Hare International Airport",
+    city: "Chicago",
+    country: "United States",
+    summary: "Terminals 1, 2, and 3 (domestic) are physically connected by walkways and share the same simple upper/lower pattern. Terminal 5 (international) is about a mile away with no walkway — a free Airport Transit System (ATS) train is required to reach it.",
+    terminals: ["Terminal 1", "Terminal 2", "Terminal 3", "Terminal 5 (International)"],
+    beforeYouFly: [],
+    afterYouLand: [
+      "International arrivals almost always land at Terminal 5, even if your onward domestic flight departs from a different terminal — always check both your arrival and departure terminal.",
+    ],
+    transit: {
+      taxi: { title: "Taxi", bullets: ["Taxis are available at the lower/arrivals level curb of each terminal."], avoidScams: [] },
+      bus: { title: "Bus", bullets: ["Pace regional buses depart from the Multi-Modal Facility, reached via the ATS."], avoidScams: [] },
+      rail: { title: "Rail (CTA Blue Line)", bullets: ["The Blue Line train to downtown Chicago is accessible directly from Terminal 1/2/3's pedestrian tunnels, or via ATS from Terminal 5."], avoidScams: [] },
+    },
+    accessibility: {
+      summary: "Contact your airline at least 48 hours before travel to arrange wheelchair or mobility assistance.",
+      services: [
+        { label: "Wheelchair assistance", detail: "Request through your airline in advance." },
+        { label: "Accessible restrooms", detail: "Available throughout all terminals." },
+      ],
+      officialLinks: [
+        { label: "Chicago Department of Aviation — Accessibility", href: "https://www.flychicago.com/ohare/ServicesAmenities/accessibility/Pages/default.aspx" },
+      ],
+    },
+    floorGuide: [
+      { floor: "Terminals 1/2/3, Upper Level", label: "Departures — check-in, security" },
+      { floor: "Terminals 1/2/3, Lower Level", label: "Arrivals — baggage claim, ground transport" },
+      { floor: "Terminal 5, Lower Level", label: "Arrivals, baggage claim, ATS station, ground transport" },
+      { floor: "Terminal 5, Level 2", label: "Check-in, departures" },
+    ],
+  },
 };
 
 export function getAirportGuide(iata: string): AirportGuide {
