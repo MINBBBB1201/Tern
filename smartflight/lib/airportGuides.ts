@@ -363,6 +363,107 @@ const GUIDES: Record<string, AirportGuide> = {
       ],
     },
   },
+  SIN: {
+    iata: "SIN",
+    name: "Singapore Changi Airport",
+    city: "Singapore",
+    country: "Singapore",
+    summary: "Consistently rated one of the world's best airports; Jewel Changi connects landside to Terminals 1, 2, and 3.",
+    terminals: ["Terminals 1, 2, 3, 4"],
+    beforeYouFly: [],
+    afterYouLand: [
+      "Arrivals are on Level 1 in every terminal — immigration, baggage claim, and customs all happen here.",
+    ],
+    // Taxi/bus/rail specifics (scam patterns, exact stands) weren't
+    // independently researched for this airport the way ICN/NRT/HND/JFK/
+    // LHR were — kept to safe, general guidance rather than fabricated
+    // specifics. Revisit with real research before adding claims here.
+    transit: {
+      taxi: { title: "Taxi", bullets: ["Official taxi stands are at the arrival level of each terminal — use the marked queue, not touts."], avoidScams: [] },
+      bus: { title: "Bus", bullets: ["Public buses and the airport shuttle serve all terminals — check the Changi Airport website for current routes."], avoidScams: [] },
+      rail: { title: "Rail (MRT)", bullets: ["The MRT Airport Line connects Terminals 2 and 3 to central Singapore."], avoidScams: [] },
+    },
+    accessibility: {
+      summary: "Contact your airline at least 48 hours before travel to arrange wheelchair or mobility assistance. Changi is widely regarded as one of the more accessible major airports, with wheelchair loans and accessible facilities throughout.",
+      services: [
+        { label: "Wheelchair assistance", detail: "Request through your airline in advance; ground staff meet you at the gate." },
+        { label: "Accessible restrooms", detail: "Available throughout all terminals." },
+      ],
+      officialLinks: [
+        { label: "Changi Airport — Special Assistance", href: "https://www.changiairport.com/en/at-changi/special-assistance.html" },
+      ],
+    },
+    floorGuide: [
+      { floor: "Level 1", label: "Arrivals in all terminals — immigration, baggage claim, customs" },
+      { floor: "Level 2", label: "Terminal 1 & 2 departures — check-in, security" },
+      { floor: "Level 2/3", label: "Terminal 3 departures — check-in, security" },
+    ],
+  },
+  AMS: {
+    iata: "AMS",
+    name: "Amsterdam Airport Schiphol",
+    city: "Amsterdam",
+    country: "Netherlands",
+    summary: "A single-terminal airport — everything is under one roof, organized into three departure halls (1, 2, 3) rather than separate terminal buildings.",
+    terminals: ["Single terminal, Departure Halls 1–3"],
+    beforeYouFly: [],
+    afterYouLand: [
+      "All arrivals lead into Schiphol Plaza, the central public area — trains, taxis, and buses are all accessible from here.",
+    ],
+    transit: {
+      taxi: { title: "Taxi", bullets: ["The official taxi rank is directly outside Schiphol Plaza."], avoidScams: [] },
+      bus: { title: "Bus", bullets: ["Regional and long-distance buses depart from the bus station outside Schiphol Plaza."], avoidScams: [] },
+      rail: { title: "Rail", bullets: ["The train station is directly beneath the terminal — frequent trains to Amsterdam Centraal and beyond."], avoidScams: [] },
+    },
+    accessibility: {
+      summary: "Contact your airline at least 48 hours before travel to arrange wheelchair or mobility assistance. Schiphol's single-terminal layout and short walking distances (apart from Piers H and M) make it relatively easy to navigate.",
+      services: [
+        { label: "Wheelchair assistance", detail: "Request through your airline in advance." },
+        { label: "Accessible restrooms", detail: "Available throughout the terminal." },
+      ],
+      officialLinks: [
+        { label: "Schiphol — Assistance", href: "https://www.schiphol.nl/en/assistance/" },
+      ],
+    },
+    floorGuide: [
+      { floor: "Ground floor", label: "Arrivals, baggage claim, Schiphol Plaza, train station access" },
+      { floor: "Level 1", label: "Check-in and departures (Halls 1, 2, 3)" },
+      { floor: "Level 2", label: "Security, lounges, restaurants, gates" },
+      { floor: "Level 3", label: "Panorama Terrace" },
+    ],
+  },
+  HKG: {
+    iata: "HKG",
+    name: "Hong Kong International Airport",
+    city: "Hong Kong",
+    country: "Hong Kong",
+    summary: "Terminal 1 is Y-shaped and one of the world's largest enclosed spaces; an Automated People Mover (APM) connects distant gate areas.",
+    terminals: ["Terminal 1, Terminal 2"],
+    beforeYouFly: [],
+    afterYouLand: [
+      "Arrivals (immigration, baggage claim, customs) are on Level 5 of Terminal 1.",
+    ],
+    transit: {
+      taxi: { title: "Taxi", bullets: ["Official taxi stands are outside the arrivals hall — look for the marked queue."], avoidScams: [] },
+      bus: { title: "Bus", bullets: ["Airport buses serve Hong Kong Island, Kowloon, and the New Territories from outside the terminal."], avoidScams: [] },
+      rail: { title: "Rail (Airport Express)", bullets: ["The Airport Express train runs every 10–12 minutes to Hong Kong Station in about 24 minutes."], avoidScams: [] },
+    },
+    accessibility: {
+      summary: "Contact your airline at least 48 hours before travel to arrange wheelchair or mobility assistance. HKIA is fully physically accessible, with disabled toilets, wheelchair access, and Braille signage throughout.",
+      services: [
+        { label: "Wheelchair assistance", detail: "Request through your airline in advance." },
+        { label: "Accessible restrooms", detail: "Available throughout both terminals." },
+      ],
+      officialLinks: [
+        { label: "Hong Kong Airport — Special Needs Access", href: "https://www.hongkongairport.com/en/passenger-guide/airport-facilities-services/special-needs-access" },
+      ],
+    },
+    floorGuide: [
+      { floor: "Level 5", label: "Arrivals — immigration, baggage claim, customs" },
+      { floor: "Level 6", label: "Security and departure gates, shops, lounges" },
+      { floor: "Level 7", label: "Check-in hall — airline counters, self-service kiosks" },
+    ],
+  },
 };
 
 export function getAirportGuide(iata: string): AirportGuide {
