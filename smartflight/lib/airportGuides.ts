@@ -740,6 +740,40 @@ const GUIDES: Record<string, AirportGuide> = {
       { floor: "T3", label: "Single small building — arrivals on the north side, departures (Halls A/B) on the south side, not a floor split" },
     ],
   },
+  LAX: {
+    iata: "LAX",
+    name: "Los Angeles International Airport",
+    city: "Los Angeles",
+    country: "United States",
+    summary: "A U-shaped airport — 9 terminals (1–8 plus Tom Bradley International, 'Terminal B') around a two-level central roadway. The upper/lower split is consistent across all terminals except TBIT, which has its own multi-level scheme.",
+    terminals: ["Terminals 1–8", "Tom Bradley International Terminal (Terminal B)"],
+    beforeYouFly: [],
+    afterYouLand: [
+      "Arrivals and baggage claim are on the lower level at every terminal (except TBIT, which uses Level 1).",
+    ],
+    transit: {
+      taxi: { title: "Taxi", bullets: ["Taxis can only be picked up at LAX-it, a dedicated pickup lot near Terminal 1 — reached by free shuttle from any terminal's lower level. Taxis and rideshares drop off at the upper/departures level curb directly."], avoidScams: [] },
+      bus: { title: "Bus", bullets: ["FlyAway non-stop buses to Union Station and Van Nuys depart from the upper/departures level."], avoidScams: [] },
+      rail: { title: "Metro / Light Rail", bullets: ["Free shuttle to the LAX/Metro Transit Center connects to Los Angeles Metro rail and bus lines."], avoidScams: [] },
+    },
+    accessibility: {
+      summary: "Contact your airline at least 48 hours before travel to arrange wheelchair or mobility assistance.",
+      services: [
+        { label: "Wheelchair assistance", detail: "Request through your airline in advance." },
+        { label: "Accessible restrooms", detail: "Available throughout all terminals." },
+      ],
+      officialLinks: [
+        { label: "LAX — Accessibility", href: "https://www.flylax.com/lax-accessibility" },
+      ],
+    },
+    floorGuide: [
+      { floor: "Terminals 1–8, Upper Level", label: "Departures — check-in, curbside drop-off" },
+      { floor: "Terminals 1–8, Lower Level", label: "Arrivals — baggage claim, pickup" },
+      { floor: "TBIT (Terminal B), Level 1", label: "Baggage claim, customs" },
+      { floor: "TBIT (Terminal B), Level 3", label: "Check-in" },
+      { floor: "TBIT (Terminal B), Level 4", label: "Security, departures" },
+    ],
+  },
 };
 
 export function getAirportGuide(iata: string): AirportGuide {
