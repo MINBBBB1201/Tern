@@ -596,6 +596,38 @@ const GUIDES: Record<string, AirportGuide> = {
       { floor: "B1/B2", label: "Airport MRT platform" },
     ],
   },
+  SYD: {
+    iata: "SYD",
+    name: "Sydney Kingsford Smith Airport",
+    city: "Sydney",
+    country: "Australia",
+    summary: "Terminal 1 (International) is physically separate from the domestic terminals (T2/T3) and requires a train, shuttle bus, or taxi to transfer between them — walking is not practical.",
+    terminals: ["Terminal 1 (International)", "Terminal 2 (Domestic)", "Terminal 3 (Domestic, Qantas)"],
+    beforeYouFly: [],
+    afterYouLand: [
+      "Arrivals (immigration, baggage claim, customs) are on Level 1 of Terminal 1.",
+    ],
+    transit: {
+      taxi: { title: "Taxi", bullets: ["Taxi ranks are on the Arrivals level of Terminal 1, outside the terminal."], avoidScams: [] },
+      bus: { title: "Bus", bullets: ["Free T-Bus shuttle connects all terminals landside."], avoidScams: [] },
+      rail: { title: "Rail (Airport Link)", bullets: ["Airport Link train connects Terminal 1 to the domestic terminals in about 2 minutes, and onward to the Sydney CBD."], avoidScams: [] },
+    },
+    accessibility: {
+      summary: "Contact your airline at least 48 hours before travel to arrange wheelchair or mobility assistance.",
+      services: [
+        { label: "Wheelchair assistance", detail: "Request through your airline in advance." },
+        { label: "Accessible restrooms", detail: "Available throughout the terminal." },
+      ],
+      officialLinks: [
+        { label: "Sydney Airport — Assistance", href: "https://www.sydneyairport.com.au/assistance" },
+      ],
+    },
+    floorGuide: [
+      { floor: "Level 1", label: "Terminal 1 arrivals — immigration, baggage claim, customs" },
+      { floor: "Level 2", label: "Terminal 1 departures — check-in counters A–K, security" },
+      { floor: "Level 3", label: "Airline offices, lounges" },
+    ],
+  },
 };
 
 export function getAirportGuide(iata: string): AirportGuide {
