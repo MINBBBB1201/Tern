@@ -628,6 +628,82 @@ const GUIDES: Record<string, AirportGuide> = {
       { floor: "Level 3", label: "Airline offices, lounges" },
     ],
   },
+  FRA: {
+    iata: "FRA",
+    name: "Frankfurt Airport",
+    city: "Frankfurt",
+    country: "Germany",
+    summary: "Two terminals, each split into concourses with their own floor numbering — Terminal 1's concourses (A, B, C, Z) don't share a single 'arrivals is floor X' answer, so check your specific concourse below rather than assuming.",
+    terminals: ["Terminal 1 (Concourses A, B, C, Z)", "Terminal 2 (Concourses D, E)"],
+    beforeYouFly: [],
+    afterYouLand: [
+      "Your concourse determines your floor — see the terminal layout section below rather than assuming a single arrivals level applies airport-wide.",
+    ],
+    transit: {
+      taxi: { title: "Taxi", bullets: ["Taxi stands are near the exits of both Terminal 1 and Terminal 2 arrival floors."], avoidScams: [] },
+      bus: { title: "Bus", bullets: ["Airport buses to Frankfurt depart from the bus bay in front of Terminal 2's arrivals hall."], avoidScams: [] },
+      rail: { title: "Rail", bullets: ["Terminal 1 has both a regional (S-Bahn) station and a long-distance (ICE/IC) station, both connected directly to the terminal. Terminal 2 requires the free SkyLine train to reach Terminal 1 for the stations."], avoidScams: [] },
+    },
+    accessibility: {
+      summary: "Contact your airline at least 48 hours before travel to arrange wheelchair or mobility assistance.",
+      services: [
+        { label: "Wheelchair assistance", detail: "Request through your airline in advance." },
+        { label: "Accessible restrooms", detail: "Available throughout both terminals." },
+      ],
+      officialLinks: [
+        { label: "Frankfurt Airport — Special Needs", href: "https://www.frankfurt-airport.com/en/travel-planning/special-needs.html" },
+      ],
+    },
+    // Deliberately concourse-qualified, not a single "arrivals is floor X"
+    // claim — sources for this airport actively conflict when generalized
+    // across the whole terminal, because each concourse genuinely uses a
+    // different scheme (confirmed across airport-fra.com, ANA's official
+    // airport guide, and thepointsanalyst.com's concourse-by-concourse
+    // breakdown).
+    floorGuide: [
+      { floor: "T1 Concourse B, Level 1", label: "Arrivals — baggage claim, customs" },
+      { floor: "T1 Concourse B, Level 2", label: "Departures — check-in, lounges" },
+      { floor: "T1 Concourse B, Level 3", label: "Immigration, priority security lane" },
+      { floor: "T1 Concourse A, Level 2", label: "Schengen departures" },
+      { floor: "T1 Concourse Z, Level 3", label: "Non-Schengen departures (directly above Concourse A, same pier)" },
+      { floor: "T2 Concourse D/E, Level 2", label: "Arrivals — baggage claim, customs" },
+      { floor: "T2 Concourse D/E, Level 3", label: "Departures — check-in, security" },
+    ],
+  },
+  MUC: {
+    iata: "MUC",
+    name: "Munich Airport",
+    city: "Munich",
+    country: "Germany",
+    summary: "Terminal 1 is split into six largely-independent modules (A–F) that don't share one floor scheme — some handle both arrivals and departures, one (E) is arrivals-only, one (F) is a separate high-security building. Terminal 2 is simpler and mainly serves Lufthansa/Star Alliance.",
+    terminals: ["Terminal 1 (Modules A–F)", "Terminal 2 (Gates G, H + Satellite Gates K, L)"],
+    beforeYouFly: [],
+    afterYouLand: [
+      "Your module (Terminal 1) or terminal determines your floor and process — see the terminal layout section below.",
+    ],
+    transit: {
+      taxi: { title: "Taxi", bullets: ["Taxi ranks are at the arrivals curbside of both terminals."], avoidScams: [] },
+      bus: { title: "Bus", bullets: ["Lufthansa Airport Bus to the main train station departs from Terminal 1 (Arrivals A), the Munich Airport Center, and Terminal 2's arrivals level."], avoidScams: [] },
+      rail: { title: "Rail (S-Bahn)", bullets: ["S1 and S8 S-Bahn trains run every 10 minutes from the Munich Airport Center station to the city center."], avoidScams: [] },
+    },
+    accessibility: {
+      summary: "Contact your airline at least 48 hours before travel to arrange wheelchair or mobility assistance.",
+      services: [
+        { label: "Wheelchair assistance", detail: "Munich Airport's Mobility Service offers free help — request through your airline at least 48 hours ahead." },
+        { label: "Accessible restrooms", detail: "Available throughout both terminals." },
+      ],
+      officialLinks: [
+        { label: "Munich Airport — Barrier-free Travel", href: "https://www.munich-airport.com/accessible-travel-260945" },
+      ],
+    },
+    floorGuide: [
+      { floor: "T1 Modules A–D, Level 04", label: "Arrivals and departures (both handled on this level in these modules)" },
+      { floor: "T1 Modules B/C", label: "Non-Schengen arrivals — passport control before baggage claim" },
+      { floor: "T1 Module E", label: "Arrivals only" },
+      { floor: "T2, Level 04 (Gates G)", label: "Schengen departures; Schengen arrivals baggage claim" },
+      { floor: "T2, Level 05 (Gates H)", label: "Non-Schengen departures" },
+    ],
+  },
 };
 
 export function getAirportGuide(iata: string): AirportGuide {
