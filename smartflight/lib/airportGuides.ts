@@ -704,6 +704,42 @@ const GUIDES: Record<string, AirportGuide> = {
       { floor: "T2, Level 05 (Gates H)", label: "Non-Schengen departures" },
     ],
   },
+  CDG: {
+    iata: "CDG",
+    name: "Paris Charles de Gaulle Airport",
+    city: "Paris",
+    country: "France",
+    summary: "A genuinely complex airport — Terminal 2 alone splits into seven sub-terminals (2A–2G) with their own layouts, Terminal 1 has an unusual circular design, and Terminal 3 is a single small building. Confirm your specific sub-terminal, not just 'Terminal 2'.",
+    terminals: ["Terminal 1", "Terminal 2 (sub-terminals 2A–2G)", "Terminal 3"],
+    beforeYouFly: [],
+    afterYouLand: [
+      "Your sub-terminal (e.g. 2E vs 2C) determines your layout — see the terminal layout section below.",
+    ],
+    transit: {
+      taxi: { title: "Taxi", bullets: ["Taxi stands are at the Arrivals level of each terminal."], avoidScams: [] },
+      bus: { title: "Bus", bullets: ["Roissybus and RATP lines 350/351 connect to central Paris; free CDGVAL shuttle connects Terminals 1, 2, and 3."], avoidScams: [] },
+      rail: { title: "Rail (RER B / TGV)", bullets: ["RER B to central Paris departs from stations at both Terminal 2 and Terminal 3/Roissypôle — confirm you're at the right one, a common mix-up.", "TGV high-speed trains depart from the station beneath Terminal 2."], avoidScams: [] },
+    },
+    accessibility: {
+      summary: "Contact your airline at least 48 hours before travel to arrange wheelchair or mobility assistance.",
+      services: [
+        { label: "Wheelchair assistance", detail: "Request through your airline in advance." },
+        { label: "Accessible restrooms", detail: "Available throughout all terminals." },
+      ],
+      officialLinks: [
+        { label: "Paris Aéroport — Reduced Mobility", href: "https://www.parisaeroport.fr/en/passengers/flight-preparation/specific-assistance/people-with-reduced-mobility" },
+      ],
+    },
+    // Terminal-by-terminal, not a single answer — CDG's own layout varies
+    // this much even within Terminal 2's sub-terminals.
+    floorGuide: [
+      { floor: "T1", label: "Unusual circular design — CDGVAL shuttle arrives on the lower level; departures check-in/security are on the levels above; arrivals is on the top floor" },
+      { floor: "T2A/2B/2C/2D, Level 1", label: "Arrivals" },
+      { floor: "T2C/2D, Level 2", label: "Departures — boarding gates" },
+      { floor: "T2E/2F", label: "Departures level (check-in, security) and a separate Arrivals level (baggage claim) in the main building; some gates (2E Halls L/M) require a shuttle train" },
+      { floor: "T3", label: "Single small building — arrivals on the north side, departures (Halls A/B) on the south side, not a floor split" },
+    ],
+  },
 };
 
 export function getAirportGuide(iata: string): AirportGuide {
