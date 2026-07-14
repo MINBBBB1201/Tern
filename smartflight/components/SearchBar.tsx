@@ -407,10 +407,16 @@ interface AirportFieldProps {
   placeholder?: string;
 }
 
+type AirportSuggestion = { iata: string; name: string; city: string; country: string };
+
 function AirportField({ label, isOrigin, value, subValue, onChange, placeholder }: AirportFieldProps) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState("");
+  const [suggestions, setSuggestions] = useState<AirportSuggestion[]>([]);
+  const [activeIndex, setActiveIndex] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const suppressNextBlurCommit = useRef(false);
 
   const startEdit = () => {
     setDraft(value);
@@ -418,12 +424,51 @@ function AirportField({ label, isOrigin, value, subValue, onChange, placeholder 
     setTimeout(() => inputRef.current?.select(), 10);
   };
 
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    if (draft.trim().length < 2) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- clears stale suggestions when the draft is cleared/too short; must happen synchronously so no stale dropdown flashes before the debounced fetch would otherwise run
+      setSuggestions([]);
+      return;
+    }
+    debounceRef.current = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/airports/search?q=${encodeURIComponent(draft.trim())}`);
+        const data = await res.json();
+        setSuggestions(data.results || []);
+        setActiveIndex(-1);
+      } catch {
+        setSuggestions([]);
+      }
+    }, 150); // local dataset lookup, so a short debounce is enough
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, [draft]);
+
+  const pickSuggestion = (s: AirportSuggestion) => {
+    suppressNextBlurCommit.current = true;
+    onChange(s.iata, s.city);
+    setSuggestions([]);
+    setEditing(false);
+  };
+
   const commitEdit = () => {
+    if (suppressNextBlurCommit.current) {
+      suppressNextBlurCommit.current = false;
+      return;
+    }
+    // If a suggestion is highlighted, prefer it over raw text parsing.
+    if (activeIndex >= 0 && suggestions[activeIndex]) {
+      pickSuggestion(suggestions[activeIndex]);
+      return;
+    }
     const upper = draft.trim().toUpperCase();
     if (upper.length >= 2) {
       onChange(upper.slice(0, 3), upper.length > 3 ? draft.trim() : subValue);
     }
     setEditing(false);
+    setSuggestions([]);
   };
 
   const isFrom = isOrigin;
@@ -452,18 +497,52 @@ function AirportField({ label, isOrigin, value, subValue, onChange, placeholder 
       </div>
 
       {editing ? (
-        <input
-          ref={inputRef}
-          value={draft}
-          onChange={e => setDraft(e.target.value)}
-          onBlur={commitEdit}
-          onKeyDown={e => {
-            if (e.key === "Enter") commitEdit();
-            if (e.key === "Escape") setEditing(false);
-          }}
-          className="vol-inline-input"
-          autoFocus
-        />
+        <div className="relative">
+          <input
+            ref={inputRef}
+            value={draft}
+            onChange={e => setDraft(e.target.value)}
+            onBlur={commitEdit}
+            onKeyDown={e => {
+              if (e.key === "ArrowDown") {
+                e.preventDefault();
+                setActiveIndex((i) => Math.min(i + 1, suggestions.length - 1));
+              } else if (e.key === "ArrowUp") {
+                e.preventDefault();
+                setActiveIndex((i) => Math.max(i - 1, -1));
+              } else if (e.key === "Enter") {
+                commitEdit();
+              } else if (e.key === "Escape") {
+                setSuggestions([]);
+                setEditing(false);
+              }
+            }}
+            className="vol-inline-input"
+            autoFocus
+            autoComplete="off"
+          />
+          {suggestions.length > 0 && (
+            <div className="glass-panel absolute left-0 right-0 top-full z-50 mt-1 max-h-64 overflow-y-auto rounded-xl py-1 text-left">
+              {suggestions.map((s, i) => (
+                <div
+                  key={s.iata}
+                  onMouseDown={(e) => {
+                    // mousedown fires before the input's onBlur, so we can
+                    // commit the pick before the blur-driven raw-text parse
+                    // would otherwise run.
+                    e.preventDefault();
+                    pickSuggestion(s);
+                  }}
+                  className={`cursor-pointer px-3 py-2 text-sm ${i === activeIndex ? "bg-black/5" : ""}`}
+                >
+                  <span className="data-mono font-semibold text-primary">{s.iata}</span>
+                  <span className="ml-2 text-foreground">{s.city}</span>
+                  <span className="ml-1 text-xs text-muted">— {s.name}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       ) : (
         <>
           <div className="vol-value">
