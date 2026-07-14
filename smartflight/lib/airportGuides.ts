@@ -41,6 +41,12 @@ export type AirportGuide = {
   accessibility: AirportAccessibility;
   /** Per-floor/level breakdown for airports complex enough to need one (multi-terminal, stacked arrivals/departures). */
   floorGuide?: FloorGuide[];
+  /**
+   * Facilities useful specifically for connecting/transit passengers
+   * (showers, day-use rooms, lounges) — kept to what's available, not
+   * precise current prices, since those change often and get stale fast.
+   */
+  transitTips?: string[];
 };
 
 const DEFAULT_GUIDE = (iata: string): AirportGuide => ({
@@ -167,6 +173,11 @@ const GUIDES: Record<string, AirportGuide> = {
         { label: "Incheon Airport accessibility services", href: "https://www.airport.kr/ap_en/1478/subview.do" },
       ],
     },
+    transitTips: [
+      "Free public showers airside in both terminals (bring your own towel/toiletries); paid transit lounge showers (T1 near Gates 25/29, T2 near Gates 231/268) include towel, shampoo, and body wash.",
+      "Transit Hotels in both Terminal 1 and Terminal 2 offer day-use rooms without needing to clear immigration — useful for long layovers.",
+      "Several lounges accept day passes or Priority Pass/DragonPass memberships even for economy-class travelers, not just premium cabins.",
+    ],
   },
   NRT: {
     iata: "NRT",
@@ -220,6 +231,11 @@ const GUIDES: Record<string, AirportGuide> = {
         { label: "Narita Airport — Customers Requiring Assistance", href: "https://www.narita-airport.jp/en/bf/" },
       ],
     },
+    transitTips: [
+      "Paid shower and day-room facilities airside in both Terminal 1 and Terminal 2 — towel, shampoo, and hairdryer included; no free walk-up showers.",
+      "Some airlines (e.g. JAL, ANA) offer free or discounted shower access for their own connecting international passengers — check with your airline before paying.",
+      "Lounges accept prepaid day passes as well as membership programs, even for economy travelers.",
+    ],
   },
   HND: {
     iata: "HND",
@@ -268,6 +284,11 @@ const GUIDES: Record<string, AirportGuide> = {
         { label: "Haneda Airport — Special Assistance Reservation", href: "https://tokyo-haneda.com/en/service/facilities/assist.html" },
       ],
     },
+    transitTips: [
+      "The Royal Park Hotel Tokyo Haneda Transit is an in-terminal hotel inside Terminal 3's airside (post-security) zone — day rooms with shower, no need to clear immigration.",
+      "Official shower rooms are also available in the terminal separately from the hotel.",
+      "Confirmed as one of the more efficient major airports for connecting passengers — layovers are generally manageable given the compact single-terminal international layout.",
+    ],
   },
   JFK: {
     iata: "JFK",
@@ -318,6 +339,11 @@ const GUIDES: Record<string, AirportGuide> = {
         { label: "JFK Airport accessibility services", href: "https://www.jfkairport.com/explore-jfk/accessibility-services" },
       ],
     },
+    transitTips: [
+      "No free walk-up showers — showers only exist via lounges (Terminals 4, 5, 8) or paid suites like Minute Suites (Terminal 4, near Gate B39).",
+      "The TWA Hotel at Terminal 5 offers day-use rooms with showers, connected via AirTrain from other terminals.",
+      "JFK's terminals aren't uniformly connected pre-security — a day-use hotel or lounge is only realistic if it's in your terminal or reachable by AirTrain within your layover window.",
+    ],
   },
   LHR: {
     iata: "LHR",
@@ -369,6 +395,11 @@ const GUIDES: Record<string, AirportGuide> = {
         { label: "Heathrow — Help in the terminal", href: "https://www.heathrow.com/at-the-airport/assistance-and-accessibility/help-in-the-terminal" },
       ],
     },
+    transitTips: [
+      "YOTEL (Terminal 4) and Aerotel (Terminal 3) offer day-use sleep pods with en-suite showers, bookable in ~4-hour blocks, airside — no need to clear UK immigration.",
+      "Plaza Premium Lounges (Terminals 2 and 4) sell shower-only access without booking a full room.",
+      "Hotels connected via walkway (Sofitel T5, Hilton T4) are technically landside, so you'd need to clear UK immigration to reach them if you're in transit.",
+    ],
   },
   SIN: {
     iata: "SIN",

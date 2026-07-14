@@ -145,6 +145,32 @@ export default async function AirportGuidePage({ params }: Props) {
           )}
         </section>
 
+        {guide.floorGuide && guide.floorGuide.length > 0 && (
+          <section className="mt-6 rounded-2xl border border-[#e1eaf6] bg-white p-6 shadow-sm">
+            <h2 className="text-lg font-bold">Floor guide</h2>
+            <ul className="mt-3 space-y-2">
+              {guide.floorGuide.map((f) => (
+                <li key={f.floor} className="flex gap-3 text-sm">
+                  <span className="data-mono w-32 shrink-0 font-semibold text-primary">{f.floor}</span>
+                  <span className="text-muted">{f.label}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        {guide.transitTips && guide.transitTips.length > 0 && (
+          <section className="mt-6 rounded-2xl border border-[#e1eaf6] bg-white p-6 shadow-sm">
+            <h2 className="text-lg font-bold">Connecting? Rest & refresh options</h2>
+            <p className="mt-1 text-xs text-muted">Facility availability, not current prices — those change often, so confirm at the desk.</p>
+            <ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-muted">
+              {guide.transitTips.map((tip) => (
+                <li key={tip}>{tip}</li>
+              ))}
+            </ul>
+          </section>
+        )}
+
         <h2 className="mt-12 text-xl font-bold">Ground transport</h2>
         <p className="mt-2 text-sm text-muted">
           Taxi vs bus vs rail depends on group size, luggage, and traffic. Always verify prices at official desks or trusted apps.
