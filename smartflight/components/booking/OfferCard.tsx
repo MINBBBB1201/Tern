@@ -8,6 +8,7 @@ import { LayoverBadge } from "./LayoverBadge";
 import { AirportWeatherChip } from "./AirportWeatherChip";
 import { getAircraftImage, getAircraftName } from "../../lib/aircraftImages";
 import { PriceDisplay } from "../../lib/PriceDisplay";
+import { buildAirportUberLink } from "../../lib/rideDeepLinks";
 import {
   buildBookingPrograms,
   computeDelayRiskScore,
@@ -35,6 +36,7 @@ function OfferCardImpl({ offer, isExpanded, onToggleExpand, onSelect, from, to, 
   const aircraftName = getAircraftName(offer.aircraftIata);
   const programs = buildBookingPrograms(offer);
   const tilt = useHoverTilt<HTMLElement>(2);
+  const arrivalUberLink = buildAirportUberLink(offer.destinationAirport || to);
 
   return (
     <article
@@ -219,6 +221,18 @@ function OfferCardImpl({ offer, isExpanded, onToggleExpand, onSelect, from, to, 
                   ))}
                 </div>
               </div>
+
+              {arrivalUberLink && (
+                <a
+                  href={arrivalUberLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-between gap-2 rounded-xl bg-black px-3 py-2.5 text-xs transition-transform hover:scale-[1.01] active:scale-[0.99]"
+                >
+                  <span className="font-black tracking-tight text-white">Uber</span>
+                  <span className="text-white/60">{t("getRideAtArrival", { airport: offer.destinationAirport || to })}</span>
+                </a>
+              )}
             </div>
           </div>
         </div>

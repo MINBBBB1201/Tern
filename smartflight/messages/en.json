@@ -105,6 +105,7 @@
     "bookWithPoints": "Book with points",
     "layover": "layover",
     "layoverAt": "at {airport}",
-    "approxChargedIn": "≈, charged in {price}"
+    "approxChargedIn": "≈, charged in {price}",
+    "getRideAtArrival": "Get a ride at {airport}"
   }
 }

@@ -105,6 +105,7 @@
     "bookWithPoints": "マイルで予約",
     "layover": "乗継待ち",
     "layoverAt": "{airport}にて",
-    "approxChargedIn": "≈、実際の請求は {price}"
+    "approxChargedIn": "≈、実際の請求は {price}",
+    "getRideAtArrival": "{airport}で配車"
   }
 }

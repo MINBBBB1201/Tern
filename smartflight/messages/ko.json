@@ -105,6 +105,7 @@
     "bookWithPoints": "포인트로 예약",
     "layover": "경유 대기",
     "layoverAt": "{airport}에서",
-    "approxChargedIn": "≈, 실제 결제는 {price}"
+    "approxChargedIn": "≈, 실제 결제는 {price}",
+    "getRideAtArrival": "{airport}에서 이동하기"
   }
 }

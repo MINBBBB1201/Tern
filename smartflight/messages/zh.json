@@ -105,6 +105,7 @@
     "bookWithPoints": "积分兑换",
     "layover": "中转等待",
     "layoverAt": "于{airport}",
-    "approxChargedIn": "≈，实际扣款为 {price}"
+    "approxChargedIn": "≈，实际扣款为 {price}",
+    "getRideAtArrival": "在{airport}叫车"
   }
 }
