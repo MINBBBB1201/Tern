@@ -843,6 +843,39 @@ const GUIDES: Record<string, AirportGuide> = {
       { floor: "T4S, Underground", label: "APM (people mover) to T4" },
     ],
   },
+  ZRH: {
+    iata: "ZRH",
+    name: "Zurich Airport",
+    city: "Zurich",
+    country: "Switzerland",
+    summary: "Effectively a single terminal (the old separate terminals were merged, with one shared security checkpoint), organized as Check-in 1/Arrivals 1 and Check-in 2/Arrivals 2 within the same building, plus a separate Dock E for most international/non-Schengen flights reached by an underground SkyMetro train.",
+    terminals: ["Main terminal (Check-in/Arrivals 1 & 2)", "Dock E (non-Schengen, via SkyMetro)"],
+    beforeYouFly: [],
+    afterYouLand: [
+      "Signage refers to 'Arrival 1' or 'Arrival 2' rather than terminal numbers — check your boarding pass/flight info for which one applies.",
+    ],
+    transit: {
+      taxi: { title: "Taxi", bullets: ["Official taxis can be hailed from the inside curbs of Arrival Halls 1 and 2."], avoidScams: [] },
+      bus: { title: "Bus", bullets: ["Local and intercity buses (including Flixbus) stop at Level 0, outside the Airport Centre."], avoidScams: [] },
+      rail: { title: "Rail (SBB)", bullets: ["Direct trains to Zürich Hauptbahnhof (main station) take about 10-12 minutes, departing roughly every 6-12 minutes from the station beneath the Airport Centre."], avoidScams: [] },
+    },
+    accessibility: {
+      summary: "Contact your airline at least 48 hours before travel to arrange wheelchair or mobility assistance.",
+      services: [
+        { label: "Wheelchair assistance", detail: "Request through your airline in advance." },
+        { label: "Accessible restrooms", detail: "Available throughout the terminal." },
+      ],
+      officialLinks: [
+        { label: "Zurich Airport — Travelling with Reduced Mobility", href: "https://www.flughafen-zuerich.ch/en/passengers/fly/assistance/travelling-with-reduced-mobility" },
+      ],
+    },
+    floorGuide: [
+      { floor: "Level 0", label: "Ground transport (tram, bus), Arrival 1 information center" },
+      { floor: "Level 1", label: "Check-in 1 & 2, Arrivals 1 & 2, gates A/B/D" },
+      { floor: "Level 2", label: "Additional gates, shops, airport services" },
+      { floor: "Dock E (via SkyMetro)", label: "Non-Schengen international departures/arrivals — separate building" },
+    ],
+  },
 };
 
 export function getAirportGuide(iata: string): AirportGuide {
