@@ -953,6 +953,38 @@ const GUIDES: Record<string, AirportGuide> = {
       { floor: "klia2 (T2), Level 3", label: "Departures — check-in, security" },
     ],
   },
+  GRU: {
+    iata: "GRU",
+    name: "São Paulo/Guarulhos International Airport",
+    city: "São Paulo",
+    country: "Brazil",
+    summary: "Three terminals: Terminal 3 handles most international long-haul flights, Terminal 2 handles most domestic and regional South American flights, Terminal 1 (Azul only) is smallest and physically separate. T2 and T3 are connected by a walkway; T1 requires a shuttle bus.",
+    terminals: ["Terminal 1 (Azul, domestic)", "Terminal 2 (domestic + regional international)", "Terminal 3 (international long-haul)"],
+    beforeYouFly: [],
+    afterYouLand: [
+      "If you're connecting from an international to a domestic flight, you'll need to clear immigration and customs, collect baggage, and re-check-in — allow real time for this, especially if changing from Terminal 3 to Terminal 1 or 2.",
+    ],
+    transit: {
+      taxi: { title: "Taxi", bullets: ["The official taxi service has booths on the street level at both Terminal 2 and Terminal 3 — pay at the booth, not the driver directly."], avoidScams: ["Unofficial drivers approaching passengers inside the terminal — use the official booths only."] },
+      bus: { title: "Bus", bullets: ["Airport buses to Paulista Avenue, Tietê, and Barra Funda terminals depart from the arrivals level of each terminal."], avoidScams: [] },
+      rail: { title: "Rail (Line 13 CPTM)", bullets: ["The cheapest option but requires a transfer to reach central São Paulo."], avoidScams: [] },
+    },
+    accessibility: {
+      summary: "Contact your airline at least 48 hours before travel to arrange wheelchair or mobility assistance.",
+      services: [
+        { label: "Wheelchair assistance", detail: "Request through your airline in advance." },
+        { label: "Accessible restrooms", detail: "Available throughout all terminals." },
+      ],
+      officialLinks: [
+        { label: "GRU Airport — Terminals Guide", href: "https://www.gru.com.br/en/institutional/sobre-gru-airport/terminals" },
+      ],
+    },
+    floorGuide: [
+      { floor: "All terminals, Ground/1st floor", label: "Arrivals — baggage claim, customs (consistent across T1/T2/T3)" },
+      { floor: "Terminal 2, 2nd floor", label: "Departures — check-in, security; also the connector walkway to Terminal 3" },
+      { floor: "Terminal 3, 3rd floor", label: "Departures — check-in, security" },
+    ],
+  },
 };
 
 export function getAirportGuide(iata: string): AirportGuide {
