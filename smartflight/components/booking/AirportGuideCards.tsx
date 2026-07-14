@@ -3,7 +3,13 @@
 import { useState } from "react";
 import Link from "next/link";
 import type { AirportGuide } from "../../lib/airportGuides";
-import { buildAirportUberLink, buildAirportUberLinkWithDropoff } from "../../lib/rideDeepLinks";
+import {
+  buildAirportUberLink,
+  buildAirportUberLinkWithDropoff,
+  buildAirportLyftLink,
+  buildAirportLyftLinkWithDropoff,
+  isLyftAvailable,
+} from "../../lib/rideDeepLinks";
 import { getAirport } from "../../lib/airportData";
 import { DestinationSearch, type DestinationPoint } from "../DestinationSearch";
 
@@ -29,6 +35,11 @@ export default function AirportGuideCards({ departureGuide, arrivalGuide, from, 
           ? buildAirportUberLinkWithDropoff(iata, dropoff)
           : buildAirportUberLink(iata);
         const countryCode = getAirport(iata)?.country;
+        const lyftLink = isLyftAvailable(countryCode)
+          ? dropoff
+            ? buildAirportLyftLinkWithDropoff(iata, dropoff)
+            : buildAirportLyftLink(iata)
+          : null;
 
         return (
           <div key={idx} className="glass-panel rounded-[20px] p-5">
@@ -57,10 +68,29 @@ export default function AirportGuideCards({ departureGuide, arrivalGuide, from, 
                     Open ↗
                   </span>
                 </a>
-                <p className="mb-3 mt-1.5 text-[11px] text-muted">
+                <p className={`mt-1.5 text-[11px] text-muted ${lyftLink ? "mb-2" : "mb-3"}`}>
                   Uber operates in most major cities worldwide, but not everywhere—if it&apos;s not available here, the app will let you know.
                 </p>
               </>
+            )}
+
+            {lyftLink && (
+              <a
+                href={lyftLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mb-3 flex items-center justify-between gap-3 rounded-2xl bg-[#FF00BF] px-4 py-3.5 transition-transform hover:scale-[1.01] active:scale-[0.99]"
+              >
+                <div className="flex items-center gap-2.5">
+                  <span className="text-2xl font-black tracking-tight text-white">Lyft</span>
+                  <span className="hidden text-xs text-white/70 sm:inline">
+                    {dropoff ? `${guide.iata} → destination` : `Get a ride from ${guide.iata}`}
+                  </span>
+                </div>
+                <span className="rounded-full bg-white px-3 py-1.5 text-xs font-bold text-[#FF00BF]">
+                  Open ↗
+                </span>
+              </a>
             )}
 
             <div className="flex flex-wrap items-center gap-2">
