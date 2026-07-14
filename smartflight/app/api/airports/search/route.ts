@@ -42,6 +42,17 @@ const MAJOR_HUB_BOOST = new Set([
   "AKL", "CHC", "PER", "BNE", "MEL", "ADL", "NAN",
 ]);
 
+/**
+ * Several cities have more than one MAJOR_HUB_BOOST airport (e.g. London:
+ * LHR + LGW; New York: JFK + LGA + EWR), which tied at the same score and
+ * fell back to JSON insertion order — live-tested and caught: "lon"
+ * actually surfaced LGW ahead of LHR, not the order the first version of
+ * this file's commit message claimed. This second, smaller tier breaks
+ * those specific ties in favor of the single most internationally
+ * recognized airport per city, without touching every other ranking.
+ */
+const PRIMARY_HUB_TIEBREAK = new Set(["LHR", "JFK", "CDG", "NRT"]);
+
 export type AirportSearchResult = {
   iata: string;
   name: string;
@@ -70,6 +81,7 @@ export async function GET(req: NextRequest) {
 
     if (score > 0) {
       if (MAJOR_HUB_BOOST.has(iata)) score += 15;
+      if (PRIMARY_HUB_TIEBREAK.has(iata)) score += 3;
       scored.push({ entry: { iata, name: info.name, city: info.city, country: info.country }, score });
     }
   }
