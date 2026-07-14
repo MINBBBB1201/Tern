@@ -9,7 +9,11 @@ type Props = { params: Promise<{ iata: string }> };
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { iata } = await params;
   const guide = getAirportGuide(iata);
-  const title = `${guide.name} (${guide.iata}) Airport Guide — Layovers, Accessibility & Ground Transport | Tern`;
+  // The root layout's title template ("%s | Tern") appends the suffix
+  // automatically for `title` below — don't add it again here, or it
+  // renders as "... | Tern | Tern". openGraph/twitter titles aren't
+  // templated, so they need it added explicitly.
+  const title = `${guide.name} (${guide.iata}) Airport Guide — Layovers, Accessibility & Ground Transport`;
   const description = guide.summary || `Everything you need to know about ${guide.name} (${guide.iata}): terminal layout, ground transport, and accessibility services.`;
   const url = `https://www.flytern.site/guide/airport/${guide.iata}`;
 
@@ -18,7 +22,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     description,
     alternates: { canonical: url },
     openGraph: {
-      title,
+      title: `${title} | Tern`,
       description,
       url,
       type: "website",
@@ -26,7 +30,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     },
     twitter: {
       card: "summary",
-      title,
+      title: `${title} | Tern`,
       description,
     },
   };
