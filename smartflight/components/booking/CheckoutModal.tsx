@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
+import { useTranslations } from "next-intl";
 import { buildBookingPrograms, dateLabel, durationLabel, formatMoney, type Offer } from "../../lib/offerUtils";
 
 gsap.registerPlugin(useGSAP);
@@ -27,6 +28,7 @@ export default function CheckoutModal(props: CheckoutModalProps) {
 }
 
 function CheckoutModalShell({ checkoutOffer, checkoutStep, fromCity, toCity, from, to, onAdvanceToBook, onClose, aviasalesUrl }: CheckoutModalProps & { checkoutOffer: Offer }) {
+  const t = useTranslations("Checkout");
   const rootRef = useRef<HTMLDivElement>(null);
   const stepRef = useRef<HTMLDivElement>(null);
 
@@ -57,7 +59,7 @@ function CheckoutModalShell({ checkoutOffer, checkoutStep, fromCity, toCity, fro
       window.location.assign(data.url);
       // Keep the spinner while the browser navigates away.
     } catch {
-      setCheckoutError("Couldn't open the secure checkout. Please try again.");
+      setCheckoutError(t("checkoutOpenError"));
       setCheckoutLoading(false);
     }
   };
@@ -113,7 +115,7 @@ function CheckoutModalShell({ checkoutOffer, checkoutStep, fromCity, toCity, fro
 
         <div className="mb-4 flex items-center justify-between">
           <p className="text-lg font-bold">
-            {checkoutStep === "review" ? "Review your flight" : "Complete booking"}
+            {checkoutStep === "review" ? t("reviewTitle") : t("bookTitle")}
           </p>
           <button type="button" onClick={onClose} className="rounded-full p-1.5 hover:bg-gray-100">
             <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -128,7 +130,7 @@ function CheckoutModalShell({ checkoutOffer, checkoutStep, fromCity, toCity, fro
             <div className="glass-chip rounded-2xl p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-semibold">{checkoutOffer.airline || "Partner Airline"}</p>
+                  <p className="font-semibold">{checkoutOffer.airline || t("partnerAirline")}</p>
                   <p className="text-sm text-muted">{fromCity} ({from}) → {toCity} ({to})</p>
                   <p className="text-sm text-muted">{dateLabel(checkoutOffer.departure)} · {durationLabel(checkoutOffer.duration)}</p>
                 </div>
@@ -137,12 +139,12 @@ function CheckoutModalShell({ checkoutOffer, checkoutStep, fromCity, toCity, fro
             </div>
 
             <div>
-              <p className="mb-2 text-sm font-semibold">Book with points or cash</p>
+              <p className="mb-2 text-sm font-semibold">{t("bookWithPointsOrCash")}</p>
               <div className="space-y-2">
                 {buildBookingPrograms(checkoutOffer).transferOptions.map((opt) => (
                   <div key={opt.program} className="glass-chip flex items-center justify-between rounded-xl px-3 py-2.5 text-sm">
                     <span className="font-medium">{opt.program}</span>
-                    <span className="text-primary-hover font-semibold">{opt.points.toLocaleString()} pts {opt.cash}</span>
+                    <span className="text-primary-hover font-semibold">{opt.points.toLocaleString()} {t("pts")} {opt.cash}</span>
                   </div>
                 ))}
               </div>
@@ -153,7 +155,7 @@ function CheckoutModalShell({ checkoutOffer, checkoutStep, fromCity, toCity, fro
               onClick={onAdvanceToBook}
               className="w-full rounded-2xl bg-primary py-3 text-sm font-bold text-white hover:bg-primary/90 transition-colors"
             >
-              Continue to booking
+              {t("continueToBooking")}
             </button>
           </div>
         )}
@@ -165,21 +167,23 @@ function CheckoutModalShell({ checkoutOffer, checkoutStep, fromCity, toCity, fro
                 API; only currency and branding transfer). Never imply the
                 exact flight is pre-loaded and ready to pay for. */}
             <p className="text-sm text-muted">
-              Payment and ticketing are handled by our secure checkout partner, Duffel.
-              Your selection doesn&apos;t carry over automatically — on the next page,
-              search <strong>{from} → {to}</strong> again and re-select your flight:
+              {t.rich("duffelHandoff", {
+                from,
+                to,
+                route: (chunks) => <strong>{chunks}</strong>,
+              })}
             </p>
             <div className="glass-chip rounded-2xl p-4 text-sm">
-              <p className="font-semibold">{checkoutOffer.airline || "Partner Airline"}</p>
+              <p className="font-semibold">{checkoutOffer.airline || t("partnerAirline")}</p>
               <p className="text-muted">
                 {fromCity} ({from}) → {toCity} ({to}) · {dateLabel(checkoutOffer.departure)}
               </p>
               <p className="text-muted">
-                Around {formatMoney(Number(checkoutOffer.price), checkoutOffer.currency)} — final price is shown at checkout
+                {t("aroundPrice", { price: formatMoney(Number(checkoutOffer.price), checkoutOffer.currency) })}
               </p>
             </div>
             <div className="glass-chip rounded-2xl p-4 text-sm text-muted">
-              🧪 <strong>Test mode</strong> — this demo checkout accepts test cards only and issues no real tickets.
+              {t("testModeNotice")}
             </div>
             {checkoutError && (
               <p className="text-sm text-red-600" role="alert">{checkoutError}</p>
@@ -190,7 +194,7 @@ function CheckoutModalShell({ checkoutOffer, checkoutStep, fromCity, toCity, fro
               disabled={checkoutLoading}
               className="w-full rounded-2xl bg-primary py-3 text-sm font-bold text-white hover:bg-primary/90 transition-colors disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {checkoutLoading ? "Opening secure checkout…" : "Continue to secure checkout"}
+              {checkoutLoading ? t("openingCheckout") : t("continueToCheckout")}
             </button>
             {/* Second revenue path (Travelpayouts White Label on our own
                 book.flytern.site). Same honesty bar as the Duffel copy above:
@@ -199,10 +203,11 @@ function CheckoutModalShell({ checkoutOffer, checkoutStep, fromCity, toCity, fro
             {aviasalesUrl && (
               <div className="space-y-2">
                 <p className="text-xs text-muted">
-                  Or book through our booking site, book.flytern.site: the link below opens
-                  it with <strong>{from} → {to}</strong> and your dates pre-filled —
-                  you&apos;ll re-select your flight there, and prices may differ. Tern earns
-                  a commission on bookings made there, at no extra cost to you.
+                  {t.rich("whiteLabelHandoff", {
+                    from,
+                    to,
+                    route: (chunks) => <strong>{chunks}</strong>,
+                  })}
                 </p>
                 <a
                   href={aviasalesUrl}
@@ -210,7 +215,7 @@ function CheckoutModalShell({ checkoutOffer, checkoutStep, fromCity, toCity, fro
                   rel="sponsored noopener noreferrer"
                   className="block w-full rounded-2xl border border-[#d5dfec] py-3 text-center text-sm font-semibold hover:bg-gray-50 transition-colors"
                 >
-                  Book this route ↗
+                  {t("bookThisRoute")}
                 </a>
               </div>
             )}
@@ -219,7 +224,7 @@ function CheckoutModalShell({ checkoutOffer, checkoutStep, fromCity, toCity, fro
               onClick={onClose}
               className="w-full rounded-2xl border border-[#d5dfec] py-3 text-sm font-semibold hover:bg-gray-50 transition-colors"
             >
-              Close
+              {t("close")}
             </button>
           </div>
         )}

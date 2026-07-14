@@ -52,6 +52,44 @@
     "searchFlights": "Search flights",
     "searching": "Searching…"
   },
+  "Checkout": {
+    "reviewTitle": "Review your flight",
+    "bookTitle": "Complete booking",
+    "partnerAirline": "Partner Airline",
+    "bookWithPointsOrCash": "Book with points or cash",
+    "pts": "pts",
+    "continueToBooking": "Continue to booking",
+    "duffelHandoff": "Payment and ticketing are handled by our secure checkout partner, Duffel. Your selection doesn't carry over automatically — on the next page, search <route>{from} → {to}</route> again and re-select your flight:",
+    "aroundPrice": "Around {price} — final price is shown at checkout",
+    "testModeNotice": "🧪 Test mode — this demo checkout accepts test cards only and issues no real tickets.",
+    "checkoutOpenError": "Couldn't open the secure checkout. Please try again.",
+    "openingCheckout": "Opening secure checkout…",
+    "continueToCheckout": "Continue to secure checkout",
+    "whiteLabelHandoff": "Or book through our booking site, book.flytern.site: the link below opens it with <route>{from} → {to}</route> and your dates pre-filled — you'll re-select your flight there, and prices may differ. Tern earns a commission on bookings made there, at no extra cost to you.",
+    "bookThisRoute": "Book this route ↗",
+    "close": "Close"
+  },
+  "SignIn": {
+    "redirecting": "Redirecting...",
+    "subtitle": "Sign in to continue your journey",
+    "welcomeBack": "Welcome Back",
+    "signingIn": "Signing in...",
+    "continueWithGoogle": "Continue with Google",
+    "terms": "By signing in, you agree to our Terms of Service and Privacy Policy",
+    "backToHome": "← Back to Home",
+    "genericError": "Failed to sign in. Please try again."
+  },
+  "PriceAlert": {
+    "title": "Price alerts",
+    "targetPricePlaceholder": "Target price (USD)",
+    "setAlert": "Set alert",
+    "target": "target",
+    "setOn": "set"
+  },
+  "LoyaltyCard": {
+    "title": "Maximize your points",
+    "transferBonus": "Transfer bonus"
+  },
   "Offer": {
     "details": "Details",
     "less": "Less",

@@ -52,6 +52,44 @@
     "searchFlights": "搜索航班",
     "searching": "搜索中…"
   },
+  "Checkout": {
+    "reviewTitle": "确认航班信息",
+    "bookTitle": "完成预订",
+    "partnerAirline": "合作航空公司",
+    "bookWithPointsOrCash": "使用积分或现金预订",
+    "pts": "积分",
+    "continueToBooking": "继续预订",
+    "duffelHandoff": "支付和出票由我们的安全结算合作伙伴 Duffel 处理。您的选择不会自动带入下一页——请在下一页重新搜索 <route>{from} → {to}</route> 并重新选择航班：",
+    "aroundPrice": "约 {price} — 最终价格以结算页面为准",
+    "testModeNotice": "🧪 测试模式 — 此演示结算仅接受测试卡，不会开具真实机票。",
+    "checkoutOpenError": "无法打开安全结算页面，请重试。",
+    "openingCheckout": "正在打开安全结算页面…",
+    "continueToCheckout": "前往安全结算",
+    "whiteLabelHandoff": "或通过我们的预订网站 book.flytern.site 预订：点击下方链接会打开预填 <route>{from} → {to}</route> 航线和日期的搜索页面——您可以在那里重新选择航班，价格可能会有所不同。通过该渠道完成的预订，Tern 将获得佣金，您无需支付额外费用。",
+    "bookThisRoute": "预订该航线 ↗",
+    "close": "关闭"
+  },
+  "SignIn": {
+    "redirecting": "跳转中…",
+    "subtitle": "登录以继续您的旅程",
+    "welcomeBack": "欢迎回来",
+    "signingIn": "登录中…",
+    "continueWithGoogle": "使用 Google 继续",
+    "terms": "登录即表示您同意我们的服务条款和隐私政策",
+    "backToHome": "← 返回首页",
+    "genericError": "登录失败，请重试。"
+  },
+  "PriceAlert": {
+    "title": "价格提醒",
+    "targetPricePlaceholder": "目标价格 (USD)",
+    "setAlert": "设置提醒",
+    "target": "目标",
+    "setOn": "设置于"
+  },
+  "LoyaltyCard": {
+    "title": "最大化积分收益",
+    "transferBonus": "转换奖励"
+  },
   "Offer": {
     "details": "详情",
     "less": "收起",

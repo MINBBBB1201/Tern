@@ -52,6 +52,44 @@
     "searchFlights": "항공편 검색",
     "searching": "검색 중…"
   },
+  "Checkout": {
+    "reviewTitle": "항공편 확인",
+    "bookTitle": "예약 완료하기",
+    "partnerAirline": "제휴 항공사",
+    "bookWithPointsOrCash": "포인트 또는 현금으로 예약",
+    "pts": "포인트",
+    "continueToBooking": "예약 진행하기",
+    "duffelHandoff": "결제와 발권은 안전한 결제 파트너 Duffel이 처리합니다. 선택하신 항공편은 자동으로 이어지지 않으니, 다음 페이지에서 <route>{from} → {to}</route>를 다시 검색해서 항공편을 다시 선택해주세요:",
+    "aroundPrice": "약 {price} — 최종 가격은 결제 화면에서 확인됩니다",
+    "testModeNotice": "🧪 테스트 모드 — 이 데모 결제는 테스트 카드만 받고 실제 항공권은 발권되지 않습니다.",
+    "checkoutOpenError": "안전한 결제 페이지를 열 수 없습니다. 다시 시도해주세요.",
+    "openingCheckout": "안전한 결제 페이지 여는 중…",
+    "continueToCheckout": "안전한 결제로 이동",
+    "whiteLabelHandoff": "또는 저희 예약 사이트 book.flytern.site를 통해서도 예약할 수 있어요: 아래 링크를 누르면 <route>{from} → {to}</route> 노선과 날짜가 미리 채워진 상태로 열립니다 — 거기서 항공편을 다시 선택하시면 되고, 가격은 다를 수 있어요. 여기서 예약이 이뤄지면 Tern이 커미션을 받지만 여러분에게는 추가 비용이 없어요.",
+    "bookThisRoute": "이 노선 예약하기 ↗",
+    "close": "닫기"
+  },
+  "SignIn": {
+    "redirecting": "이동 중...",
+    "subtitle": "로그인하고 여정을 이어가세요",
+    "welcomeBack": "다시 오신 걸 환영해요",
+    "signingIn": "로그인 중...",
+    "continueWithGoogle": "Google로 계속하기",
+    "terms": "로그인하면 서비스 이용약관 및 개인정보처리방침에 동의하는 것으로 간주됩니다",
+    "backToHome": "← 홈으로 돌아가기",
+    "genericError": "로그인에 실패했습니다. 다시 시도해주세요."
+  },
+  "PriceAlert": {
+    "title": "가격 알림",
+    "targetPricePlaceholder": "목표 가격 (USD)",
+    "setAlert": "알림 설정",
+    "target": "목표",
+    "setOn": "설정일"
+  },
+  "LoyaltyCard": {
+    "title": "포인트 극대화하기",
+    "transferBonus": "전환 보너스"
+  },
   "Offer": {
     "details": "상세보기",
     "less": "접기",

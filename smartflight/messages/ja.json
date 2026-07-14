@@ -52,6 +52,44 @@
     "searchFlights": "検索する",
     "searching": "検索中…"
   },
+  "Checkout": {
+    "reviewTitle": "フライトを確認",
+    "bookTitle": "予約を完了する",
+    "partnerAirline": "提携航空会社",
+    "bookWithPointsOrCash": "マイルまたは現金で予約",
+    "pts": "ポイント",
+    "continueToBooking": "予約手続きへ進む",
+    "duffelHandoff": "お支払いと発券は決済パートナーのDuffelが安全に処理します。選択した内容は自動的には引き継がれないため、次のページで<route>{from} → {to}</route>を再度検索し、フライトを選び直してください：",
+    "aroundPrice": "約 {price} — 最終価格は決済画面でご確認いただけます",
+    "testModeNotice": "🧪 テストモード — このデモ決済はテストカードのみ対応で、実際の航空券は発券されません。",
+    "checkoutOpenError": "安全な決済ページを開けませんでした。もう一度お試しください。",
+    "openingCheckout": "安全な決済ページを開いています…",
+    "continueToCheckout": "安全な決済へ進む",
+    "whiteLabelHandoff": "または当社の予約サイト book.flytern.site からもご予約いただけます：以下のリンクを開くと<route>{from} → {to}</route>の路線と日程が入力された状態で表示されます — そちらでフライトを選び直してください。価格が異なる場合があります。ここでのご予約についてTernに手数料が入りますが、お客様に追加費用は発生しません。",
+    "bookThisRoute": "この路線を予約 ↗",
+    "close": "閉じる"
+  },
+  "SignIn": {
+    "redirecting": "移動中...",
+    "subtitle": "サインインして旅を続けましょう",
+    "welcomeBack": "おかえりなさい",
+    "signingIn": "サインイン中...",
+    "continueWithGoogle": "Googleで続ける",
+    "terms": "サインインすることで、利用規約とプライバシーポリシーに同意したものとみなされます",
+    "backToHome": "← ホームに戻る",
+    "genericError": "サインインに失敗しました。もう一度お試しください。"
+  },
+  "PriceAlert": {
+    "title": "価格アラート",
+    "targetPricePlaceholder": "希望価格 (USD)",
+    "setAlert": "アラート設定",
+    "target": "目標",
+    "setOn": "設定日"
+  },
+  "LoyaltyCard": {
+    "title": "マイル・ポイントを最大化",
+    "transferBonus": "移行ボーナス"
+  },
   "Offer": {
     "details": "詳細",
     "less": "閉じる",
