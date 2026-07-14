@@ -89,7 +89,12 @@
   },
   "LoyaltyCard": {
     "title": "포인트 극대화하기",
-    "transferBonus": "전환 보너스"
+    "transferBonus": "전환 보너스",
+    "programs": {
+      "amexPlatinum": { "earnRate": "5배 적립", "transferBonus": "최대 20%", "note": "프리미엄 좌석 항공권 교환에 가장 유리해요." },
+      "chaseSapphireReserve": { "earnRate": "3배 적립", "transferBonus": "최대 15%", "note": "현금과 포인트 사이 균형 잡힌 가치예요." },
+      "capitalOneVentureX": { "earnRate": "마일 2배 적립", "transferBonus": "최대 20%", "note": "현금+포인트 혼합 예약에 강해요." }
+    }
   },
   "Offer": {
     "details": "상세보기",

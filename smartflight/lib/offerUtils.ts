@@ -223,8 +223,13 @@ export const buildBookingPrograms = (offer: Offer) => {
   };
 };
 
-export const CARD_PROGRAM_OPTIONS = [
-  { program: "Amex Platinum", earnRate: "5x points", transferBonus: "Up to 20%", note: "Best for premium cabin redemptions." },
-  { program: "Chase Sapphire Reserve", earnRate: "3x points", transferBonus: "Up to 15%", note: "Balanced value between cash and points." },
-  { program: "Capital One Venture X", earnRate: "2x miles", transferBonus: "Up to 20%", note: "Strong for mixed cash + points booking." },
-];
+/**
+ * Brand names only — these are proper nouns, not translated. The
+ * translatable content (earn rate, transfer bonus, note) lives in
+ * messages/*.json under LoyaltyCard.programs.{id}, keyed by id here.
+ */
+export const CARD_PROGRAM_IDS = [
+  { id: "amexPlatinum", program: "Amex Platinum" },
+  { id: "chaseSapphireReserve", program: "Chase Sapphire Reserve" },
+  { id: "capitalOneVentureX", program: "Capital One Venture X" },
+] as const;

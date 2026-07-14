@@ -89,7 +89,12 @@
   },
   "LoyaltyCard": {
     "title": "最大化积分收益",
-    "transferBonus": "转换奖励"
+    "transferBonus": "转换奖励",
+    "programs": {
+      "amexPlatinum": { "earnRate": "5倍积分", "transferBonus": "最高20%", "note": "最适合兑换高级舱位机票。" },
+      "chaseSapphireReserve": { "earnRate": "3倍积分", "transferBonus": "最高15%", "note": "现金与积分之间的均衡之选。" },
+      "capitalOneVentureX": { "earnRate": "2倍里程", "transferBonus": "最高20%", "note": "适合现金+积分混合预订。" }
+    }
   },
   "Offer": {
     "details": "详情",

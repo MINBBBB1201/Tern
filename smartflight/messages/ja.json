@@ -89,7 +89,12 @@
   },
   "LoyaltyCard": {
     "title": "マイル・ポイントを最大化",
-    "transferBonus": "移行ボーナス"
+    "transferBonus": "移行ボーナス",
+    "programs": {
+      "amexPlatinum": { "earnRate": "5倍ポイント", "transferBonus": "最大20%", "note": "プレミアムクラスの特典交換に最適です。" },
+      "chaseSapphireReserve": { "earnRate": "3倍ポイント", "transferBonus": "最大15%", "note": "現金とポイントのバランスが良い選択です。" },
+      "capitalOneVentureX": { "earnRate": "マイル2倍", "transferBonus": "最大20%", "note": "現金とポイントを組み合わせた予約に強みがあります。" }
+    }
   },
   "Offer": {
     "details": "詳細",

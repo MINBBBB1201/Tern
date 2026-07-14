@@ -89,7 +89,12 @@
   },
   "LoyaltyCard": {
     "title": "Maximize your points",
-    "transferBonus": "Transfer bonus"
+    "transferBonus": "Transfer bonus",
+    "programs": {
+      "amexPlatinum": { "earnRate": "5x points", "transferBonus": "Up to 20%", "note": "Best for premium cabin redemptions." },
+      "chaseSapphireReserve": { "earnRate": "3x points", "transferBonus": "Up to 15%", "note": "Balanced value between cash and points." },
+      "capitalOneVentureX": { "earnRate": "2x miles", "transferBonus": "Up to 20%", "note": "Strong for mixed cash + points booking." }
+    }
   },
   "Offer": {
     "details": "Details",
