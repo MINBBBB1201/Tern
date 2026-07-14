@@ -807,6 +807,42 @@ const GUIDES: Record<string, AirportGuide> = {
       { floor: "Terminal 5, Level 2", label: "Check-in, departures" },
     ],
   },
+  MAD: {
+    iata: "MAD",
+    name: "Adolfo Suárez Madrid–Barajas Airport",
+    city: "Madrid",
+    country: "Spain",
+    summary: "Terminals 1, 2, and 3 are grouped together (walkable, no immigration/customs between them) — Terminal 4 and its satellite T4S are a separate complex, connected only by a free shuttle bus or underground train (APM).",
+    terminals: ["Terminal 1", "Terminal 2", "Terminal 3", "Terminal 4", "Terminal 4S (Satellite)"],
+    beforeYouFly: [],
+    afterYouLand: [
+      "Confirm whether your flight uses T1/T2/T3 or T4/T4S — they're not within walking distance of each other and require the shuttle.",
+    ],
+    transit: {
+      taxi: { title: "Taxi", bullets: ["Official taxi ranks are at the Arrivals level curb of each terminal."], avoidScams: [] },
+      bus: { title: "Bus", bullets: ["Airport Express bus to central Madrid runs 24/7, with stops at T1, T2, and T4."], avoidScams: [] },
+      rail: { title: "Rail (Metro)", bullets: ["Metro Line 8 connects T1/T2/T3 (Aeropuerto T1-T2-T3 station) and T4 (Aeropuerto T4 station) to central Madrid."], avoidScams: [] },
+    },
+    accessibility: {
+      summary: "Contact your airline at least 48 hours before travel to arrange wheelchair or mobility assistance.",
+      services: [
+        { label: "Wheelchair assistance", detail: "Request through your airline in advance." },
+        { label: "Accessible restrooms", detail: "Available throughout all terminals." },
+      ],
+      officialLinks: [
+        { label: "Aena — Barrier-Free Assistance Service", href: "https://www.aena.es/en/passengers/travellers/passengers-with-medical-needs/barrier-free-assistance-service.html" },
+      ],
+    },
+    floorGuide: [
+      { floor: "T1, Ground floor", label: "Arrivals — baggage claim" },
+      { floor: "T1, Level 1", label: "Departures — check-in" },
+      { floor: "T4, Level 0", label: "Arrivals — baggage claim, customs" },
+      { floor: "T4, Level 2", label: "Departures — check-in" },
+      { floor: "T4S, Ground floor", label: "Arrivals" },
+      { floor: "T4S, Level 1", label: "Departures, shops, dining" },
+      { floor: "T4S, Underground", label: "APM (people mover) to T4" },
+    ],
+  },
 };
 
 export function getAirportGuide(iata: string): AirportGuide {
