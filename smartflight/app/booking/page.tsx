@@ -118,7 +118,9 @@ function BookingPageClient() {
       <ScrollFX />
       <header className="glass-nav sticky top-0 z-40">
         <div className="mx-auto flex h-16 w-full max-w-[min(100%,88rem)] items-center justify-between px-5">
-          <BrandLogo className="h-10 w-36 md:h-11 md:w-44" />
+          <Link href="/" aria-label={tNav("home")}>
+            <BrandLogo className="h-10 w-36 md:h-11 md:w-44" />
+          </Link>
           <div className="flex items-center gap-2 text-sm">
             <span className="hidden rounded-full bg-primary-subtle px-3 py-1.5 text-primary-hover md:inline-flex">
               {tripType}

@@ -633,9 +633,9 @@ export default function Home() {
           hero at the top, light fill once it sits over light content */}
       <nav className={`fixed top-0 left-0 right-0 z-50 ${navOverHero ? "glass-nav-dark" : "glass-nav"}`}>
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
+          <Link href="/" className="flex items-center gap-2" aria-label={tNav("home")}>
             <BrandLogo className={`h-10 w-36 md:h-11 md:w-44 transition ${navOverHero ? "brightness-0 invert" : ""}`} />
-          </div>
+          </Link>
           <div className="hidden md:flex items-center gap-8">
             <Link href="/" className={`text-sm font-medium hover:text-[var(--contrail-300)] transition ${navOverHero ? "text-white" : "text-foreground"}`}>{tNav("home")}</Link>
             <a href="/booking" className={`text-sm font-medium transition ${navOverHero ? "text-white/70 hover:text-[var(--contrail-300)]" : "text-muted hover:text-primary-hover"}`}>{tNav("booking")}</a>
@@ -1185,9 +1185,9 @@ export default function Home() {
       >
         <div className="max-w-6xl mx-auto px-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-            <div className="flex items-center gap-2">
+            <Link href="/" className="flex items-center gap-2" aria-label={tNav("home")}>
               <BrandLogo className="h-9 w-32 md:h-10 md:w-40 brightness-0 invert" />
-            </div>
+            </Link>
             <p className="text-sm" style={{ color: 'rgba(246,248,251,0.65)' }}>© 2026 Tern. All rights reserved.</p>
           </div>
         </div>
