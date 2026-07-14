@@ -23,7 +23,7 @@ export type AirportAccessibility = {
   officialLinks: { label: string; href: string }[];
 };
 
-export type AirportFloorGuideEntry = {
+export type FloorGuide = {
   floor: string;
   label: string;
 };
@@ -40,7 +40,7 @@ export type AirportGuide = {
   transit: Record<TransitMode, AirportTransitSection>;
   accessibility: AirportAccessibility;
   /** Per-floor/level breakdown for airports complex enough to need one (multi-terminal, stacked arrivals/departures). */
-  floorGuide?: AirportFloorGuideEntry[];
+  floorGuide?: FloorGuide[];
 };
 
 const DEFAULT_GUIDE = (iata: string): AirportGuide => ({
