@@ -920,6 +920,39 @@ const GUIDES: Record<string, AirportGuide> = {
       { floor: "3F", label: "Departures — check-in, security" },
     ],
   },
+  KUL: {
+    iata: "KUL",
+    name: "Kuala Lumpur International Airport",
+    city: "Kuala Lumpur",
+    country: "Malaysia",
+    summary: "Two separate terminals: KLIA (Terminal 1, full-service airlines) and klia2 (Terminal 2, mainly AirAsia and other budget carriers) — they're a distance apart, connected by a free shuttle bus or the KLIA Ekspres/Transit train.",
+    terminals: ["KLIA (Terminal 1)", "klia2 (Terminal 2)"],
+    beforeYouFly: [],
+    afterYouLand: [
+      "Confirm whether your flight uses KLIA or klia2 — many travelers mix these up, and they're not within walking distance.",
+    ],
+    transit: {
+      taxi: { title: "Taxi", bullets: ["Pre-paid coupon taxis are available at counters in the arrivals area — pay at the counter by telling them your destination, rather than negotiating with a driver directly."], avoidScams: [] },
+      bus: { title: "Bus", bullets: ["Several bus operators run to KL Sentral station from both terminals."], avoidScams: [] },
+      rail: { title: "Rail (KLIA Ekspres / Transit)", bullets: ["Non-stop KLIA Ekspres and multi-stop KLIA Transit trains to KL Sentral depart from Level 1 (basement) of both terminals."], avoidScams: [] },
+    },
+    accessibility: {
+      summary: "Contact your airline at least 48 hours before travel to arrange wheelchair or mobility assistance.",
+      services: [
+        { label: "Wheelchair assistance", detail: "Request through your airline in advance." },
+        { label: "Accessible restrooms", detail: "Available throughout both terminals." },
+      ],
+      officialLinks: [
+        { label: "Malaysia Airports — KLIA Terminal 1 Map", href: "https://airports.malaysiaairports.com.my/en/klia1/map" },
+      ],
+    },
+    floorGuide: [
+      { floor: "KLIA (T1), Level 5", label: "Departures — check-in (216 counters across 6 islands A–M)" },
+      { floor: "KLIA (T1), Level 3", label: "Arrivals — baggage claim, immigration, customs" },
+      { floor: "KLIA (T1), Level 1", label: "KLIA Ekspres/Transit train station" },
+      { floor: "klia2 (T2), Level 3", label: "Departures — check-in, security" },
+    ],
+  },
 };
 
 export function getAirportGuide(iata: string): AirportGuide {
