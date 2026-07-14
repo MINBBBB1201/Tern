@@ -883,6 +883,43 @@ const GUIDES: Record<string, AirportGuide> = {
       { floor: "Dock E (via SkyMetro)", label: "Non-Schengen international departures/arrivals — separate building" },
     ],
   },
+  PVG: {
+    iata: "PVG",
+    name: "Shanghai Pudong International Airport",
+    city: "Shanghai",
+    country: "China",
+    summary: "Two large terminals (T1, T2) plus satellite concourses S1 and S2 reached by underground people mover — landside transfer between T1 and T2 requires exiting and re-entering (they're not connected pre-security).",
+    terminals: ["Terminal 1", "Terminal 2", "Satellite S1", "Satellite S2"],
+    beforeYouFly: [],
+    afterYouLand: [
+      "Confirm your terminal (T1 vs T2) before heading to the airport — they're a distance apart and not connected on the landside.",
+    ],
+    transit: {
+      taxi: { title: "Taxi", bullets: ["Metered taxis are available at the official stand outside the Arrivals Hall — ignore anyone who approaches you directly claiming the Maglev is broken or shut down, a known scam to steer you to an overpriced taxi."], avoidScams: ["Touts near the Maglev station claiming it's 'broken' or 'shut down for weather' to redirect you to an expensive taxi — the Maglev runs daily."] },
+      bus: { title: "Bus", bullets: ["Airport shuttle buses to the city run 24 hours."], avoidScams: [] },
+      rail: { title: "Rail (Metro / Maglev)", bullets: ["Metro Line 2 connects to downtown Shanghai (change at Guanglan Rd from People's Square direction).", "The Shanghai Maglev train to Longyang Road (Metro Line 2) takes about 8 minutes — the station is on the 2nd floor walkway between T1 and T2."], avoidScams: [] },
+    },
+    accessibility: {
+      summary: "Contact your airline at least 48 hours before travel to arrange wheelchair or mobility assistance.",
+      services: [
+        { label: "Wheelchair assistance", detail: "Request through your airline in advance." },
+        { label: "Accessible restrooms", detail: "Available throughout both terminals." },
+      ],
+      officialLinks: [
+        { label: "Shanghai Airport — Terminal 1 Guide", href: "https://www.shanghai-airport.com/terminal-1.php" },
+      ],
+    },
+    // Sources genuinely differ on whether this is a 2-floor or 3-floor
+    // scheme -- going with the version repeated identically across three
+    // separate pages of the same detailed source (chinaairlinetravel.com's
+    // T1 guide, T2 guide, and dedicated arrivals guide), which is stronger
+    // internal consistency than a single simplified mention elsewhere.
+    floorGuide: [
+      { floor: "1F", label: "Baggage claim, ground transportation (taxi, bus, metro)" },
+      { floor: "2F", label: "Arrivals hall, transfers, Maglev station (on the walkway between T1/T2)" },
+      { floor: "3F", label: "Departures — check-in, security" },
+    ],
+  },
 };
 
 export function getAirportGuide(iata: string): AirportGuide {
