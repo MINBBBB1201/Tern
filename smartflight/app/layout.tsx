@@ -16,10 +16,26 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Tern ✈️",
-  description: "Find the best flight deals with Tern",
+  metadataBase: new URL("https://www.flytern.site"),
+  title: {
+    default: "Tern — Compare Flights, Delay Risk & Points Value",
+    template: "%s | Tern",
+  },
+  description: "Compare cheapest fares, fastest trips, earliest arrivals, AI-balanced picks, smart connection deals, and delay-risk signals — then book with points or cash in one flow.",
   icons: {
     icon: "/logos/tern-logo-purepick.png",
+  },
+  openGraph: {
+    title: "Tern — Compare Flights, Delay Risk & Points Value",
+    description: "Compare cheapest fares, fastest trips, earliest arrivals, AI-balanced picks, smart connection deals, and delay-risk signals — then book with points or cash in one flow.",
+    url: "https://www.flytern.site",
+    siteName: "Tern",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Tern — Compare Flights, Delay Risk & Points Value",
+    description: "Compare cheapest fares, fastest trips, earliest arrivals, AI-balanced picks, smart connection deals, and delay-risk signals — then book with points or cash in one flow.",
   },
 };
 

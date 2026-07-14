@@ -991,3 +991,8 @@ export function getAirportGuide(iata: string): AirportGuide {
   const code = iata.trim().toUpperCase();
   return GUIDES[code] ?? DEFAULT_GUIDE(code);
 }
+
+/** All airports with a real curated guide (not the generic fallback) — used by the sitemap. */
+export function getAllGuidedAirportCodes(): string[] {
+  return Object.keys(GUIDES);
+}

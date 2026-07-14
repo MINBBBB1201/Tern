@@ -1,15 +1,71 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { getAirportGuide } from "../../../../lib/airportGuides";
 import { buildAirportUberLink } from "../../../../lib/rideDeepLinks";
+import { getAirport } from "../../../../lib/airportData";
 
 type Props = { params: Promise<{ iata: string }> };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { iata } = await params;
+  const guide = getAirportGuide(iata);
+  const title = `${guide.name} (${guide.iata}) Airport Guide — Layovers, Accessibility & Ground Transport | Tern`;
+  const description = guide.summary || `Everything you need to know about ${guide.name} (${guide.iata}): terminal layout, ground transport, and accessibility services.`;
+  const url = `https://www.flytern.site/guide/airport/${guide.iata}`;
+
+  return {
+    title,
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      title,
+      description,
+      url,
+      type: "website",
+      siteName: "Tern",
+    },
+    twitter: {
+      card: "summary",
+      title,
+      description,
+    },
+  };
+}
 
 export default async function AirportGuidePage({ params }: Props) {
   const { iata } = await params;
   const guide = getAirportGuide(iata);
+  const coords = getAirport(guide.iata);
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Airport",
+    name: guide.name,
+    iataCode: guide.iata,
+    description: guide.summary,
+    url: `https://www.flytern.site/guide/airport/${guide.iata}`,
+    ...(coords
+      ? {
+          geo: {
+            "@type": "GeoCoordinates",
+            latitude: coords.lat,
+            longitude: coords.lon,
+          },
+        }
+      : {}),
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: guide.city,
+      addressCountry: guide.country,
+    },
+  };
 
   return (
     <main className="min-h-screen bg-[#F4F7FC] text-foreground">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <header className="border-b border-[#e4ebf5] bg-white">
         <div className="mx-auto flex max-w-4xl flex-wrap items-center justify-between gap-3 px-5 py-4">
           <Link href="/" className="text-sm font-semibold text-primary hover:underline">
