@@ -4,7 +4,8 @@ import { useRef, useState } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { useTranslations } from "next-intl";
-import { buildBookingPrograms, dateLabel, durationLabel, formatMoney, type Offer } from "../../lib/offerUtils";
+import { buildBookingPrograms, dateLabel, durationLabel, type Offer } from "../../lib/offerUtils";
+import { PriceDisplay } from "../../lib/PriceDisplay";
 
 gsap.registerPlugin(useGSAP);
 
@@ -134,7 +135,9 @@ function CheckoutModalShell({ checkoutOffer, checkoutStep, fromCity, toCity, fro
                   <p className="text-sm text-muted">{fromCity} ({from}) → {toCity} ({to})</p>
                   <p className="text-sm text-muted">{dateLabel(checkoutOffer.departure)} · {durationLabel(checkoutOffer.duration)}</p>
                 </div>
-                <p className="text-2xl font-black text-primary">{formatMoney(Number(checkoutOffer.price), checkoutOffer.currency)}</p>
+                <p className="text-2xl font-black text-primary">
+                  <PriceDisplay amount={Number(checkoutOffer.price)} currency={checkoutOffer.currency} />
+                </p>
               </div>
             </div>
 
@@ -179,7 +182,9 @@ function CheckoutModalShell({ checkoutOffer, checkoutStep, fromCity, toCity, fro
                 {fromCity} ({from}) → {toCity} ({to}) · {dateLabel(checkoutOffer.departure)}
               </p>
               <p className="text-muted">
-                {t("aroundPrice", { price: formatMoney(Number(checkoutOffer.price), checkoutOffer.currency) })}
+                {t("aroundPricePrefix")}{" "}
+                <PriceDisplay amount={Number(checkoutOffer.price)} currency={checkoutOffer.currency} />{" "}
+                {t("aroundPriceSuffix")}
               </p>
             </div>
             <div className="glass-chip rounded-2xl p-4 text-sm text-muted">

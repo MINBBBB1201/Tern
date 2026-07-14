@@ -1,7 +1,8 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { formatMoney, type PriceAlert } from "../../lib/offerUtils";
+import { type PriceAlert } from "../../lib/offerUtils";
+import { PriceDisplay } from "../../lib/PriceDisplay";
 
 type PriceAlertPanelProps = {
   alerts: PriceAlert[];
@@ -36,7 +37,11 @@ export default function PriceAlertPanel({ alerts, alertPrice, setAlertPrice, onA
         <div className="mt-3 space-y-2">
           {alerts.map((alert) => (
             <div key={alert.id} className="glass-chip flex items-center justify-between rounded-xl px-3 py-2 text-xs">
-              <span className="data-mono">{alert.from} → {alert.to} · {t("target")} {formatMoney(alert.targetPrice, "USD")} · {t("setOn")} {alert.setDate}</span>
+              <span className="data-mono">
+                {alert.from} → {alert.to} · {t("target")}{" "}
+                <PriceDisplay amount={alert.targetPrice} currency="USD" />{" "}
+                · {t("setOn")} {alert.setDate}
+              </span>
               <button type="button" onClick={() => onDeleteAlert(alert.id)} className="ml-2 text-red-400 hover:text-red-600">✕</button>
             </div>
           ))}
