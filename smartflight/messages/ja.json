@@ -104,6 +104,7 @@
     "noSegmentData": "区間情報がありません。",
     "bookWithPoints": "マイルで予約",
     "layover": "乗継待ち",
-    "layoverAt": "{airport}にて"
+    "layoverAt": "{airport}にて",
+    "approxChargedIn": "≈、実際の請求は {price}"
   }
 }

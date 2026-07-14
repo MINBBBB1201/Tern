@@ -104,6 +104,7 @@
     "noSegmentData": "No segment data available.",
     "bookWithPoints": "Book with points",
     "layover": "layover",
-    "layoverAt": "at {airport}"
+    "layoverAt": "at {airport}",
+    "approxChargedIn": "≈, charged in {price}"
   }
 }

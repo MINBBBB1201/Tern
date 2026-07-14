@@ -5,7 +5,8 @@ import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { useTranslations } from "next-intl";
 import { useHoverTilt } from "../../hooks/useHoverTilt";
-import { formatMoney, type Offer, type SortTab } from "../../lib/offerUtils";
+import { type Offer, type SortTab } from "../../lib/offerUtils";
+import { PriceDisplay } from "../../lib/PriceDisplay";
 
 gsap.registerPlugin(useGSAP);
 
@@ -95,7 +96,7 @@ function SmartPickCard({ card, onPick }: SmartPickCardProps) {
       <p className="mt-0.5 text-xs text-muted">{card.sub}</p>
       {card.offer && (
         <p className="data-mono mt-1.5 text-base font-bold text-foreground">
-          {formatMoney(Number(card.offer.price), card.offer.currency)}
+          <PriceDisplay amount={Number(card.offer.price)} currency={card.offer.currency} />
         </p>
       )}
     </button>

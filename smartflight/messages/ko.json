@@ -104,6 +104,7 @@
     "noSegmentData": "구간 정보가 없습니다.",
     "bookWithPoints": "포인트로 예약",
     "layover": "경유 대기",
-    "layoverAt": "{airport}에서"
+    "layoverAt": "{airport}에서",
+    "approxChargedIn": "≈, 실제 결제는 {price}"
   }
 }

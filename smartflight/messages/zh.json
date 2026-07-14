@@ -104,6 +104,7 @@
     "noSegmentData": "暂无行程数据。",
     "bookWithPoints": "积分兑换",
     "layover": "中转等待",
-    "layoverAt": "于{airport}"
+    "layoverAt": "于{airport}",
+    "approxChargedIn": "≈，实际扣款为 {price}"
   }
 }

@@ -7,11 +7,11 @@ import { useHoverTilt } from "../../hooks/useHoverTilt";
 import { LayoverBadge } from "./LayoverBadge";
 import { AirportWeatherChip } from "./AirportWeatherChip";
 import { getAircraftImage, getAircraftName } from "../../lib/aircraftImages";
+import { PriceDisplay } from "../../lib/PriceDisplay";
 import {
   buildBookingPrograms,
   computeDelayRiskScore,
   durationLabel,
-  formatMoney,
   timeLabel,
   type Offer,
 } from "../../lib/offerUtils";
@@ -98,7 +98,7 @@ function OfferCardImpl({ offer, isExpanded, onToggleExpand, onSelect, from, to, 
         {/* Price + CTA */}
         <div className="flex flex-col items-end gap-2 ml-auto">
           <p className="data-mono text-2xl font-black text-foreground">
-            {formatMoney(Number(offer.price), offer.currency)}
+            <PriceDisplay amount={Number(offer.price)} currency={offer.currency} />
           </p>
           <p className="text-xs text-muted">{t("perPerson")}</p>
           <div className="flex gap-2">
