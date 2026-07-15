@@ -458,6 +458,20 @@ function buildScene() {
     pass.add(new THREE.Mesh(slabGeo, slabMat));
     pass.add(new THREE.LineSegments(new THREE.EdgesGeometry(slabGeo, 30), passEdgeMat));
 
+    // Materialize flash: a contrail ring that blooms once at the exact
+    // crossover frame where the tern becomes the pass (item 3 polish).
+    const flashGeo = new THREE.RingGeometry(0.93, 1.0, 48);
+    const flashMat = new THREE.MeshBasicMaterial({
+      color: CONTRAIL,
+      transparent: true,
+      opacity: 0,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+      side: THREE.DoubleSide,
+    });
+    const flashRing = new THREE.Mesh(flashGeo, flashMat);
+    flashRing.visible = false;
+
     const faceCanvas = document.createElement("canvas");
     drawPassFace(faceCanvas);
     const faceTex = new THREE.CanvasTexture(faceCanvas);
@@ -470,12 +484,13 @@ function buildScene() {
     pass.visible = false;
 
   const root = new THREE.Group();
-  root.add(tern, trail, pass);
+  root.add(tern, trail, pass, flashRing);
 
   return {
     root, tern, wingGroups, wingGeos, bodyGeo,
     trail, trailGeo, trailPos, trailCol, trailMat,
     pass, slabGeo, slabMat, passEdgeMat, faceGeo, faceMat, faceTex, faceCanvas,
+    flashRing, flashGeo, flashMat,
     glassMat, wingMat, edgeMat,
   };
 }
@@ -507,6 +522,8 @@ function TernSequence() {
       built.trailGeo.dispose();
       built.slabGeo.dispose();
       built.faceGeo.dispose();
+      built.flashGeo.dispose();
+      built.flashMat.dispose();
       [built.glassMat, built.wingMat, built.edgeMat, built.trailMat, built.slabMat, built.passEdgeMat, built.faceMat].forEach((m) => m.dispose());
       built.faceTex.dispose();
       built.root.traverse((obj) => {
@@ -551,6 +568,8 @@ function TernSequence() {
       built.slabMat.opacity = 0;
       built.passEdgeMat.opacity = 0;
       built.faceMat.opacity = 0;
+      built.flashRing.visible = false;
+      built.flashMat.opacity = 0;
     };
     // Freeze the clock at its current point (call after letting the
     // sequence run so the trail has real history), or unfreeze with -1.
@@ -638,7 +657,7 @@ function TernSequence() {
     const a = anim.current;
     const {
       tern, wingGroups, trail, trailGeo, trailPos, trailCol, trailMat,
-      pass, slabMat, passEdgeMat, faceMat, glassMat, wingMat, edgeMat,
+      pass, slabMat, passEdgeMat, faceMat, flashRing, flashMat, glassMat, wingMat, edgeMat,
     } = built;
 
     const now = performance.now();
@@ -840,22 +859,38 @@ function TernSequence() {
       radial.set(0, 1, 0);
       tern.quaternion.slerp(orientAlong(tangent, radial, 0), Math.min(1, q * 2));
 
-      // fold wings, shrink and dissolve as the pass takes over
-      const fold = smoothstep(q, 0.05, 0.6);
+      // The transformation happens AT the pass, not en route (item 3):
+      // the bird arrives mostly intact — wings folding on approach — and
+      // only cross-fades out right where the pass cross-fades in, so both
+      // read as one object changing form at one screen point.
+      const fold = smoothstep(q, 0.45, 0.8);
       wingGroups[0].rotation.x = -0.12 * (1 - fold);
       wingGroups[1].rotation.x = 0.12 * (1 - fold);
       wingGroups[0].scale.z = 1 - 0.75 * fold;
       wingGroups[1].scale.z = 1 - 0.75 * fold;
-      tern.scale.setScalar(TERN_SCALE * (1 - 0.94 * smoothstep(q, 0.25, 0.95)));
-      const dissolve = 1 - smoothstep(q, 0.4, 0.92);
+      tern.scale.setScalar(TERN_SCALE * (1 - 0.94 * smoothstep(q, 0.6, 0.95)));
+      const dissolve = 1 - smoothstep(q, 0.7, 0.94);
       glassMat.opacity = 0.34 * dissolve * flightFade;
       wingMat.opacity = 0.3 * dissolve * flightFade;
       edgeMat.opacity = 0.85 * dissolve * flightFade;
       trailMat.opacity = flightFade;
       tern.visible = dissolve * flightFade > 0.01;
+
+      // Materialize flash: one ring bloom peaking at the crossover frame
+      // (bird ~gone, pass ~arriving), expanding past the pass edge.
+      const spike = smoothstep(q, 0.68, 0.78) * (1 - smoothstep(q, 0.78, 0.98));
+      if (spike > 0.001) {
+        flashRing.visible = true;
+        flashRing.position.copy(settleWorld);
+        const grow0 = 0.5 + 1.15 * smoothstep(q, 0.68, 0.98);
+        flashRing.scale.set(PASS_W * 0.62 * grow0, PASS_H * 0.95 * grow0, 1);
+        flashMat.opacity = 0.6 * spike * flightFade;
+      } else {
+        flashRing.visible = false;
+      }
       // trail particles converge onto the pass outline — crystallizing
       for (let i = 0; i < TRAIL_N; i++) {
-        const s = smoothstep(q, 0.04 + 0.5 * (i / TRAIL_N), 0.44 + 0.5 * (i / TRAIL_N));
+        const s = smoothstep(q, 0.2 + 0.42 * (i / TRAIL_N), 0.56 + 0.42 * (i / TRAIL_N));
         const o = outlinePoint(i / TRAIL_N * 2.0 + 0.13, PASS_W, PASS_H);
         const tx = settleWorld.x + o.x;
         const ty = settleWorld.y + o.y;
@@ -872,8 +907,9 @@ function TernSequence() {
       trailGeo.attributes.color.needsUpdate = true;
       trail.visible = q < 0.995;
 
-      // pass grows from a sliver aligned with the flight direction
-      const g = clamp01((q - 0.1) / 0.9);
+      // pass grows from a sliver, timed to meet the arriving bird: it
+      // starts materializing just before the cross-fade and lands with it
+      const g = clamp01((q - 0.55) / 0.45);
       if (g > 0) {
         pass.visible = true;
         const grow = easeOutBackSoft(g);
@@ -881,9 +917,10 @@ function TernSequence() {
         pass.scale.set(0.08 + 0.92 * grow, 0.05 + 0.95 * easeOutBackSoft(clamp01(g * 1.18)), 1);
         const align = 1 - easeOutCubic(g);
         pass.rotation.set(-0.06 * (1 - align), -0.5 * align - 0.18 * (1 - align), heading * align);
-        slabMat.opacity = 0.15 * g;
-        passEdgeMat.opacity = 0.8 * g;
-        faceMat.opacity = Math.pow(g, 1.6);
+        const passDim = 1 - smoothstep(scrollOut, 0.35, 0.9);
+        slabMat.opacity = 0.15 * g * passDim;
+        passEdgeMat.opacity = 0.8 * g * passDim;
+        faceMat.opacity = Math.pow(g, 1.4) * passDim;
       }
     } else {
       // Phase C — settled: slow float + gentle rotation, faint text pulse,
@@ -892,6 +929,7 @@ function TernSequence() {
       // scroll-driven sections below.
       if (tern.visible) tern.visible = false;
       if (trail.visible) trail.visible = false;
+      if (flashRing.visible) flashRing.visible = false;
       pass.visible = true;
 
       const ti = (elapsed - FLIGHT_MS - HANDOFF_MS) / 1000;
