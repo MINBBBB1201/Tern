@@ -84,6 +84,38 @@ const ArrowRightIcon = () => (
   </svg>
 );
 
+/* Hero SmartPicks strip icons — same inline stroke style as the rest of
+   the page's icon set. */
+const TagIcon = () => (
+  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M3 5a2 2 0 012-2h5.6a2 2 0 011.4.6l8.4 8.4a2 2 0 010 2.8L15 20.2a2 2 0 01-2.8 0L3.6 11.8A2 2 0 013 10.4V5z" />
+  </svg>
+);
+
+const BoltIcon = () => (
+  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+  </svg>
+);
+
+const SunriseIcon = () => (
+  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 13a4 4 0 00-4 4h8a4 4 0 00-4-4zM12 5v3m-6.4.6l2.1 2.1m10.7-2.1l-2.1 2.1M3 21h18" />
+  </svg>
+);
+
+const SparkIcon = () => (
+  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3l2.1 6.9L21 12l-6.9 2.1L12 21l-2.1-6.9L3 12l6.9-2.1L12 3z" />
+  </svg>
+);
+
+const ShieldCheckIcon = () => (
+  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3l7 4v5c0 4.8-3.2 7.9-7 9-3.8-1.1-7-4.2-7-9V7l7-4zM9 12l2 2 4-4" />
+  </svg>
+);
+
 const BrandLogo = ({
   className = "",
 }: {
@@ -496,6 +528,7 @@ export default function Home() {
   const router = useRouter();
   const tNav = useTranslations("Nav");
   const tHero = useTranslations("Hero");
+  const tPicks = useTranslations("SmartPicks");
 
   // Search params are owned by SearchBar; page tracks last submitted for downstream use
   const [lastSearch, setLastSearch] = useState<SearchParams>({
@@ -696,30 +729,22 @@ export default function Home() {
             <SearchBar onSearch={handleSearch} loading={loading} />
           </div>
 
-          {/* Stats row */}
-          <div
-            className="animate-hero-text"
-            style={{
-              display: 'flex', alignItems: 'center',
-              marginTop: '36px', flexWrap: 'wrap', justifyContent: 'center',
-              animationDelay: '0.35s',
-            }}
-          >
+          {/* SmartPicks strip — the product's real differentiators, replacing
+              the former hardcoded social-proof numbers (design review:
+              fabricated stats are a trust problem on an early-stage
+              product). Labels reuse the translated SmartPicks namespace. */}
+          <div className="animate-hero-text hero-picks" style={{ animationDelay: '0.35s' }}>
             {[
-              { value: '500+', label: tHero("statAirlines") },
-              { value: '2M+', label: tHero("statRoutes") },
-              { value: '4.9/5', label: tHero("statRating") },
-              { value: '10M+', label: tHero("statTravelers") },
-            ].map(({ value, label }, i, arr) => (
-              <div key={label} style={{ display: 'flex', alignItems: 'center' }}>
-                <div style={{ textAlign: 'center', padding: '0 28px' }}>
-                  <div className="data-mono" style={{ fontSize: '20px', fontWeight: 700, color: 'var(--paper-50)', letterSpacing: '-0.01em', lineHeight: 1.2 }}>{value}</div>
-                  <div style={{ fontSize: '12px', color: 'rgba(246,248,251,0.6)', marginTop: '2px', letterSpacing: '0.04em' }}>{label}</div>
-                </div>
-                {i < arr.length - 1 && (
-                  <div style={{ width: '1px', height: '36px', background: 'rgba(143,224,232,0.2)', flexShrink: 0 }} />
-                )}
-              </div>
+              { key: "cheap", icon: <TagIcon />, label: tPicks("cheapestLabel") },
+              { key: "fast", icon: <BoltIcon />, label: tPicks("fastestLabel") },
+              { key: "early", icon: <SunriseIcon />, label: tPicks("earliestLabel") },
+              { key: "ai", icon: <SparkIcon />, label: tPicks("aiLabel") },
+              { key: "safe", icon: <ShieldCheckIcon />, label: tPicks("safestLabel") },
+            ].map(({ key, icon, label }) => (
+              <span key={key} className="hero-pick-chip">
+                {icon}
+                {label}
+              </span>
             ))}
           </div>
         </div>

@@ -880,6 +880,43 @@ body {
 }
 
 /* ─────────────────────────────────────────────
+   HERO SMARTPICKS STRIP — the product's real
+   differentiators as quiet dark-glass chips
+   (replaced the fabricated social-proof stats).
+   Same material family as the vol-* search card.
+   ───────────────────────────────────────────── */
+
+.hero-picks {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 36px;
+}
+
+.hero-pick-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 14px;
+  border-radius: 9999px;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-fill-dark);
+  color: rgba(246, 248, 251, 0.82);
+  font-size: 12.5px;
+  font-weight: 550;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.hero-pick-chip svg {
+  width: 14px;
+  height: 14px;
+  color: var(--contrail-300);
+  flex-shrink: 0;
+}
+
+/* ─────────────────────────────────────────────
    STATS ROW (below search card)
    ───────────────────────────────────────────── */
 

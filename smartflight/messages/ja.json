@@ -29,11 +29,7 @@
   },
   "Hero": {
     "title": "地平線を追いかけて。",
-    "subtitle": "検索のたびに、最安値・最短時間・最低遅延リスク・マイル込み最高コスパの運賃を並べて比較します。",
-    "statAirlines": "航空会社",
-    "statRoutes": "路線",
-    "statRating": "評価",
-    "statTravelers": "利用者"
+    "subtitle": "検索のたびに、最安値・最短時間・最低遅延リスク・マイル込み最高コスパの運賃を並べて比較します。"
   },
   "Search": {
     "roundTrip": "往復",
@@ -93,9 +89,21 @@
     "title": "マイル・ポイントを最大化",
     "transferBonus": "移行ボーナス",
     "programs": {
-      "amexPlatinum": { "earnRate": "5倍ポイント", "transferBonus": "最大20%", "note": "プレミアムクラスの特典交換に最適です。" },
-      "chaseSapphireReserve": { "earnRate": "3倍ポイント", "transferBonus": "最大15%", "note": "現金とポイントのバランスが良い選択です。" },
-      "capitalOneVentureX": { "earnRate": "マイル2倍", "transferBonus": "最大20%", "note": "現金とポイントを組み合わせた予約に強みがあります。" }
+      "amexPlatinum": {
+        "earnRate": "5倍ポイント",
+        "transferBonus": "最大20%",
+        "note": "プレミアムクラスの特典交換に最適です。"
+      },
+      "chaseSapphireReserve": {
+        "earnRate": "3倍ポイント",
+        "transferBonus": "最大15%",
+        "note": "現金とポイントのバランスが良い選択です。"
+      },
+      "capitalOneVentureX": {
+        "earnRate": "マイル2倍",
+        "transferBonus": "最大20%",
+        "note": "現金とポイントを組み合わせた予約に強みがあります。"
+      }
     }
   },
   "Offer": {

@@ -29,11 +29,7 @@
   },
   "Hero": {
     "title": "Chase the horizon.",
-    "subtitle": "We compare cheapest, fastest, lowest delay-risk, and best-value-with-points fares side by side, every search.",
-    "statAirlines": "Airlines",
-    "statRoutes": "Routes",
-    "statRating": "Rating",
-    "statTravelers": "Travelers"
+    "subtitle": "We compare cheapest, fastest, lowest delay-risk, and best-value-with-points fares side by side, every search."
   },
   "Search": {
     "roundTrip": "Round trip",
@@ -93,9 +89,21 @@
     "title": "Maximize your points",
     "transferBonus": "Transfer bonus",
     "programs": {
-      "amexPlatinum": { "earnRate": "5x points", "transferBonus": "Up to 20%", "note": "Best for premium cabin redemptions." },
-      "chaseSapphireReserve": { "earnRate": "3x points", "transferBonus": "Up to 15%", "note": "Balanced value between cash and points." },
-      "capitalOneVentureX": { "earnRate": "2x miles", "transferBonus": "Up to 20%", "note": "Strong for mixed cash + points booking." }
+      "amexPlatinum": {
+        "earnRate": "5x points",
+        "transferBonus": "Up to 20%",
+        "note": "Best for premium cabin redemptions."
+      },
+      "chaseSapphireReserve": {
+        "earnRate": "3x points",
+        "transferBonus": "Up to 15%",
+        "note": "Balanced value between cash and points."
+      },
+      "capitalOneVentureX": {
+        "earnRate": "2x miles",
+        "transferBonus": "Up to 20%",
+        "note": "Strong for mixed cash + points booking."
+      }
     }
   },
   "Offer": {

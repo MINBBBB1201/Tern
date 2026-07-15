@@ -29,11 +29,7 @@
   },
   "Hero": {
     "title": "追逐地平线。",
-    "subtitle": "每次搜索,我们都会并列比较最低价、最快、延误风险最低及积分兑换最划算的票价。",
-    "statAirlines": "航空公司",
-    "statRoutes": "航线",
-    "statRating": "评分",
-    "statTravelers": "旅客"
+    "subtitle": "每次搜索,我们都会并列比较最低价、最快、延误风险最低及积分兑换最划算的票价。"
   },
   "Search": {
     "roundTrip": "往返",
@@ -93,9 +89,21 @@
     "title": "最大化积分收益",
     "transferBonus": "转换奖励",
     "programs": {
-      "amexPlatinum": { "earnRate": "5倍积分", "transferBonus": "最高20%", "note": "最适合兑换高级舱位机票。" },
-      "chaseSapphireReserve": { "earnRate": "3倍积分", "transferBonus": "最高15%", "note": "现金与积分之间的均衡之选。" },
-      "capitalOneVentureX": { "earnRate": "2倍里程", "transferBonus": "最高20%", "note": "适合现金+积分混合预订。" }
+      "amexPlatinum": {
+        "earnRate": "5倍积分",
+        "transferBonus": "最高20%",
+        "note": "最适合兑换高级舱位机票。"
+      },
+      "chaseSapphireReserve": {
+        "earnRate": "3倍积分",
+        "transferBonus": "最高15%",
+        "note": "现金与积分之间的均衡之选。"
+      },
+      "capitalOneVentureX": {
+        "earnRate": "2倍里程",
+        "transferBonus": "最高20%",
+        "note": "适合现金+积分混合预订。"
+      }
     }
   },
   "Offer": {
