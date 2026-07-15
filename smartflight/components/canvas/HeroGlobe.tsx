@@ -77,13 +77,17 @@ export function globePlacement(sizeW: number, sizeH: number) {
  * in that frame, so orbitPoint(θ) = (e1·cosθ + e2·sinθ) · r, mapped
  * through spin.localToWorld, follows the drawn route exactly.
  */
-export const globeShared = {
-  spin: null as THREE.Object3D | null,
-  e1: new THREE.Vector3(),
-  e2: new THREE.Vector3(),
-  /** Spin-local angle of ICN (θ=0) → LHR along the circle, radians. */
-  routeSpanRad: 0,
-};
+export const globeShared = (() => {
+  const a = latLonToVec(ICN.lat, ICN.lon);
+  const b = latLonToVec(LHR.lat, LHR.lon);
+  return {
+    spin: null as THREE.Object3D | null,
+    e1: a.clone(),
+    e2: b.clone().addScaledVector(a, -a.dot(b)).normalize(),
+    /** Spin-local angle of ICN (θ=0) → LHR along the circle, radians. */
+    routeSpanRad: a.angleTo(b),
+  };
+})();
 
 /** lat/lon (deg, east-positive) → unit vector. Y-up; lon 0 on +X, east
  *  toward −Z. Route, subsolar point, and shader all share this frame. */
@@ -226,11 +230,6 @@ export default function HeroGlobe() {
     const mid = pts[32].clone().normalize();
     // Start with the route's midpoint facing the camera (+Z side).
     const spinY = Math.atan2(mid.x, mid.z) * -1;
-    // Publish the great-circle basis for the tern's orbit: e1 at ICN,
-    // e2 orthonormal in the route plane toward LHR.
-    globeShared.e1.copy(a);
-    globeShared.e2.copy(b).addScaledVector(a, -a.dot(b)).normalize();
-    globeShared.routeSpanRad = angle;
     return {
       routeGeo: new THREE.BufferGeometry().setFromPoints(pts),
       icnPos: a.clone().multiplyScalar(1.015),
