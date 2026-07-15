@@ -10,6 +10,7 @@ import { useFrame, useThree } from "@react-three/fiber";
 import { View, PerspectiveCamera } from "@react-three/drei";
 import * as THREE from "three";
 import gsap from "gsap";
+import HeroGlobe from "./HeroGlobe";
 
 /**
  * Civil Twilight signature sequence — R3F port of the original raw-Three
@@ -687,39 +688,6 @@ function TernSequence() {
 
 /* ── Public component: gate + View ── */
 
-/** Faint dashed great-circle arc through the flight KEYPOINTS (fractional
- *  hero coords × 100) — the route the tern flew, fading in after the pass
- *  settles. Gradient stroke: transparent at the edge, dimming again before
- *  the settle point so it hands off to the pass instead of crossing it. */
-function HeroRouteArc() {
-  return (
-    <svg
-      className="hero-route-arc"
-      viewBox="0 0 100 100"
-      preserveAspectRatio="none"
-      aria-hidden="true"
-    >
-      <defs>
-        <linearGradient id="hero-arc-fade" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0" stopColor="#8FE0E8" stopOpacity="0" />
-          <stop offset="0.4" stopColor="#8FE0E8" stopOpacity="0.55" />
-          <stop offset="0.82" stopColor="#8FE0E8" stopOpacity="0.3" />
-          <stop offset="1" stopColor="#8FE0E8" stopOpacity="0" />
-        </linearGradient>
-      </defs>
-      <path
-        d="M -6 36 C 6 26, 14 19, 24 16 C 34 13, 42 12.6, 50 13 C 58 13.4, 66 18.5, 72 26"
-        fill="none"
-        stroke="url(#hero-arc-fade)"
-        strokeWidth={1.1}
-        strokeDasharray="1 3"
-        strokeLinecap="round"
-        vectorEffect="non-scaling-stroke"
-      />
-    </svg>
-  );
-}
-
 export default function HeroTernView() {
   const [isStatic] = useState(
     () =>
@@ -754,8 +722,6 @@ export default function HeroTernView() {
   if (isStatic) return <StaticBoardingPass />;
 
   return (
-    <>
-    <HeroRouteArc />
     <View
       aria-hidden="true"
       style={{ position: "absolute", inset: 0, pointerEvents: "none" }}
@@ -767,6 +733,9 @@ export default function HeroTernView() {
       <directionalLight color={0x8fe0e8} intensity={1.3} position={[-3, 4, 2]} />
       <directionalLight color={0xffffff} intensity={0.55} position={[0, 0, 5]} />
       <TernSequence />
+      {/* Civil-twilight globe: real terminator, behind the flight plane so
+          the tern crosses in front of it (see HeroGlobe for the math). */}
+      <HeroGlobe />
       {/* No EffectComposer here, deliberately: bloom was trialled (Stage 4)
           and rejected on screenshots — inside a scissored drei View it
           bloomed the trail points into blobs, washed out the pass face
@@ -774,6 +743,5 @@ export default function HeroTernView() {
           canvas. The contrail's glow comes from additive blending + the
           face texture's shadowBlur, which already reads as bloom. */}
     </View>
-    </>
   );
 }
