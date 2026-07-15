@@ -66,7 +66,10 @@ const easeOutBackSoft = (t: number) => {
 };
 
 /** Faceted low-poly tern body — stylized silhouette with the Arctic
- *  Tern's deeply forked tail; +x is forward. */
+ *  Tern's deeply forked streamer tail; +x is forward.
+ *  Silhouette reference: Sterna paradisaea in flight — small head, short
+ *  neck, slender body, and the two long thin tail streamers (fork depth
+ *  roughly a body-length behind the tail root, swallow-like). */
 function buildTernBody(): THREE.BufferGeometry {
   const N = [0.98, 0.0, 0];
   const H = [0.52, 0.16, 0];
@@ -78,8 +81,12 @@ function buildTernBody(): THREE.BufferGeometry {
   const SR = [0.2, 0.02, -0.17];
   const RL = [-0.3, 0.03, 0.12];
   const RR = [-0.3, 0.03, -0.12];
-  const FL = [-1.04, 0.18, 0.15];
-  const FR = [-1.04, 0.18, -0.15];
+  // Streamers: long, thin, well separated — each a narrow triangle from
+  // the tail root past a mid knuckle so the fork reads at a glance.
+  const ML = [-0.98, 0.12, 0.1];
+  const MR = [-0.98, 0.12, -0.1];
+  const FL = [-1.38, 0.17, 0.24];
+  const FR = [-1.38, 0.17, -0.24];
   const tris = [
     [N, H, SL], [N, SR, H],
     [N, SL, C], [N, C, SR],
@@ -89,7 +96,9 @@ function buildTernBody(): THREE.BufferGeometry {
     [SL, B, RL], [B, SR, RR],
     [K, RL, T], [K, T, RR],
     [B, RL, T], [B, T, RR],
-    [T, RL, FL], [T, FR, RR],
+    // fork: root → mid knuckle → streamer tip, one thin blade per side
+    [T, RL, ML], [T, MR, RR],
+    [RL, FL, ML], [RR, MR, FR],
   ];
   const positions = new Float32Array(tris.flat(2));
   const geo = new THREE.BufferGeometry();
@@ -98,14 +107,34 @@ function buildTernBody(): THREE.BufferGeometry {
   return geo;
 }
 
-/** Long, slender, swept wing (sign = 1 left / -1 right), origin at shoulder. */
+/** Long, slender, swept wing (sign = 1 left / -1 right), origin at the
+ *  shoulder. Arm → wrist, then three separated primary-feather blades
+ *  sweeping back to points: the notched wingtip that reads "tern", not
+ *  "paper plane". */
 function buildWing(sign: number): THREE.BufferGeometry {
-  const S0 = [0.05, 0, 0];
-  const S1 = [-0.3, 0, 0.02 * sign];
-  const E = [0.02, 0.02, 0.58 * sign];
-  const W = [-0.28, 0.01, 0.52 * sign];
-  const TIP = [-0.55, 0.03, 1.18 * sign];
-  const tris = [[S0, E, S1], [S1, E, W], [E, TIP, W]];
+  const s = (v: number[]) => [v[0], v[1], v[2] * sign];
+  // arm + mid-wing panels
+  const S0 = s([0.05, 0, 0]);
+  const S1 = s([-0.3, 0, 0.02]);
+  const Ele = s([0.06, 0.02, 0.42]);
+  const Ete = s([-0.26, 0.01, 0.38]);
+  const Wle = s([-0.02, 0.03, 0.78]);
+  const Wte = s([-0.3, 0.02, 0.7]);
+  // primary feather bases along the trailing edge of the hand
+  const A1 = s([-0.3, 0.04, 1.0]);
+  const A2 = s([-0.4, 0.03, 0.86]);
+  // primary tips — outermost longest, stepping shorter inward
+  const P1 = s([-0.74, 0.06, 1.32]);
+  const P2 = s([-0.82, 0.045, 1.1]);
+  const P3 = s([-0.85, 0.03, 0.92]);
+  const tris = [
+    [S0, Ele, S1], [S1, Ele, Ete],
+    [Ele, Wle, Ete], [Ete, Wle, Wte],
+    // hand: three separated feather blades (gaps = tip notches)
+    [Wle, P1, A1],
+    [A1, P2, A2],
+    [A2, P3, Wte],
+  ];
   const positions = new Float32Array(tris.flat(2));
   const geo = new THREE.BufferGeometry();
   geo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
@@ -347,6 +376,25 @@ function buildScene() {
       flatShading: true,
       depthWrite: false,
     });
+    // Wings: thinner glass with a warm sheen term — sheen backscatters at
+    // grazing angles, so when the dusk key light is behind the bird the
+    // wing membranes catch a horizon-colored edge glow (the "thin feather
+    // backlit by sunset" read) instead of going flat.
+    const wingMat = new THREE.MeshPhysicalMaterial({
+      color: 0xdfeef5,
+      metalness: 0.02,
+      roughness: 0.18,
+      clearcoat: 0.9,
+      clearcoatRoughness: 0.18,
+      sheen: 1.0,
+      sheenColor: new THREE.Color(0xf2934d), // --horizon-500
+      sheenRoughness: 0.45,
+      transparent: true,
+      opacity: 0.3,
+      side: THREE.DoubleSide,
+      flatShading: true,
+      depthWrite: false,
+    });
     const edgeMat = new THREE.LineBasicMaterial({ color: CONTRAIL, transparent: true, opacity: 0.85 });
 
     const tern = new THREE.Group();
@@ -361,8 +409,10 @@ function buildScene() {
       wingGeos.push(geo);
       const wing = new THREE.Group();
       wing.position.set(0.12, 0.1, 0.14 * sign);
-      wing.add(new THREE.Mesh(geo, glassMat));
-      wing.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo, 12), edgeMat));
+      wing.add(new THREE.Mesh(geo, wingMat));
+      // 25° threshold: outline the silhouette and feather blades, not
+      // every interior facet of the denser wing mesh.
+      wing.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo, 25), edgeMat));
       wingGroups.push(wing);
       tern.add(wing);
     }
@@ -426,7 +476,7 @@ function buildScene() {
     root, tern, wingGroups, wingGeos, bodyGeo,
     trail, trailGeo, trailPos, trailCol, trailMat,
     pass, slabGeo, slabMat, passEdgeMat, faceGeo, faceMat, faceTex, faceCanvas,
-    glassMat, edgeMat,
+    glassMat, wingMat, edgeMat,
   };
 }
 
@@ -457,7 +507,7 @@ function TernSequence() {
       built.trailGeo.dispose();
       built.slabGeo.dispose();
       built.faceGeo.dispose();
-      [built.glassMat, built.edgeMat, built.trailMat, built.slabMat, built.passEdgeMat, built.faceMat].forEach((m) => m.dispose());
+      [built.glassMat, built.wingMat, built.edgeMat, built.trailMat, built.slabMat, built.passEdgeMat, built.faceMat].forEach((m) => m.dispose());
       built.faceTex.dispose();
       built.root.traverse((obj) => {
         if (obj instanceof THREE.LineSegments) obj.geometry.dispose();
@@ -492,6 +542,7 @@ function TernSequence() {
       a.snapshotTaken = false;
       a.theta0 = NaN;
       built.glassMat.opacity = 0.34;
+      built.wingMat.opacity = 0.3;
       built.edgeMat.opacity = 0.85;
       built.tern.visible = true;
       built.tern.scale.setScalar(TERN_SCALE);
@@ -584,7 +635,7 @@ function TernSequence() {
     const a = anim.current;
     const {
       tern, wingGroups, trail, trailGeo, trailPos, trailCol,
-      pass, slabMat, passEdgeMat, faceMat, glassMat, edgeMat,
+      pass, slabMat, passEdgeMat, faceMat, glassMat, wingMat, edgeMat,
     } = built;
 
     const now = performance.now();
@@ -767,6 +818,7 @@ function TernSequence() {
       tern.scale.setScalar(TERN_SCALE * (1 - 0.94 * smoothstep(q, 0.25, 0.95)));
       const dissolve = 1 - smoothstep(q, 0.4, 0.92);
       glassMat.opacity = 0.34 * dissolve;
+      wingMat.opacity = 0.3 * dissolve;
       edgeMat.opacity = 0.85 * dissolve;
       tern.visible = dissolve > 0.01;
       // trail particles converge onto the pass outline — crystallizing
