@@ -674,7 +674,7 @@ export default function Home() {
             {tHero("title")}
           </h1>
           <p
-            className="animate-hero-text"
+            className="animate-hero-text text-balance"
             style={{
               fontSize: 'clamp(1rem, 1.6vw, 1.15rem)',
               color: 'rgba(246,248,251,0.72)',

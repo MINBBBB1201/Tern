@@ -416,6 +416,27 @@ body {
 
 .hero-headline {
   font-family: var(--font-display);
+  text-wrap: balance;
+}
+
+/* Great-circle route arc — the flight path the tern actually flew, left
+   behind as a faint dashed contrail after the pass settles (fade-in delay
+   sits just past FLIGHT_MS + HANDOFF_MS). Rendered only alongside the
+   animated scene (HeroTernView non-static branch), so its endpoint always
+   matches the settled pass; static/mobile heroes never show it. */
+.hero-route-arc {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  animation: route-arc-in 2.4s ease 4.3s forwards;
+}
+
+@keyframes route-arc-in {
+  to { opacity: 0.55; }
 }
 
 .data-mono {
@@ -937,7 +958,8 @@ body {
   .animate-hero-text,
   .ambient-drift,
   .hero-stars,
-  .boarding-pass-static {
+  .boarding-pass-static,
+  .vol-search-btn::after {
     animation: none !important;
   }
 }
@@ -1105,6 +1127,31 @@ body {
     0 6px 20px rgba(47,111,237,0.45),
     0 2px 6px rgba(10,15,30,0.35),
     inset 0 1px 0 rgba(255,255,255,0.2);
+}
+
+/* One-pass sheen sweep on hover — material feedback on the page's primary
+   action (reference: Aceternity/21st.dev CTA treatments), rebuilt as plain
+   CSS on the existing token gradient. Runs once per hover, never loops. */
+.vol-search-btn::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -60%;
+  width: 45%;
+  background: linear-gradient(105deg, transparent, rgba(255,255,255,0.32), transparent);
+  transform: skewX(-18deg);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.vol-search-btn:hover::after {
+  animation: btn-sheen 0.65s ease-out forwards;
+}
+
+@keyframes btn-sheen {
+  from { left: -60%; opacity: 1; }
+  to   { left: 125%; opacity: 1; }
 }
 
 .vol-search-btn:hover {

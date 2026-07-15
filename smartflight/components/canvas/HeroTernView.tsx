@@ -9,6 +9,7 @@ import { useEffect, useRef, useState } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import { View, PerspectiveCamera } from "@react-three/drei";
 import * as THREE from "three";
+import gsap from "gsap";
 
 /**
  * Civil Twilight signature sequence — R3F port of the original raw-Three
@@ -488,6 +489,22 @@ function TernSequence() {
     trailSnapshot: new Float32Array(TRAIL_N * 3),
     heroEl: null as Element | null,
   });
+
+  // Cursor-reactive settled pass (Phase C only): raw pointer NDC written by
+  // the listener, smoothed per-frame so the pass leans toward the cursor
+  // like an object on a string, not a 1:1 tracker. Desktop-only by the
+  // pointer:fine gate; reduced-motion users never mount this component.
+  const pointerRef = useRef({ x: 0, y: 0, sx: 0, sy: 0 });
+  useEffect(() => {
+    if (!window.matchMedia("(pointer: fine)").matches) return;
+    const p = pointerRef.current;
+    const onMove = (e: PointerEvent) => {
+      p.x = (e.clientX / window.innerWidth) * 2 - 1;
+      p.y = (e.clientY / window.innerHeight) * 2 - 1;
+    };
+    window.addEventListener("pointermove", onMove, { passive: true });
+    return () => window.removeEventListener("pointermove", onMove);
+  }, []);
   const tmpRef = useRef<{
     posA: THREE.Vector3; posB: THREE.Vector3; settleWorld: THREE.Vector3;
     tailLocal: THREE.Vector3; raycaster: THREE.Raycaster; zPlane: THREE.Plane; ndc: THREE.Vector2;
@@ -642,6 +659,11 @@ function TernSequence() {
       }
 
       const ti = (elapsed - FLIGHT_MS - HANDOFF_MS) / 1000;
+      // Smooth the pointer toward its target — frame-rate-independent lerp.
+      const pt = pointerRef.current;
+      const k = 1 - Math.exp(-dt * 4);
+      pt.sx += (pt.x - pt.sx) * k;
+      pt.sy += (pt.y - pt.sy) * k;
       pass.scale.set(1, 1, 1);
       pass.position.set(
         settleWorld.x,
@@ -649,8 +671,8 @@ function TernSequence() {
         0
       );
       pass.rotation.set(
-        -0.06 + Math.sin(ti * 0.27) * 0.04 - scrollOut * 0.35,
-        -0.18 + Math.sin(ti * 0.35) * 0.12,
+        -0.06 + Math.sin(ti * 0.27) * 0.04 - scrollOut * 0.35 + pt.sy * 0.07,
+        -0.18 + Math.sin(ti * 0.35) * 0.12 + pt.sx * 0.12,
         0
       );
       const dim = 1 - smoothstep(scrollOut, 0.35, 0.9);
@@ -665,6 +687,39 @@ function TernSequence() {
 
 /* ── Public component: gate + View ── */
 
+/** Faint dashed great-circle arc through the flight KEYPOINTS (fractional
+ *  hero coords × 100) — the route the tern flew, fading in after the pass
+ *  settles. Gradient stroke: transparent at the edge, dimming again before
+ *  the settle point so it hands off to the pass instead of crossing it. */
+function HeroRouteArc() {
+  return (
+    <svg
+      className="hero-route-arc"
+      viewBox="0 0 100 100"
+      preserveAspectRatio="none"
+      aria-hidden="true"
+    >
+      <defs>
+        <linearGradient id="hero-arc-fade" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stopColor="#8FE0E8" stopOpacity="0" />
+          <stop offset="0.4" stopColor="#8FE0E8" stopOpacity="0.55" />
+          <stop offset="0.82" stopColor="#8FE0E8" stopOpacity="0.3" />
+          <stop offset="1" stopColor="#8FE0E8" stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <path
+        d="M -6 36 C 6 26, 14 19, 24 16 C 34 13, 42 12.6, 50 13 C 58 13.4, 66 18.5, 72 26"
+        fill="none"
+        stroke="url(#hero-arc-fade)"
+        strokeWidth={1.1}
+        strokeDasharray="1 3"
+        strokeLinecap="round"
+        vectorEffect="non-scaling-stroke"
+      />
+    </svg>
+  );
+}
+
 export default function HeroTernView() {
   const [isStatic] = useState(
     () =>
@@ -673,9 +728,34 @@ export default function HeroTernView() {
       window.matchMedia("(prefers-reduced-motion: reduce)").matches
   );
 
+  // Star-layer cursor parallax: the stars drift a few px opposite the
+  // cursor — atmospheric depth behind the 3D scene. quickTo gives the
+  // eased follow; the 1.04 scale hides the layer's edges while it moves.
+  // Only in this animated branch: static/reduced-motion heroes stay still.
+  useEffect(() => {
+    if (isStatic || !window.matchMedia("(pointer: fine)").matches) return;
+    const stars = document.querySelector<HTMLElement>(".hero-stars");
+    if (!stars) return;
+    gsap.set(stars, { scale: 1.04 });
+    const xTo = gsap.quickTo(stars, "x", { duration: 1.1, ease: "power2.out" });
+    const yTo = gsap.quickTo(stars, "y", { duration: 1.1, ease: "power2.out" });
+    const onMove = (e: PointerEvent) => {
+      xTo(((e.clientX / window.innerWidth) * 2 - 1) * -7);
+      yTo(((e.clientY / window.innerHeight) * 2 - 1) * -5);
+    };
+    window.addEventListener("pointermove", onMove, { passive: true });
+    return () => {
+      window.removeEventListener("pointermove", onMove);
+      gsap.killTweensOf(stars);
+      gsap.set(stars, { clearProps: "transform" });
+    };
+  }, [isStatic]);
+
   if (isStatic) return <StaticBoardingPass />;
 
   return (
+    <>
+    <HeroRouteArc />
     <View
       aria-hidden="true"
       style={{ position: "absolute", inset: 0, pointerEvents: "none" }}
@@ -694,5 +774,6 @@ export default function HeroTernView() {
           canvas. The contrail's glow comes from additive blending + the
           face texture's shadowBlur, which already reads as bloom. */}
     </View>
+    </>
   );
 }
