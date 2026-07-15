@@ -596,6 +596,7 @@ function TernSequence() {
     tangent: THREE.Vector3; toSettle: THREE.Vector3; radial: THREE.Vector3;
     globeCenter: THREE.Vector3; sideAxis: THREE.Vector3; upAxis: THREE.Vector3;
     entryStart: THREE.Vector3; entryCtrl: THREE.Vector3;
+    fe1: THREE.Vector3; fe2: THREE.Vector3;
     b1: THREE.Vector3; b2: THREE.Vector3; breakP0: THREE.Vector3; breakF0: THREE.Vector3;
     basisM: THREE.Matrix4; qTarget: THREE.Quaternion; qBank: THREE.Quaternion;
   } | null>(null);
@@ -616,6 +617,8 @@ function TernSequence() {
       upAxis: new THREE.Vector3(),
       entryStart: new THREE.Vector3(),
       entryCtrl: new THREE.Vector3(),
+      fe1: new THREE.Vector3(),
+      fe2: new THREE.Vector3(),
       b1: new THREE.Vector3(),
       b2: new THREE.Vector3(),
       breakP0: new THREE.Vector3(),
@@ -628,13 +631,13 @@ function TernSequence() {
   const {
     posA, posB, settleWorld, tailLocal, raycaster, zPlane, ndc,
     tangent, toSettle, radial, globeCenter, sideAxis, upAxis,
-    entryStart, entryCtrl, b1, b2, breakP0, breakF0, basisM, qTarget, qBank,
+    entryStart, entryCtrl, fe1, fe2, b1, b2, breakP0, breakF0, basisM, qTarget, qBank,
   } = tmpRef.current;
 
   useFrame(() => {
     const a = anim.current;
     const {
-      tern, wingGroups, trail, trailGeo, trailPos, trailCol,
+      tern, wingGroups, trail, trailGeo, trailPos, trailCol, trailMat,
       pass, slabMat, passEdgeMat, faceMat, glassMat, wingMat, edgeMat,
     } = built;
 
@@ -655,14 +658,33 @@ function TernSequence() {
       return out;
     };
 
+    // Scroll-out, shared with the globe (item 4): 0 = hero fully on
+    // screen, 1 = fully scrolled past. Computed once per frame here (the
+    // one place that already tracked it) and published on globeShared so
+    // every 3D element fades from the same value — no second tracker.
+    if (!a.heroEl?.isConnected) {
+      a.heroEl = document.querySelector(".hero-twilight");
+    }
+    let scrollOut = 0;
+    if (a.heroEl) {
+      const r = a.heroEl.getBoundingClientRect();
+      scrollOut = clamp01(-r.top / Math.max(r.height, 1));
+    }
+    globeShared.scrollOut = scrollOut;
+    // Flight-phase fade (same curve as the globe): the bird and its trail
+    // dim out instead of getting sliced at the viewport edge mid-flight.
+    const flightFade = 1 - smoothstep(scrollOut, 0.05, 0.5);
+
     // Orbit sampling in the globe's spinning frame: the same circle the
-    // route line lives on (globeShared.e1/e2), lifted to ORBIT_ALT.
+    // route line lives on. fe1/fe2 are frozen at flight start so a live
+    // route edit mid-flight retargets the globe's arc without teleporting
+    // the bird; the next replay picks the new basis up.
     const spin = globeShared.spin;
     const orbitWorld = (theta: number, out: THREE.Vector3) => {
       out
-        .copy(globeShared.e1)
+        .copy(fe1)
         .multiplyScalar(Math.cos(theta))
-        .addScaledVector(globeShared.e2, Math.sin(theta))
+        .addScaledVector(fe2, Math.sin(theta))
         .multiplyScalar(ORBIT_ALT);
       return spin ? spin.localToWorld(out) : out;
     };
@@ -690,6 +712,8 @@ function TernSequence() {
       // direction best aims at where the pass will settle, so the tern
       // departs the circle tangentially instead of veering off.
       if (Number.isNaN(a.theta0)) {
+        fe1.copy(globeShared.e1); // freeze the route basis for this flight
+        fe2.copy(globeShared.e2);
         let best = -Infinity;
         let bestTheta = 0;
         for (let i = 0; i < 64; i++) {
@@ -774,6 +798,13 @@ function TernSequence() {
       trail.visible = true;
       trailGeo.attributes.position.needsUpdate = true;
       trailGeo.attributes.color.needsUpdate = true;
+
+      // scroll-out fade (item 4): dim, never slice
+      glassMat.opacity = 0.34 * flightFade;
+      wingMat.opacity = 0.3 * flightFade;
+      edgeMat.opacity = 0.85 * flightFade;
+      trailMat.opacity = flightFade;
+      tern.visible = flightFade > 0.01;
     } else if (elapsed < FLIGHT_MS + HANDOFF_MS) {
       // Phase B — the breakaway: the tern leaves the orbit tangentially,
       // sweeps toward the settle point, and the trail condenses into the
@@ -817,10 +848,11 @@ function TernSequence() {
       wingGroups[1].scale.z = 1 - 0.75 * fold;
       tern.scale.setScalar(TERN_SCALE * (1 - 0.94 * smoothstep(q, 0.25, 0.95)));
       const dissolve = 1 - smoothstep(q, 0.4, 0.92);
-      glassMat.opacity = 0.34 * dissolve;
-      wingMat.opacity = 0.3 * dissolve;
-      edgeMat.opacity = 0.85 * dissolve;
-      tern.visible = dissolve > 0.01;
+      glassMat.opacity = 0.34 * dissolve * flightFade;
+      wingMat.opacity = 0.3 * dissolve * flightFade;
+      edgeMat.opacity = 0.85 * dissolve * flightFade;
+      trailMat.opacity = flightFade;
+      tern.visible = dissolve * flightFade > 0.01;
       // trail particles converge onto the pass outline — crystallizing
       for (let i = 0; i < TRAIL_N; i++) {
         const s = smoothstep(q, 0.04 + 0.5 * (i / TRAIL_N), 0.44 + 0.5 * (i / TRAIL_N));
@@ -861,15 +893,6 @@ function TernSequence() {
       if (tern.visible) tern.visible = false;
       if (trail.visible) trail.visible = false;
       pass.visible = true;
-
-      if (!a.heroEl?.isConnected) {
-        a.heroEl = document.querySelector(".hero-twilight");
-      }
-      let scrollOut = 0; // 0 = hero fully on screen, 1 = fully scrolled past
-      if (a.heroEl) {
-        const r = a.heroEl.getBoundingClientRect();
-        scrollOut = clamp01(-r.top / Math.max(r.height, 1));
-      }
 
       const ti = (elapsed - FLIGHT_MS - HANDOFF_MS) / 1000;
       // Smooth the pointer toward its target — frame-rate-independent lerp.

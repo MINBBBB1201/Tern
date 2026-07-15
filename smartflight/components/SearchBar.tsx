@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { useTranslations } from "next-intl";
+import { heroRoute } from "../lib/heroRoute";
 import {
   ArrowLeftRight,
   Calendar,
@@ -72,6 +73,12 @@ export default function SearchBar({ onSearch, loading = false, routeLineRef }: S
   const [swapping, setSwapping] = useState(false);
 
   const passengerRef = useRef<HTMLDivElement>(null);
+
+  // Keep the hero globe's route arc in sync with the live origin/
+  // destination — the globe reflects the actual search, not a demo route.
+  useEffect(() => {
+    heroRoute.set(from, to);
+  }, [from, to]);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
