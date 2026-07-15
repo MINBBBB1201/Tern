@@ -4,7 +4,9 @@
     "booking": "预订",
     "deals": "优惠",
     "blog": "博客",
-    "changeSearch": "修改搜索"
+    "changeSearch": "修改搜索",
+    "signIn": "登录",
+    "signOut": "退出登录"
   },
   "WhyShop": {
     "title": "为什么选择 Tern",

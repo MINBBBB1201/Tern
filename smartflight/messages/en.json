@@ -4,7 +4,9 @@
     "booking": "Booking",
     "deals": "Deals",
     "blog": "Blog",
-    "changeSearch": "Change Search"
+    "changeSearch": "Change Search",
+    "signIn": "Sign In",
+    "signOut": "Sign Out"
   },
   "WhyShop": {
     "title": "Why shop on Tern",

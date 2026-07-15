@@ -10,20 +10,13 @@ import {
   ResponsiveContainer,
   ReferenceDot,
 } from "recharts";
-import {
-  signInWithGoogle,
-  signOut,
-  handleRedirectResult,
-  auth,
-  onAuthStateChanged,
-} from "../lib/auth";
-import type { User } from "firebase/auth";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import SearchBar, { type SearchParams } from "../components/SearchBar";
 import { LocaleSwitcher } from "../components/LocaleSwitcher";
+import { AuthMenu } from "../components/AuthMenu";
 import { useHoverTilt } from "../hooks/useHoverTilt";
 import { usePriceAlerts } from "../hooks/usePriceAlerts";
 import type { Offer } from "../lib/offerUtils";
@@ -503,7 +496,6 @@ export default function Home() {
   const router = useRouter();
   const tNav = useTranslations("Nav");
   const tHero = useTranslations("Hero");
-  const [user, setUser] = useState<User | null>(null);
 
   // Search params are owned by SearchBar; page tracks last submitted for downstream use
   const [lastSearch, setLastSearch] = useState<SearchParams>({
@@ -529,20 +521,13 @@ export default function Home() {
   const [navOverHero, setNavOverHero] = useState(true);
 
   useEffect(() => {
-    handleRedirectResult().then((u) => { if (u) setUser(u); });
-    const unsubscribe = onAuthStateChanged(auth, (u) => setUser(u));
-    return () => unsubscribe();
-  }, []);
-
-  useEffect(() => {
     const onScroll = () => setNavOverHero(window.scrollY < window.innerHeight - 80);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const handleSignIn = async () => { try { await signInWithGoogle(); } catch (err) { console.error("Login failed:", err); } };
-  const handleSignOut = async () => { try { await signOut(); } catch (err) { console.error("Logout failed:", err); } };
+
 
   // Called by SearchBar on submit — navigates to /booking with all params
   const handleSearch = (params: SearchParams) => {
@@ -644,28 +629,7 @@ export default function Home() {
           </div>
           <div className="flex items-center gap-4">
             <LocaleSwitcher dark={navOverHero} />
-            {user ? (
-              <div className="flex items-center gap-3">
-                {user.photoURL && (
-                  <Image src={user.photoURL} alt={user.displayName ?? ""} width={32} height={32} className="rounded-full" />
-                )}
-                <span className={`hidden sm:inline text-sm transition ${navOverHero ? "text-white/70" : "text-muted"}`}>{user.displayName}</span>
-                <button
-                  onClick={handleSignOut}
-                  className={`px-4 py-2 rounded-full border text-sm font-medium transition ${
-                    navOverHero
-                      ? "bg-white/10 border-white/15 text-white hover:bg-white/15"
-                      : "glass-chip text-foreground hover:bg-white/80"
-                  }`}
-                >
-                  Sign Out
-                </button>
-              </div>
-            ) : (
-              <button onClick={handleSignIn} className="px-5 py-2 rounded-full bg-primary text-white text-sm font-semibold hover:bg-primary/90 transition shadow-lg shadow-primary/25">
-                Sign In
-              </button>
-            )}
+            <AuthMenu dark={navOverHero} />
           </div>
         </div>
       </nav>

@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { signInWithGoogle, auth, onAuthStateChanged } from "../../lib/auth";
+import { signInWithGoogle, auth, onAuthStateChanged, handleRedirectResult } from "../../lib/auth";
 import type { User } from "firebase/auth";
 import Link from "next/link";
 import Image from "next/image";
@@ -29,6 +29,12 @@ export default function SignInPage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
+    handleRedirectResult().then((u) => {
+      if (u) setUser(u);
+    }).catch((err) => {
+      console.error("Redirect sign-in failed:", err);
+      setError(err instanceof Error && err.message ? err.message : t("genericError"));
+    });
     const unsubscribe = onAuthStateChanged(auth, (u) => {
       setUser(u);
       if (u) {
@@ -36,7 +42,7 @@ export default function SignInPage() {
       }
     });
     return () => unsubscribe();
-  }, [router]);
+  }, [router, t]);
 
   const handleGoogleSignIn = async () => {
     setLoading(true);

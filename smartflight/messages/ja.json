@@ -4,7 +4,9 @@
     "booking": "予約",
     "deals": "特典",
     "blog": "ブログ",
-    "changeSearch": "検索を変更"
+    "changeSearch": "検索を変更",
+    "signIn": "サインイン",
+    "signOut": "サインアウト"
   },
   "WhyShop": {
     "title": "Ternを選ぶ理由",

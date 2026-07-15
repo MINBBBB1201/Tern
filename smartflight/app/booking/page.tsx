@@ -22,6 +22,7 @@ import AirportGuideCards from "../../components/booking/AirportGuideCards";
 import LoyaltyCardTips from "../../components/booking/LoyaltyCardTips";
 import CheckoutModal from "../../components/booking/CheckoutModal";
 import { LocaleSwitcher } from "../../components/LocaleSwitcher";
+import { AuthMenu } from "../../components/AuthMenu";
 import { formatMoney } from "../../lib/offerUtils";
 
 // Client-only scroll choreography — see components/ScrollFX.tsx
@@ -126,6 +127,7 @@ function BookingPageClient() {
               {tripType}
             </span>
             <LocaleSwitcher />
+            <AuthMenu />
             <Link href="/" className="rounded-full bg-primary px-4 py-2 font-semibold text-white">
               {tNav("changeSearch")}
             </Link>

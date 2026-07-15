@@ -17,13 +17,8 @@ export async function signInWithGoogle(): Promise<void> {
 }
 
 export async function handleRedirectResult(): Promise<User | null> {
-  try {
-    const result = await getRedirectResult(auth);
-    if (result) return result.user;
-    return null;
-  } catch {
-    return null;
-  }
+  const result = await getRedirectResult(auth);
+  return result ? result.user : null;
 }
 
 export async function signOut(): Promise<void> {

@@ -4,7 +4,9 @@
     "booking": "예약",
     "deals": "특가",
     "blog": "블로그",
-    "changeSearch": "검색 변경"
+    "changeSearch": "검색 변경",
+    "signIn": "로그인",
+    "signOut": "로그아웃"
   },
   "WhyShop": {
     "title": "Tern을 이용하는 이유",
