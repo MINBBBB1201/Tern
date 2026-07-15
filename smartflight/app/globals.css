@@ -419,6 +419,26 @@ body {
   text-wrap: balance;
 }
 
+/* Copy block: centered everywhere by default. On desktop, when the
+   animated 3D scene is running (no data-hero-static on the hero), the
+   globe is a large presence on the left — the copy shifts to the right
+   half and left-aligns so the two never fight for the same space.
+   Static/reduced-motion/mobile heroes have no globe and stay centered. */
+.hero-copy {
+  align-items: center;
+  text-align: center;
+}
+
+@media (min-width: 1024px) {
+  .hero-twilight:not([data-hero-static]) .hero-copy {
+    align-self: flex-end;
+    width: 48%;
+    align-items: flex-start;
+    text-align: left;
+    margin-top: 48px;
+  }
+}
+
 .data-mono {
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;

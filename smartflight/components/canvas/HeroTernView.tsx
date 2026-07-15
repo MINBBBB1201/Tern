@@ -10,7 +10,7 @@ import { useFrame, useThree } from "@react-three/fiber";
 import { View, PerspectiveCamera } from "@react-three/drei";
 import * as THREE from "three";
 import gsap from "gsap";
-import HeroGlobe from "./HeroGlobe";
+import HeroGlobe, { globeShared } from "./HeroGlobe";
 
 /**
  * Civil Twilight signature sequence — R3F port of the original raw-Three
@@ -29,42 +29,27 @@ import HeroGlobe from "./HeroGlobe";
 
 type PathPoint = { x: number; y: number };
 
-const KEYPOINTS: PathPoint[] = [
-  { x: -0.06, y: 0.36 },
-  { x: 0.22, y: 0.16 },
-  { x: 0.5, y: 0.13 },
-  { x: 0.72, y: 0.26 },
-];
-const SETTLE = KEYPOINTS[KEYPOINTS.length - 1];
+/** Where the boarding pass settles (fractional hero coords). */
+const SETTLE: PathPoint = { x: 0.72, y: 0.26 };
 
-const FLIGHT_MS = 2600;
+/**
+ * One continuous cinematic beat (Stage 1.5 update #2): the tern swoops in
+ * from off-screen, circles the globe once along the same ICN→LHR
+ * great-circle route drawn on its surface, then breaks off toward the
+ * camera and condenses into the boarding pass. Circle the world → become
+ * your ticket.
+ */
+const ENTRY_MS = 800;
+const ORBIT_MS = 3600;
+const FLIGHT_MS = ENTRY_MS + ORBIT_MS; // total pre-handoff flight time
 const HANDOFF_MS = 1400;
-const HANDOFF_T = 0.84; // path fraction where the hand-off begins
+const ORBIT_ALT = 1.16; // orbit radius over the unit globe sphere
 
 const CONTRAIL = new THREE.Color("#8FE0E8");
 const PASS_W = 1.9;
 const PASS_H = 0.85;
 const TRAIL_N = 120;
 const TERN_SCALE = 0.6;
-
-/** Catmull-Rom sample through the flight-path keypoints. */
-function samplePath(points: PathPoint[], t: number): PathPoint {
-  const n = points.length - 1;
-  const clamped = Math.max(0, Math.min(1, t));
-  const scaled = clamped * n;
-  const i = Math.min(Math.floor(scaled), n - 1);
-  const localT = scaled - i;
-  const p0 = points[Math.max(0, i - 1)];
-  const p1 = points[i];
-  const p2 = points[i + 1];
-  const p3 = points[Math.min(n, i + 2)];
-  const t2 = localT * localT;
-  const t3 = t2 * localT;
-  return {
-    x: 0.5 * (2 * p1.x + (-p0.x + p2.x) * localT + (2 * p0.x - 5 * p1.x + 4 * p2.x - p3.x) * t2 + (-p0.x + 3 * p1.x - 3 * p2.x + p3.x) * t3),
-    y: 0.5 * (2 * p1.y + (-p0.y + p2.y) * localT + (2 * p0.y - 5 * p1.y + 4 * p2.y - p3.y) * t2 + (-p0.y + 3 * p1.y - 3 * p2.y + p3.y) * t3),
-  };
-}
 
 const easeInOutSine = (t: number) => -(Math.cos(Math.PI * t) - 1) / 2;
 const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
@@ -390,7 +375,7 @@ function buildScene() {
     trailGeo.setAttribute("position", new THREE.BufferAttribute(trailPos, 3));
     trailGeo.setAttribute("color", new THREE.BufferAttribute(trailCol, 3));
     const trailMat = new THREE.PointsMaterial({
-      size: 0.075,
+      size: 0.11,
       sizeAttenuation: true,
       vertexColors: true,
       blending: THREE.AdditiveBlending,
@@ -489,7 +474,55 @@ function TernSequence() {
     snapshotTaken: false,
     trailSnapshot: new Float32Array(TRAIL_N * 3),
     heroEl: null as Element | null,
+    theta0: NaN, // orbit insertion/breakaway angle, chosen on first frame
+    freezeAt: -1, // verification: pin `elapsed` to this ms when >= 0
   });
+
+  // Replay hook (same precedent as __ternGlobeSunOverride): resets the
+  // sequence clock so the flight can be re-watched/verified on demand —
+  // `__ternReplay()` from the top, `__ternReplay(2500)` seeks 2.5s in.
+  useEffect(() => {
+    const w = window as unknown as { __ternReplay?: (offsetMs?: number) => void };
+    w.__ternReplay = (offsetMs = 0, freeze = false) => {
+      const a = anim.current;
+      a.start = performance.now() - offsetMs;
+      a.lastNow = performance.now();
+      a.freezeAt = freeze ? offsetMs : -1;
+      a.trailFilled = 0;
+      a.snapshotTaken = false;
+      a.theta0 = NaN;
+      built.glassMat.opacity = 0.34;
+      built.edgeMat.opacity = 0.85;
+      built.tern.visible = true;
+      built.tern.scale.setScalar(TERN_SCALE);
+      built.wingGroups.forEach((g) => { g.scale.z = 1; });
+      built.pass.visible = false;
+      built.slabMat.opacity = 0;
+      built.passEdgeMat.opacity = 0;
+      built.faceMat.opacity = 0;
+    };
+    // Freeze the clock at its current point (call after letting the
+    // sequence run so the trail has real history), or unfreeze with -1.
+    (w as unknown as { __ternFreeze?: (at?: number) => number }).__ternFreeze = (at?: number) => {
+      const a = anim.current;
+      a.freezeAt = at !== undefined ? at : performance.now() - a.start;
+      return a.freezeAt;
+    };
+    (w as unknown as { __ternState?: () => object }).__ternState = () => ({
+      pos: built.tern.position.toArray().map((n) => +n.toFixed(3)),
+      quat: built.tern.quaternion.toArray().map((n) => +n.toFixed(3)),
+      visible: built.tern.visible,
+      scale: +built.tern.scale.x.toFixed(3),
+      glassOpacity: built.glassMat.opacity,
+      elapsedMs: anim.current.start < 0 ? -1 : Math.round(performance.now() - anim.current.start),
+      theta0: anim.current.theta0,
+      spinRegistered: !!globeShared.spin,
+    });
+    return () => {
+      delete w.__ternReplay;
+      delete (w as unknown as { __ternState?: () => object }).__ternState;
+    };
+  }, [built]);
 
   // Cursor-reactive settled pass (Phase C only): raw pointer NDC written by
   // the listener, smoothed per-frame so the pass leans toward the cursor
@@ -509,6 +542,11 @@ function TernSequence() {
   const tmpRef = useRef<{
     posA: THREE.Vector3; posB: THREE.Vector3; settleWorld: THREE.Vector3;
     tailLocal: THREE.Vector3; raycaster: THREE.Raycaster; zPlane: THREE.Plane; ndc: THREE.Vector2;
+    tangent: THREE.Vector3; toSettle: THREE.Vector3; radial: THREE.Vector3;
+    globeCenter: THREE.Vector3; sideAxis: THREE.Vector3; upAxis: THREE.Vector3;
+    entryStart: THREE.Vector3; entryCtrl: THREE.Vector3;
+    b1: THREE.Vector3; b2: THREE.Vector3; breakP0: THREE.Vector3; breakF0: THREE.Vector3;
+    basisM: THREE.Matrix4; qTarget: THREE.Quaternion; qBank: THREE.Quaternion;
   } | null>(null);
   if (tmpRef.current === null) {
     tmpRef.current = {
@@ -519,9 +557,28 @@ function TernSequence() {
       raycaster: new THREE.Raycaster(),
       zPlane: new THREE.Plane(new THREE.Vector3(0, 0, 1), 0),
       ndc: new THREE.Vector2(),
+      tangent: new THREE.Vector3(),
+      toSettle: new THREE.Vector3(),
+      radial: new THREE.Vector3(),
+      globeCenter: new THREE.Vector3(),
+      sideAxis: new THREE.Vector3(),
+      upAxis: new THREE.Vector3(),
+      entryStart: new THREE.Vector3(),
+      entryCtrl: new THREE.Vector3(),
+      b1: new THREE.Vector3(),
+      b2: new THREE.Vector3(),
+      breakP0: new THREE.Vector3(),
+      breakF0: new THREE.Vector3(),
+      basisM: new THREE.Matrix4(),
+      qTarget: new THREE.Quaternion(),
+      qBank: new THREE.Quaternion(),
     };
   }
-  const { posA, posB, settleWorld, tailLocal, raycaster, zPlane, ndc } = tmpRef.current;
+  const {
+    posA, posB, settleWorld, tailLocal, raycaster, zPlane, ndc,
+    tangent, toSettle, radial, globeCenter, sideAxis, upAxis,
+    entryStart, entryCtrl, b1, b2, breakP0, breakF0, basisM, qTarget, qBank,
+  } = tmpRef.current;
 
   useFrame(() => {
     const a = anim.current;
@@ -535,7 +592,7 @@ function TernSequence() {
       a.start = now;
       a.lastNow = now;
     }
-    const elapsed = now - a.start;
+    const elapsed = a.freezeAt >= 0 ? a.freezeAt : now - a.start;
     const dt = Math.min((now - a.lastNow) / 1000, 0.05);
     a.lastNow = now;
 
@@ -547,33 +604,111 @@ function TernSequence() {
       return out;
     };
 
-    const orientTern = (t: number) => {
-      unproject(samplePath(KEYPOINTS, t), posA);
-      unproject(samplePath(KEYPOINTS, Math.min(1, t + 0.015)), posB);
-      const heading = Math.atan2(posB.y - posA.y, posB.x - posA.x);
-      tern.position.copy(posA);
-      tern.rotation.set(
-        Math.max(-0.5, Math.min(0.5, -(posB.y - posA.y) * 2.4)), // bank into the curve
-        -0.38, // 3/4 view so the facets catch light
-        heading,
-        "ZYX"
-      );
-      return heading;
+    // Orbit sampling in the globe's spinning frame: the same circle the
+    // route line lives on (globeShared.e1/e2), lifted to ORBIT_ALT.
+    const spin = globeShared.spin;
+    const orbitWorld = (theta: number, out: THREE.Vector3) => {
+      out
+        .copy(globeShared.e1)
+        .multiplyScalar(Math.cos(theta))
+        .addScaledVector(globeShared.e2, Math.sin(theta))
+        .multiplyScalar(ORBIT_ALT);
+      return spin ? spin.localToWorld(out) : out;
+    };
+
+    // Forward + up-hint → tern orientation (+x forward, +y up), with an
+    // extra roll around forward so it banks into the curve.
+    const orientAlong = (F: THREE.Vector3, upHint: THREE.Vector3, bank: number) => {
+      sideAxis.crossVectors(F, upHint).normalize();
+      upAxis.crossVectors(sideAxis, F).normalize();
+      basisM.makeBasis(F, upAxis, sideAxis);
+      qTarget.setFromRotationMatrix(basisM);
+      if (bank !== 0) {
+        qBank.setFromAxisAngle(F, bank);
+        qTarget.premultiply(qBank);
+      }
+      return qTarget;
     };
 
     unproject(SETTLE, settleWorld);
 
     if (elapsed < FLIGHT_MS) {
-      // Phase A — flight along the great-circle arc
-      const p = easeInOutSine(clamp01(elapsed / FLIGHT_MS));
-      orientTern(p * HANDOFF_T);
+      if (!spin) return; // globe not registered yet (first frame at most)
+
+      // Choose the breakaway angle once: the orbit point whose travel
+      // direction best aims at where the pass will settle, so the tern
+      // departs the circle tangentially instead of veering off.
+      if (Number.isNaN(a.theta0)) {
+        let best = -Infinity;
+        let bestTheta = 0;
+        for (let i = 0; i < 64; i++) {
+          const th = (i / 64) * Math.PI * 2;
+          orbitWorld(th, posA);
+          orbitWorld(th + 0.02, posB);
+          tangent.subVectors(posB, posA).normalize();
+          toSettle.subVectors(settleWorld, posA).normalize();
+          const s = tangent.dot(toSettle);
+          if (s > best) {
+            best = s;
+            bestTheta = th;
+          }
+        }
+        a.theta0 = bestTheta;
+      }
+
+      spin.getWorldPosition(globeCenter);
+      const globeR = spin.getWorldScale(radial).x; // uniform scale
+      const p = clamp01(elapsed / FLIGHT_MS);
+
+      if (elapsed < ENTRY_MS) {
+        // Phase A0 — swoop in from off-screen upper-left, arriving at the
+        // orbit insertion point (which is also the future breakaway point,
+        // so the orbit is exactly one revolution).
+        const t = easeInOutSine(clamp01(elapsed / ENTRY_MS));
+        orbitWorld(a.theta0, posB); // insertion
+        entryStart.set(globeCenter.x - globeR * 2.6, globeCenter.y + globeR * 1.6, 0.5);
+        entryCtrl.set(globeCenter.x - globeR * 0.7, globeCenter.y + globeR * 1.75, posB.z * 0.5 + 0.4);
+        const u = 1 - t;
+        tern.position
+          .copy(entryStart)
+          .multiplyScalar(u * u)
+          .addScaledVector(entryCtrl, 2 * u * t)
+          .addScaledVector(posB, t * t);
+        // quadratic bezier derivative
+        toSettle.subVectors(posB, entryCtrl);
+        tangent
+          .subVectors(entryCtrl, entryStart)
+          .multiplyScalar(2 * u)
+          .addScaledVector(toSettle, 2 * t)
+          .normalize();
+        radial.set(0, 1, 0);
+        tern.quaternion.copy(orientAlong(tangent, radial, 0));
+      } else {
+        // Phase A1 — one full revolution along the drawn route's circle.
+        const t = (elapsed - ENTRY_MS) / ORBIT_MS;
+        const theta = a.theta0 + t * Math.PI * 2;
+        orbitWorld(theta, posA);
+        orbitWorld(theta + 0.02, posB);
+        tern.position.copy(posA);
+        tangent.subVectors(posB, posA).normalize();
+        radial.subVectors(posA, globeCenter).normalize();
+        tern.quaternion.copy(orientAlong(tangent, radial, -0.24));
+      }
+      breakF0.copy(tangent); // keep the latest travel direction for Phase B
+
+      // Slight presence boost while it circles the globe (the near side of
+      // the orbit is close to the camera and needs none — perspective does
+      // the work; this mostly helps the far/edge sections read).
+      const scaleBoost = 1.12 - 0.12 * smoothstep(p, 0.82, 1);
+      tern.scale.setScalar(TERN_SCALE * scaleBoost);
+
       a.flapPhase += dt * (11 - 5 * p);
       const amp = 0.62 - 0.25 * p;
       wingGroups[0].rotation.x = Math.sin(a.flapPhase) * amp - 0.12;
       wingGroups[1].rotation.x = -(Math.sin(a.flapPhase) * amp - 0.12);
 
       // emit trail from the tail
-      tailLocal.set(-0.9, 0.1, 0).applyEuler(tern.rotation).multiplyScalar(TERN_SCALE).add(tern.position);
+      tailLocal.set(-0.9, 0.1, 0).applyQuaternion(tern.quaternion).multiplyScalar(tern.scale.x).add(tern.position);
       trailPos.copyWithin(3, 0, (TRAIL_N - 1) * 3);
       trailPos[0] = tailLocal.x;
       trailPos[1] = tailLocal.y;
@@ -589,10 +724,40 @@ function TernSequence() {
       trailGeo.attributes.position.needsUpdate = true;
       trailGeo.attributes.color.needsUpdate = true;
     } else if (elapsed < FLIGHT_MS + HANDOFF_MS) {
-      // Phase B — the hand-off: trail condenses, tern folds into the pass
+      // Phase B — the breakaway: the tern leaves the orbit tangentially,
+      // sweeps toward the settle point, and the trail condenses into the
+      // pass. Position runs on a cubic bezier seeded with the orbit-exit
+      // velocity so there is no kink at the transition.
       const q = easeOutCubic(clamp01((elapsed - FLIGHT_MS) / HANDOFF_MS));
 
-      const heading = orientTern(HANDOFF_T + q * (1 - HANDOFF_T));
+      if (!a.snapshotTaken) {
+        a.trailSnapshot.set(trailPos);
+        a.snapshotTaken = true;
+        breakP0.copy(tern.position);
+        b1.copy(breakP0).addScaledVector(breakF0, 1.5);
+        b2.copy(settleWorld).add(posB.set(-1.0, 0.45, 0.4));
+      }
+
+      // cubic bezier position + derivative
+      const uq = 1 - q;
+      tern.position
+        .copy(breakP0)
+        .multiplyScalar(uq * uq * uq)
+        .addScaledVector(b1, 3 * uq * uq * q)
+        .addScaledVector(b2, 3 * uq * q * q)
+        .addScaledVector(settleWorld, q * q * q);
+      tangent
+        .subVectors(b1, breakP0)
+        .multiplyScalar(3 * uq * uq)
+        .addScaledVector(toSettle.subVectors(b2, b1), 6 * uq * q)
+        .addScaledVector(posA.subVectors(settleWorld, b2), 3 * q * q);
+      if (tangent.lengthSq() > 1e-8) tangent.normalize();
+      const heading = Math.atan2(tangent.y, tangent.x);
+
+      // level out: ease from the banked orbit pose toward the travel pose
+      radial.set(0, 1, 0);
+      tern.quaternion.slerp(orientAlong(tangent, radial, 0), Math.min(1, q * 2));
+
       // fold wings, shrink and dissolve as the pass takes over
       const fold = smoothstep(q, 0.05, 0.6);
       wingGroups[0].rotation.x = -0.12 * (1 - fold);
@@ -604,11 +769,6 @@ function TernSequence() {
       glassMat.opacity = 0.34 * dissolve;
       edgeMat.opacity = 0.85 * dissolve;
       tern.visible = dissolve > 0.01;
-
-      if (!a.snapshotTaken) {
-        a.trailSnapshot.set(trailPos);
-        a.snapshotTaken = true;
-      }
       // trail particles converge onto the pass outline — crystallizing
       for (let i = 0; i < TRAIL_N; i++) {
         const s = smoothstep(q, 0.04 + 0.5 * (i / TRAIL_N), 0.44 + 0.5 * (i / TRAIL_N));
@@ -695,6 +855,15 @@ export default function HeroTernView() {
       (navigator.hardwareConcurrency ?? 8) <= 4 ||
       window.matchMedia("(prefers-reduced-motion: reduce)").matches
   );
+
+  // Static branch marker: lets CSS keep the hero copy centered when the
+  // globe/3D scene never mounts (mobile, reduced-motion, low-core).
+  useEffect(() => {
+    if (!isStatic) return;
+    const hero = document.querySelector(".hero-twilight");
+    hero?.setAttribute("data-hero-static", "1");
+    return () => hero?.removeAttribute("data-hero-static");
+  }, [isStatic]);
 
   // Star-layer cursor parallax: the stars drift a few px opposite the
   // cursor — atmospheric depth behind the 3D scene. quickTo gives the

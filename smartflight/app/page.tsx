@@ -659,6 +659,10 @@ export default function Home() {
           padding: '144px 24px 80px',
           textAlign: 'center',
         }}>
+          {/* Copy block: centered by default; when the animated 3D scene is
+              active on desktop, .hero-copy shifts right so the globe owns
+              the left half (see globals.css + data-hero-static). */}
+          <div className="hero-copy" style={{ display: 'flex', flexDirection: 'column' }}>
           <h1
             className="hero-headline animate-hero-text"
             style={{
@@ -685,6 +689,7 @@ export default function Home() {
           >
             {tHero("subtitle")}
           </p>
+          </div>
 
           {/* Search bar */}
           <div className="animate-hero-text" style={{ width: '100%', maxWidth: '1000px', animationDelay: '0.2s' }}>

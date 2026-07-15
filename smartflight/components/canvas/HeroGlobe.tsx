@@ -40,15 +40,50 @@ const LHR = { lat: 51.47, lon: -0.454 };
 
 // Placement: fractional hero coords (x right, y down from top-left) on the
 // GLOBE_Z plane; radius as a fraction of that plane's visible height.
-const GLOBE_FRAC_X = 0.52;
-const GLOBE_FRAC_Y = 0.232;
+// Stage 1.5 update #2: the globe is a primary compositional element now —
+// large, left-positioned (the pass anchors the right), continuously
+// spinning. The hero copy moves right to give it room (see .hero-copy).
+const GLOBE_FRAC_X = 0.26;
+const GLOBE_FRAC_Y = 0.5;
 const GLOBE_Z = -1.4;
-const GLOBE_R_FRAC = 0.082;
+const GLOBE_R_FRAC = 0.3;
 const CAM_Z = 6; // hero View camera z (HeroTernView PerspectiveCamera)
 const FOV_DEG = 45;
 
 const SPIN_RATE = 0.07; // rad/s — one revolution ≈ 90 s
 const SUN_UPDATE_MS = 1000;
+
+/** Placement of the globe on its z-plane for a given canvas size — one
+ *  deterministic function shared with TernSequence so the tern's orbit and
+ *  the globe never disagree about geometry. */
+export function globePlacement(sizeW: number, sizeH: number) {
+  const planeH = 2 * (CAM_Z - GLOBE_Z) * Math.tan(THREE.MathUtils.degToRad(FOV_DEG / 2));
+  const planeW = planeH * (sizeW / sizeH);
+  return {
+    center: new THREE.Vector3(
+      (GLOBE_FRAC_X - 0.5) * planeW,
+      (0.5 - GLOBE_FRAC_Y) * planeH,
+      GLOBE_Z
+    ),
+    radius: planeH * GLOBE_R_FRAC,
+  };
+}
+
+/**
+ * Live handles for the unified tern→globe→pass sequence: TernSequence
+ * orbits the tern along the same great-circle route that is drawn on the
+ * globe's surface, in the globe's own (spinning) frame. `spin` is the
+ * rotating earth-frame group; e1/e2 span the ICN→LHR great-circle plane
+ * in that frame, so orbitPoint(θ) = (e1·cosθ + e2·sinθ) · r, mapped
+ * through spin.localToWorld, follows the drawn route exactly.
+ */
+export const globeShared = {
+  spin: null as THREE.Object3D | null,
+  e1: new THREE.Vector3(),
+  e2: new THREE.Vector3(),
+  /** Spin-local angle of ICN (θ=0) → LHR along the circle, radians. */
+  routeSpanRad: 0,
+};
 
 /** lat/lon (deg, east-positive) → unit vector. Y-up; lon 0 on +X, east
  *  toward −Z. Route, subsolar point, and shader all share this frame. */
@@ -191,6 +226,11 @@ export default function HeroGlobe() {
     const mid = pts[32].clone().normalize();
     // Start with the route's midpoint facing the camera (+Z side).
     const spinY = Math.atan2(mid.x, mid.z) * -1;
+    // Publish the great-circle basis for the tern's orbit: e1 at ICN,
+    // e2 orthonormal in the route plane toward LHR.
+    globeShared.e1.copy(a);
+    globeShared.e2.copy(b).addScaledVector(a, -a.dot(b)).normalize();
+    globeShared.routeSpanRad = angle;
     return {
       routeGeo: new THREE.BufferGeometry().setFromPoints(pts),
       icnPos: a.clone().multiplyScalar(1.015),
@@ -222,7 +262,9 @@ export default function HeroGlobe() {
   const routeLine = useMemo(() => new THREE.Line(routeGeo, routeMaterial), [routeGeo, routeMaterial]);
 
   useEffect(() => {
+    globeShared.spin = spinRef.current;
     return () => {
+      globeShared.spin = null;
       globeMaterial.dispose();
       haloMaterial.dispose();
       routeGeo.dispose();
@@ -237,21 +279,16 @@ export default function HeroGlobe() {
     const spin = spinRef.current;
     if (!outer || !spin) return;
 
-    // Resize-safe placement on the GLOBE_Z plane.
-    const planeH = 2 * (CAM_Z - GLOBE_Z) * Math.tan(THREE.MathUtils.degToRad(FOV_DEG / 2));
-    const planeW = planeH * (state.size.width / state.size.height);
-    outer.position.set(
-      (GLOBE_FRAC_X - 0.5) * planeW,
-      (0.5 - GLOBE_FRAC_Y) * planeH,
-      GLOBE_Z
-    );
+    // Resize-safe placement on the GLOBE_Z plane (shared with the orbit).
+    const { center, radius } = globePlacement(state.size.width, state.size.height);
+    outer.position.copy(center);
 
     // Gentle scale-in on first appearance so the globe doesn't pop.
     const now0 = performance.now();
     if (bornAt.current < 0) bornAt.current = now0;
     const born = Math.min((now0 - bornAt.current) / 1200, 1);
     const bornEase = 1 - Math.pow(1 - born, 3);
-    outer.scale.setScalar(planeH * GLOBE_R_FRAC * (0.6 + 0.4 * bornEase));
+    outer.scale.setScalar(radius * (0.6 + 0.4 * bornEase));
 
     // Decorative spin only — terminator math lives in the earth frame.
     spin.rotation.y += delta * SPIN_RATE;
