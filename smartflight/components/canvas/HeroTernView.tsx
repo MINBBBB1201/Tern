@@ -79,40 +79,94 @@ const easeOutBackSoft = (t: number) => {
   return 1 + (c + 1) * x * x * x + c * x * x;
 };
 
-/** Faceted low-poly tern body — stylized silhouette with the Arctic
- *  Tern's deeply forked streamer tail; +x is forward.
- *  Silhouette reference: Sterna paradisaea in flight — small head, short
- *  neck, slender body, and the two long thin tail streamers (fork depth
- *  roughly a body-length behind the tail root, swallow-like). */
-function buildTernBody(): THREE.BufferGeometry {
-  const N = [0.98, 0.0, 0];
-  const H = [0.52, 0.16, 0];
-  const C = [0.3, -0.14, 0];
-  const K = [-0.02, 0.18, 0];
-  const B = [-0.1, -0.1, 0];
-  const T = [-0.62, 0.08, 0];
-  const SL = [0.2, 0.02, 0.17];
-  const SR = [0.2, 0.02, -0.17];
-  const RL = [-0.3, 0.03, 0.12];
-  const RR = [-0.3, 0.03, -0.12];
-  // Streamers: long, thin, well separated — each a narrow triangle from
-  // the tail root past a mid knuckle so the fork reads at a glance.
-  const ML = [-0.98, 0.12, 0.1];
-  const MR = [-0.98, 0.12, -0.1];
-  const FL = [-1.38, 0.17, 0.24];
-  const FR = [-1.38, 0.17, -0.24];
+/* ── Arctic tern model — Sterna paradisaea ──────────────────────────
+   Streamlined lofted body (smooth-shaded, not faceted), black cap over
+   the crown, dusk-lit bill (--horizon-500: the real bill is deep red;
+   the token orange reads as that red under this palette), deep forked
+   streamer tail, and long swept two-segment wings (arm + hand) so the
+   wingbeat can articulate at the wrist like a real seabird. +x forward.
+   Proportions land in the same ~[-1.32, +1.06] x-extent as the previous
+   model so every phase offset/scale keeps working. */
+
+/** Fuselage: lathe of a tern profile — deep chest, slim tail cone,
+ *  distinct head bulge; axis rotated to +x, slightly narrowed in z. */
+function buildTernBodyGeo(): THREE.BufferGeometry {
+  const profile: THREE.Vector2[] = [
+    new THREE.Vector2(0.004, -1.02),
+    new THREE.Vector2(0.028, -0.78),
+    new THREE.Vector2(0.055, -0.5),
+    new THREE.Vector2(0.085, -0.2),
+    new THREE.Vector2(0.102, 0.02),
+    new THREE.Vector2(0.098, 0.22),
+    new THREE.Vector2(0.078, 0.42),
+    new THREE.Vector2(0.072, 0.5),
+    new THREE.Vector2(0.086, 0.6),
+    new THREE.Vector2(0.068, 0.7),
+    new THREE.Vector2(0.02, 0.76),
+    new THREE.Vector2(0.004, 0.78),
+  ];
+  const geo = new THREE.LatheGeometry(profile, 20);
+  geo.rotateZ(-Math.PI / 2); // axis → +x, head at +x
+  geo.scale(1, 1, 0.88);
+  geo.computeVertexNormals();
+  return geo;
+}
+
+/** Black cap: a dome hugging the crown from forehead to nape. */
+function buildCapGeo(): THREE.BufferGeometry {
+  const geo = new THREE.SphereGeometry(0.098, 18, 10, 0, Math.PI * 2, 0, Math.PI * 0.58);
+  geo.scale(1.3, 0.9, 0.94);
+  geo.rotateZ(-0.22); // crown tipped forward over the forehead
+  geo.translate(0.575, 0.02, 0);
+  return geo;
+}
+
+/** Bill: slim cone, pointing forward with the tern's slight downlook. */
+function buildBillGeo(): THREE.BufferGeometry {
+  const geo = new THREE.ConeGeometry(0.024, 0.3, 10);
+  geo.rotateZ(-Math.PI / 2); // apex → +x
+  geo.rotateZ(-0.05);
+  geo.translate(0.88, 0.0, 0);
+  return geo;
+}
+
+/** Deep forked tail: two long thin streamers + a small central web. */
+function buildTailGeo(): THREE.BufferGeometry {
+  const tris: number[][][] = [];
+  for (const s of [1, -1]) {
+    tris.push([
+      [-0.88, 0.02, 0.012 * s],
+      [-0.98, 0.03, 0.055 * s],
+      [-1.3, 0.09, 0.165 * s],
+    ]);
+  }
+  tris.push([
+    [-0.86, 0.02, 0.04],
+    [-0.86, 0.02, -0.04],
+    [-1.04, 0.045, 0],
+  ]);
+  const positions = new Float32Array(tris.flat(2));
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+  geo.computeVertexNormals();
+  return geo;
+}
+
+/** Inner wing (arm): shoulder → wrist panel, broad chord. Local origin
+ *  at the shoulder; span along ±z. */
+function buildArmGeo(sign: number): THREE.BufferGeometry {
+  const s = (v: number[]) => [v[0], v[1], v[2] * sign];
+  const le0 = s([0.13, 0, 0.01]);
+  const te0 = s([-0.22, 0, 0.05]);
+  // secondaries: a soft trailing-edge bulge mid-arm, so the inner wing
+  // reads as a feathered surface instead of a rectangular panel
+  const tm = s([-0.25, 0.005, 0.25]);
+  const le1 = s([0.07, 0.012, 0.46]);
+  const te1 = s([-0.14, 0.007, 0.45]);
   const tris = [
-    [N, H, SL], [N, SR, H],
-    [N, SL, C], [N, C, SR],
-    [H, SL, K], [H, K, SR],
-    [C, SL, B], [C, B, SR],
-    [K, SL, RL], [K, RR, SR],
-    [SL, B, RL], [B, SR, RR],
-    [K, RL, T], [K, T, RR],
-    [B, RL, T], [B, T, RR],
-    // fork: root → mid knuckle → streamer tip, one thin blade per side
-    [T, RL, ML], [T, MR, RR],
-    [RL, FL, ML], [RR, MR, FR],
+    [le0, le1, tm],
+    [le0, tm, te0],
+    [tm, le1, te1],
   ];
   const positions = new Float32Array(tris.flat(2));
   const geo = new THREE.BufferGeometry();
@@ -121,39 +175,56 @@ function buildTernBody(): THREE.BufferGeometry {
   return geo;
 }
 
-/** Long, slender, swept wing (sign = 1 left / -1 right), origin at the
- *  shoulder. Arm → wrist, then three separated primary-feather blades
- *  sweeping back to points: the notched wingtip that reads "tern", not
- *  "paper plane". */
-function buildWing(sign: number): THREE.BufferGeometry {
+/** Outer wing (hand): long swept blade to a sharp point, two shallow
+ *  primary notches on the trailing edge. Local origin at the wrist. */
+function buildHandGeo(sign: number): THREE.BufferGeometry {
   const s = (v: number[]) => [v[0], v[1], v[2] * sign];
-  // arm + mid-wing panels
-  const S0 = s([0.05, 0, 0]);
-  const S1 = s([-0.3, 0, 0.02]);
-  const Ele = s([0.06, 0.02, 0.42]);
-  const Ete = s([-0.26, 0.01, 0.38]);
-  const Wle = s([-0.02, 0.03, 0.78]);
-  const Wte = s([-0.3, 0.02, 0.7]);
-  // primary feather bases along the trailing edge of the hand
-  const A1 = s([-0.3, 0.04, 1.0]);
-  const A2 = s([-0.4, 0.03, 0.86]);
-  // primary tips — outermost longest, stepping shorter inward
-  const P1 = s([-0.74, 0.06, 1.32]);
-  const P2 = s([-0.82, 0.045, 1.1]);
-  const P3 = s([-0.85, 0.03, 0.92]);
+  const le0 = s([0.07, 0.012, 0]);
+  const te0 = s([-0.14, 0.007, 0]);
+  const tip = s([-0.62, 0.03, 0.8]);
+  const n1 = s([-0.26, 0.01, 0.5]);
+  const tip2 = s([-0.5, 0.02, 0.6]);
+  const n2 = s([-0.33, 0.006, 0.3]);
   const tris = [
-    [S0, Ele, S1], [S1, Ele, Ete],
-    [Ele, Wle, Ete], [Ete, Wle, Wte],
-    // hand: three separated feather blades (gaps = tip notches)
-    [Wle, P1, A1],
-    [A1, P2, A2],
-    [A2, P3, Wte],
+    [le0, tip, n1],
+    [n1, tip2, n2],
+    [n2, s([-0.42, 0.012, 0.4]), te0],
   ];
   const positions = new Float32Array(tris.flat(2));
   const geo = new THREE.BufferGeometry();
   geo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
   geo.computeVertexNormals();
   return geo;
+}
+
+/**
+ * Real seabird wingbeat: flap bursts alternating with glides (gait
+ * envelope), and the hand lagging the arm in phase so the wing snakes
+ * instead of see-sawing. `glide` biases toward soaring (ambient bird).
+ */
+function applyWingbeat(
+  shoulders: THREE.Group[],
+  wrists: THREE.Group[],
+  a: { flapPhase: number; gaitPhase: number },
+  dt: number,
+  speed: number,
+  glide: number
+) {
+  a.gaitPhase += dt * 0.85;
+  const gaitS = 0.5 + 0.5 * Math.sin(a.gaitPhase);
+  // envelope: ~half the cycle flapping, half gliding; `glide` shrinks it
+  const env = (0.08 + 0.92 * smoothstep(gaitS, 0.35, 0.62)) * (1 - glide * 0.85);
+  a.flapPhase += dt * speed * (0.2 + 0.8 * env);
+  const sh = Math.sin(a.flapPhase) * 0.55 * env;
+  const wr = Math.sin(a.flapPhase - 0.85) * 0.4 * env;
+  // Glide pose: the seabird gull-wing — arms raised in a shallow
+  // dihedral, hands drooped at the wrist — with a slow soaring sway.
+  const glidePose = 0.15 + Math.sin(a.gaitPhase * 1.7) * 0.035;
+  const base = glidePose * (1 - env) - 0.1 * env;
+  shoulders[0].rotation.x = sh + base;
+  shoulders[1].rotation.x = -(sh + base);
+  wrists[0].rotation.x = wr - 0.14 * (1 - env);
+  wrists[1].rotation.x = -(wr - 0.14 * (1 - env));
 }
 
 function roundedRectShape(w: number, h: number, r: number): THREE.Shape {
@@ -376,61 +447,104 @@ function StaticBoardingPass() {
  *  mutable per-frame state, which is why it lives outside React's
  *  memoization (three.js objects are mutated in useFrame by design). */
 function buildScene() {
-  const glassMat = new THREE.MeshPhysicalMaterial({
-      color: 0xdfeef5,
-      metalness: 0.05,
-      roughness: 0.12,
-      // Clearcoat picks up the twilight key/rim lights as a lacquered
-      // sheen — PBR polish without an HDR environment download.
-      clearcoat: 0.6,
+  // Bird materials: still the glass family, but with real value contrast
+  // so the FORM reads — pale body, grey-blue wing, near-ink cap, dusk-lit
+  // bill. Smooth shading everywhere (the faceted look was the "crude"
+  // tell); clearcoat keeps the lacquered twilight response.
+  const bodyMat = new THREE.MeshPhysicalMaterial({
+      color: 0xe9f3f8,
+      metalness: 0.02,
+      roughness: 0.28,
+      clearcoat: 0.55,
       clearcoatRoughness: 0.3,
       transparent: true,
-      opacity: 0.34,
+      opacity: 0.62,
       side: THREE.DoubleSide,
-      flatShading: true,
       depthWrite: false,
     });
-    // Wings: thinner glass with a warm sheen term — sheen backscatters at
-    // grazing angles, so when the dusk key light is behind the bird the
-    // wing membranes catch a horizon-colored edge glow (the "thin feather
-    // backlit by sunset" read) instead of going flat.
+    const capMat = new THREE.MeshPhysicalMaterial({
+      color: 0x0e1626, // between --ink-900 and --dusk-700
+      metalness: 0.05,
+      roughness: 0.4,
+      clearcoat: 0.35,
+      clearcoatRoughness: 0.4,
+      transparent: true,
+      opacity: 0.92,
+      depthWrite: false,
+    });
+    const billMat = new THREE.MeshPhysicalMaterial({
+      color: 0xf2934d, // --horizon-500: the deep-red bill, dusk-lit
+      metalness: 0.05,
+      roughness: 0.3,
+      clearcoat: 0.5,
+      clearcoatRoughness: 0.3,
+      transparent: true,
+      opacity: 0.95,
+      depthWrite: false,
+    });
+    // Wings: grey-blue upper glass with the warm sheen backscatter (the
+    // "thin membrane backlit by sunset" read at grazing angles).
     const wingMat = new THREE.MeshPhysicalMaterial({
-      color: 0xdfeef5,
+      color: 0xa9c0d2,
       metalness: 0.02,
-      roughness: 0.18,
-      clearcoat: 0.9,
-      clearcoatRoughness: 0.18,
+      roughness: 0.24,
+      clearcoat: 0.8,
+      clearcoatRoughness: 0.2,
       sheen: 1.0,
       sheenColor: new THREE.Color(0xf2934d), // --horizon-500
       sheenRoughness: 0.45,
       transparent: true,
-      opacity: 0.3,
+      opacity: 0.52,
       side: THREE.DoubleSide,
-      flatShading: true,
       depthWrite: false,
     });
-    const edgeMat = new THREE.LineBasicMaterial({ color: CONTRAIL, transparent: true, opacity: 0.85 });
+    // Brand glint: contrail edge lines on the silhouette-critical blades
+    // only (wings + tail) — the smooth body carries itself with shading.
+    const edgeMat = new THREE.LineBasicMaterial({ color: CONTRAIL, transparent: true, opacity: 0.4 });
 
     const tern = new THREE.Group();
-    const bodyGeo = buildTernBody();
-    tern.add(new THREE.Mesh(bodyGeo, glassMat));
-    tern.add(new THREE.LineSegments(new THREE.EdgesGeometry(bodyGeo, 12), edgeMat));
+    const bodyGeo = buildTernBodyGeo();
+    const capGeo = buildCapGeo();
+    const billGeo = buildBillGeo();
+    const tailGeo = buildTailGeo();
+    tern.add(new THREE.Mesh(bodyGeo, bodyMat));
+    tern.add(new THREE.Mesh(capGeo, capMat));
+    tern.add(new THREE.Mesh(billGeo, billMat));
+    const tailMesh = new THREE.Mesh(tailGeo, bodyMat);
+    tern.add(tailMesh);
+    tern.add(new THREE.LineSegments(new THREE.EdgesGeometry(tailGeo, 20), edgeMat));
 
     const wingGeos: THREE.BufferGeometry[] = [];
-    const wingGroups: THREE.Group[] = [];
+    const wingGroups: THREE.Group[] = []; // shoulders (flap root)
+    const wristGroups: THREE.Group[] = []; // hands (phase-lagged)
     for (const sign of [1, -1]) {
-      const geo = buildWing(sign);
-      wingGeos.push(geo);
-      const wing = new THREE.Group();
-      wing.position.set(0.12, 0.1, 0.14 * sign);
-      wing.add(new THREE.Mesh(geo, wingMat));
-      // 25° threshold: outline the silhouette and feather blades, not
-      // every interior facet of the denser wing mesh.
-      wing.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo, 25), edgeMat));
-      wingGroups.push(wing);
-      tern.add(wing);
+      const armGeo = buildArmGeo(sign);
+      const handGeo = buildHandGeo(sign);
+      wingGeos.push(armGeo, handGeo);
+      const shoulder = new THREE.Group();
+      shoulder.position.set(0.18, 0.07, 0.09 * sign);
+      shoulder.add(new THREE.Mesh(armGeo, wingMat));
+      shoulder.add(new THREE.LineSegments(new THREE.EdgesGeometry(armGeo, 20), edgeMat));
+      const wrist = new THREE.Group();
+      wrist.position.set(0, 0.012, 0.46 * sign);
+      wrist.add(new THREE.Mesh(handGeo, wingMat));
+      wrist.add(new THREE.LineSegments(new THREE.EdgesGeometry(handGeo, 20), edgeMat));
+      shoulder.add(wrist);
+      wingGroups.push(shoulder);
+      wristGroups.push(wrist);
+      tern.add(shoulder);
     }
     tern.scale.setScalar(TERN_SCALE);
+
+    // One knob for every phase's bird fade (flight fade, dissolve,
+    // ambient dimming) — per-material base opacities live here only.
+    const setBirdFade = (f: number) => {
+      bodyMat.opacity = 0.62 * f;
+      capMat.opacity = 0.92 * f;
+      billMat.opacity = 0.95 * f;
+      wingMat.opacity = 0.52 * f;
+      edgeMat.opacity = 0.4 * f;
+    };
 
     // Wingtrail
     const trailPos = new Float32Array(TRAIL_N * 3);
@@ -501,11 +615,12 @@ function buildScene() {
   root.add(tern, trail, pass, flashRing);
 
   return {
-    root, tern, wingGroups, wingGeos, bodyGeo,
+    root, tern, wingGroups, wristGroups, wingGeos,
+    bodyGeo, capGeo, billGeo, tailGeo,
     trail, trailGeo, trailPos, trailCol, trailMat,
     pass, slabGeo, slabMat, passEdgeMat, faceGeo, faceMat, faceTex, faceCanvas,
     flashRing, flashGeo, flashMat,
-    glassMat, wingMat, edgeMat,
+    bodyMat, capMat, billMat, wingMat, edgeMat, setBirdFade,
   };
 }
 
@@ -532,13 +647,16 @@ function TernSequence() {
     return () => {
       disposed = true;
       built.bodyGeo.dispose();
+      built.capGeo.dispose();
+      built.billGeo.dispose();
+      built.tailGeo.dispose();
       built.wingGeos.forEach((g) => g.dispose());
       built.trailGeo.dispose();
       built.slabGeo.dispose();
       built.faceGeo.dispose();
       built.flashGeo.dispose();
       built.flashMat.dispose();
-      [built.glassMat, built.wingMat, built.edgeMat, built.trailMat, built.slabMat, built.passEdgeMat, built.faceMat].forEach((m) => m.dispose());
+      [built.bodyMat, built.capMat, built.billMat, built.wingMat, built.edgeMat, built.trailMat, built.slabMat, built.passEdgeMat, built.faceMat].forEach((m) => m.dispose());
       built.faceTex.dispose();
       built.root.traverse((obj) => {
         if (obj instanceof THREE.LineSegments) obj.geometry.dispose();
@@ -551,6 +669,7 @@ function TernSequence() {
     start: -1,
     lastNow: 0,
     flapPhase: 0,
+    gaitPhase: 0.9, // start inside a flap burst so the entry beats wings
     trailFilled: 0,
     snapshotTaken: false,
     trailSnapshot: new Float32Array(TRAIL_N * 3),
@@ -578,12 +697,12 @@ function TernSequence() {
       a.snapshotTaken = false;
       a.theta0 = NaN;
       a.ambientInit = false;
-      built.glassMat.opacity = 0.34;
-      built.wingMat.opacity = 0.3;
-      built.edgeMat.opacity = 0.85;
+      a.gaitPhase = 0.9;
+      built.setBirdFade(1);
       built.tern.visible = true;
       built.tern.scale.setScalar(TERN_SCALE);
       built.wingGroups.forEach((g) => { g.scale.z = 1; });
+      built.wristGroups.forEach((g) => { g.rotation.x = 0; });
       built.pass.visible = false;
       built.slabMat.opacity = 0;
       built.passEdgeMat.opacity = 0;
@@ -603,7 +722,7 @@ function TernSequence() {
       quat: built.tern.quaternion.toArray().map((n) => +n.toFixed(3)),
       visible: built.tern.visible,
       scale: +built.tern.scale.x.toFixed(3),
-      glassOpacity: built.glassMat.opacity,
+      glassOpacity: built.bodyMat.opacity,
       elapsedMs: anim.current.start < 0 ? -1 : Math.round(performance.now() - anim.current.start),
       theta0: anim.current.theta0,
       spinRegistered: !!globeShared.spin,
@@ -679,8 +798,8 @@ function TernSequence() {
   useFrame(() => {
     const a = anim.current;
     const {
-      tern, wingGroups, trail, trailGeo, trailPos, trailCol, trailMat,
-      pass, slabMat, passEdgeMat, faceMat, flashRing, flashMat, glassMat, wingMat, edgeMat,
+      tern, wingGroups, wristGroups, trail, trailGeo, trailPos, trailCol, trailMat,
+      pass, slabMat, passEdgeMat, faceMat, flashRing, flashMat, setBirdFade,
     } = built;
 
     const now = performance.now();
@@ -819,13 +938,12 @@ function TernSequence() {
       const scaleBoost = 1.12 - 0.12 * smoothstep(p, 0.82, 1);
       tern.scale.setScalar(TERN_SCALE * scaleBoost);
 
-      a.flapPhase += dt * (11 - 5 * p);
-      const amp = 0.62 - 0.25 * p;
-      wingGroups[0].rotation.x = Math.sin(a.flapPhase) * amp - 0.12;
-      wingGroups[1].rotation.x = -(Math.sin(a.flapPhase) * amp - 0.12);
+      // Wingbeat: hard flapping on entry, easing toward the flap-glide
+      // rhythm as the orbit settles in.
+      applyWingbeat(wingGroups, wristGroups, a, dt, 10.5 - 3.5 * p, elapsed < ENTRY_MS ? 0 : 0.3 * p);
 
       // emit trail from the tail
-      tailLocal.set(-0.9, 0.1, 0).applyQuaternion(tern.quaternion).multiplyScalar(tern.scale.x).add(tern.position);
+      tailLocal.set(-1.0, 0.05, 0).applyQuaternion(tern.quaternion).multiplyScalar(tern.scale.x).add(tern.position);
       trailPos.copyWithin(3, 0, (TRAIL_N - 1) * 3);
       trailPos[0] = tailLocal.x;
       trailPos[1] = tailLocal.y;
@@ -842,9 +960,7 @@ function TernSequence() {
       trailGeo.attributes.color.needsUpdate = true;
 
       // scroll-out fade (item 4): dim, never slice
-      glassMat.opacity = 0.34 * flightFade;
-      wingMat.opacity = 0.3 * flightFade;
-      edgeMat.opacity = 0.85 * flightFade;
+      setBirdFade(flightFade);
       trailMat.opacity = flightFade;
       tern.visible = flightFade > 0.01;
     } else if (elapsed < FLIGHT_MS + HANDOFF_MS) {
@@ -889,13 +1005,13 @@ function TernSequence() {
       const fold = smoothstep(q, 0.45, 0.8);
       wingGroups[0].rotation.x = -0.12 * (1 - fold);
       wingGroups[1].rotation.x = 0.12 * (1 - fold);
+      wristGroups[0].rotation.x = 0.05 * (1 - fold);
+      wristGroups[1].rotation.x = -0.05 * (1 - fold);
       wingGroups[0].scale.z = 1 - 0.75 * fold;
       wingGroups[1].scale.z = 1 - 0.75 * fold;
       tern.scale.setScalar(TERN_SCALE * (1 - 0.94 * smoothstep(q, 0.6, 0.95)));
       const dissolve = 1 - smoothstep(q, 0.7, 0.94);
-      glassMat.opacity = 0.34 * dissolve * flightFade;
-      wingMat.opacity = 0.3 * dissolve * flightFade;
-      edgeMat.opacity = 0.85 * dissolve * flightFade;
+      setBirdFade(dissolve * flightFade);
       trailMat.opacity = flightFade;
       tern.visible = dissolve * flightFade > 0.01;
 
@@ -1036,19 +1152,14 @@ function TernSequence() {
         const kq = 1 - Math.exp(-dt * 6);
         tern.quaternion.slerp(orientAlong(tangent, radial, -0.18 * a.ambientDir), kq);
 
-        // Flap fast mid-leg, slow into the turnarounds.
-        a.flapPhase += dt * (4.5 + 6.5 * Math.sin(Math.PI * a.ambientLegT));
-        const amp = 0.5;
-        wingGroups[0].rotation.x = Math.sin(a.flapPhase) * amp - 0.12;
-        wingGroups[1].rotation.x = -(Math.sin(a.flapPhase) * amp - 0.12);
+        // Distant-seabird gait: mostly gliding, flap bursts near mid-leg.
         wingGroups[0].scale.z = 1;
         wingGroups[1].scale.z = 1;
+        applyWingbeat(wingGroups, wristGroups, a, dt, 5.5 + 3 * Math.sin(Math.PI * a.ambientLegT), 0.55);
 
         const ambientFade = smoothstep(ambientT, 0, AMBIENT_FADE_MS);
         tern.scale.setScalar(TERN_SCALE * AMBIENT_SCALE * (0.7 + 0.3 * ambientFade));
-        glassMat.opacity = 0.2 * ambientFade * flightFade;
-        wingMat.opacity = 0.18 * ambientFade * flightFade;
-        edgeMat.opacity = 0.45 * ambientFade * flightFade;
+        setBirdFade(0.6 * ambientFade * flightFade);
         tern.visible = ambientFade * flightFade > 0.01;
       } else if (tern.visible) {
         tern.visible = false;
