@@ -607,20 +607,6 @@ function buildScene() {
     pass.add(new THREE.Mesh(slabGeo, slabMat));
     pass.add(new THREE.LineSegments(new THREE.EdgesGeometry(slabGeo, 30), passEdgeMat));
 
-    // Materialize flash: a contrail ring that blooms once at the exact
-    // crossover frame where the tern becomes the pass (item 3 polish).
-    const flashGeo = new THREE.RingGeometry(0.93, 1.0, 48);
-    const flashMat = new THREE.MeshBasicMaterial({
-      color: CONTRAIL,
-      transparent: true,
-      opacity: 0,
-      blending: THREE.AdditiveBlending,
-      depthWrite: false,
-      side: THREE.DoubleSide,
-    });
-    const flashRing = new THREE.Mesh(flashGeo, flashMat);
-    flashRing.visible = false;
-
     const faceCanvas = document.createElement("canvas");
     drawPassFace(faceCanvas);
     const faceTex = new THREE.CanvasTexture(faceCanvas);
@@ -633,14 +619,13 @@ function buildScene() {
     pass.visible = false;
 
   const root = new THREE.Group();
-  root.add(tern, trail, pass, flashRing);
+  root.add(tern, trail, pass);
 
   return {
     root, tern, wingGroups, wristGroups, wingGeos,
     bodyGeo, capGeo, billGeo, tailGeo,
     trail, trailGeo, trailPos, trailCol, trailMat,
     pass, slabGeo, slabMat, passEdgeMat, faceGeo, faceMat, faceTex, faceCanvas,
-    flashRing, flashGeo, flashMat,
     bodyMat, capMat, billMat, wingMat, edgeMat, setBirdFade,
   };
 }
@@ -679,8 +664,6 @@ function TernSequence() {
       built.trailGeo.dispose();
       built.slabGeo.dispose();
       built.faceGeo.dispose();
-      built.flashGeo.dispose();
-      built.flashMat.dispose();
       [built.bodyMat, built.capMat, built.billMat, built.wingMat, built.edgeMat, built.trailMat, built.slabMat, built.passEdgeMat, built.faceMat].forEach((m) => m.dispose());
       built.faceTex.dispose();
       built.root.traverse((obj) => {
@@ -732,8 +715,6 @@ function TernSequence() {
       built.slabMat.opacity = 0;
       built.passEdgeMat.opacity = 0;
       built.faceMat.opacity = 0;
-      built.flashRing.visible = false;
-      built.flashMat.opacity = 0;
     };
     // Freeze the clock at its current point (call after letting the
     // sequence run so the trail has real history), or unfreeze with -1.
@@ -824,7 +805,7 @@ function TernSequence() {
     const a = anim.current;
     const {
       tern, wingGroups, wristGroups, trail, trailGeo, trailPos, trailCol, trailMat,
-      pass, slabMat, passEdgeMat, faceMat, flashRing, flashMat, setBirdFade,
+      pass, slabMat, passEdgeMat, faceMat, setBirdFade,
     } = built;
 
     const now = performance.now();
@@ -1042,18 +1023,6 @@ function TernSequence() {
       trailMat.opacity = flightFade;
       tern.visible = dissolve * flightFade > 0.01;
 
-      // Materialize flash: one ring bloom peaking at the crossover frame
-      // (bird ~gone, pass ~arriving), expanding past the pass edge.
-      const spike = smoothstep(q, 0.68, 0.78) * (1 - smoothstep(q, 0.78, 0.98));
-      if (spike > 0.001) {
-        flashRing.visible = true;
-        flashRing.position.copy(settleWorld);
-        const grow0 = 0.5 + 1.15 * smoothstep(q, 0.68, 0.98);
-        flashRing.scale.set(PASS_W * 0.62 * grow0, PASS_H * 0.95 * grow0, 1);
-        flashMat.opacity = 0.6 * spike * flightFade;
-      } else {
-        flashRing.visible = false;
-      }
       // trail particles converge onto the pass outline — crystallizing
       for (let i = 0; i < TRAIL_N; i++) {
         const s = smoothstep(q, 0.2 + 0.42 * (i / TRAIL_N), 0.56 + 0.42 * (i / TRAIL_N));
@@ -1094,7 +1063,6 @@ function TernSequence() {
       // rises a touch faster than the page and dims, passing motion to the
       // scroll-driven sections below.
       if (trail.visible) trail.visible = false;
-      if (flashRing.visible) flashRing.visible = false;
       pass.visible = true;
 
       const ti = (elapsed - FLIGHT_MS - HANDOFF_MS) / 1000;
