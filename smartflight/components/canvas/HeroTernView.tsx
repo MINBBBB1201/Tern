@@ -45,6 +45,19 @@ const FLIGHT_MS = ENTRY_MS + ORBIT_MS; // total pre-handoff flight time
 const HANDOFF_MS = 1400;
 const ORBIT_ALT = 1.16; // orbit radius over the unit globe sphere
 
+/**
+ * Phase D — ambient shuttle. After the signature sequence settles, a
+ * second, much quieter tern fades in and endlessly commutes between the
+ * two searched airports along the route's great circle: the searched
+ * route stays visibly alive without competing with the settled pass.
+ */
+const AMBIENT_DELAY_MS = 1200; // beat of calm after the pass settles
+const AMBIENT_FADE_MS = 600;
+const AMBIENT_ALT = 1.09; // just above the drawn route line
+const AMBIENT_RATE = 0.35; // rad/s along the arc (legs scale with span)
+const AMBIENT_MIN_LEG_MS = 3000;
+const AMBIENT_SCALE = 0.5; // background actor, half the hero bird
+
 const CONTRAIL = new THREE.Color("#8FE0E8");
 const PASS_W = 1.9;
 const PASS_H = 0.85;
@@ -543,6 +556,11 @@ function TernSequence() {
     heroEl: null as Element | null,
     theta0: NaN, // orbit insertion/breakaway angle, chosen on first frame
     freezeAt: -1, // verification: pin `elapsed` to this ms when >= 0
+    // Phase D (ambient shuttle) state
+    ambientInit: false,
+    ambientLegT: 0, // 0..1 progress along the current leg
+    ambientDir: 1, // +1 = from → to, −1 = back
+    ambientSpan: 0, // great-circle span (rad) currently flown
   });
 
   // Replay hook (same precedent as __ternGlobeSunOverride): resets the
@@ -558,6 +576,7 @@ function TernSequence() {
       a.trailFilled = 0;
       a.snapshotTaken = false;
       a.theta0 = NaN;
+      a.ambientInit = false;
       built.glassMat.opacity = 0.34;
       built.wingMat.opacity = 0.3;
       built.edgeMat.opacity = 0.85;
@@ -616,6 +635,7 @@ function TernSequence() {
     globeCenter: THREE.Vector3; sideAxis: THREE.Vector3; upAxis: THREE.Vector3;
     entryStart: THREE.Vector3; entryCtrl: THREE.Vector3;
     fe1: THREE.Vector3; fe2: THREE.Vector3;
+    ae1: THREE.Vector3; ae2: THREE.Vector3;
     b1: THREE.Vector3; b2: THREE.Vector3; breakP0: THREE.Vector3; breakF0: THREE.Vector3;
     basisM: THREE.Matrix4; qTarget: THREE.Quaternion; qBank: THREE.Quaternion;
   } | null>(null);
@@ -638,6 +658,8 @@ function TernSequence() {
       entryCtrl: new THREE.Vector3(),
       fe1: new THREE.Vector3(),
       fe2: new THREE.Vector3(),
+      ae1: new THREE.Vector3(),
+      ae2: new THREE.Vector3(),
       b1: new THREE.Vector3(),
       b2: new THREE.Vector3(),
       breakP0: new THREE.Vector3(),
@@ -650,7 +672,7 @@ function TernSequence() {
   const {
     posA, posB, settleWorld, tailLocal, raycaster, zPlane, ndc,
     tangent, toSettle, radial, globeCenter, sideAxis, upAxis,
-    entryStart, entryCtrl, fe1, fe2, b1, b2, breakP0, breakF0, basisM, qTarget, qBank,
+    entryStart, entryCtrl, fe1, fe2, ae1, ae2, b1, b2, breakP0, breakF0, basisM, qTarget, qBank,
   } = tmpRef.current;
 
   useFrame(() => {
@@ -927,7 +949,6 @@ function TernSequence() {
       // plus a scroll hand-off: as the hero leaves the viewport the pass
       // rises a touch faster than the page and dims, passing motion to the
       // scroll-driven sections below.
-      if (tern.visible) tern.visible = false;
       if (trail.visible) trail.visible = false;
       if (flashRing.visible) flashRing.visible = false;
       pass.visible = true;
@@ -953,6 +974,84 @@ function TernSequence() {
       slabMat.opacity = 0.15 * dim;
       passEdgeMat.opacity = 0.8 * dim;
       faceMat.opacity = (0.9 + 0.1 * Math.sin(ti * 1.3)) * dim;
+
+      // Phase D — ambient shuttle: a quieter tern commuting between the
+      // searched airports along the route's great circle, forever. The
+      // hero bird became the ticket; this one is a background echo — half
+      // scale, low opacity, no trail, never competing with the pass.
+      const ambientT = elapsed - FLIGHT_MS - HANDOFF_MS - AMBIENT_DELAY_MS;
+      if (ambientT > 0 && spin) {
+        if (!a.ambientInit) {
+          // Spawn on the current route at the origin airport.
+          ae1.copy(globeShared.e1);
+          ae2.copy(globeShared.e2);
+          a.ambientSpan = globeShared.routeSpanRad;
+          a.ambientLegT = 0;
+          a.ambientDir = 1;
+          a.ambientInit = true;
+        } else {
+          // Live route edits: converge the flown basis toward the drawn
+          // one (frame-rate-independent), re-orthonormalizing — the bird
+          // glides onto the new route instead of teleporting. Time
+          // constant ~0.7s: brisk enough to feel responsive, slow enough
+          // that a hemisphere-scale retarget reads as a banked glide.
+          const kb = 1 - Math.exp(-dt * 1.5);
+          ae1.lerp(globeShared.e1, kb).normalize();
+          ae2.lerp(globeShared.e2, kb);
+          ae2.addScaledVector(ae1, -ae1.dot(ae2)).normalize();
+          a.ambientSpan += (globeShared.routeSpanRad - a.ambientSpan) * kb;
+        }
+
+        // Leg progress: constant angular pace, eased per leg so the bird
+        // decelerates into each airport and banks back out.
+        const legMs = Math.max(AMBIENT_MIN_LEG_MS, (a.ambientSpan / AMBIENT_RATE) * 1000);
+        a.ambientLegT += (dt * 1000) / legMs;
+        if (a.ambientLegT >= 1) {
+          a.ambientLegT -= 1;
+          a.ambientDir *= -1;
+        }
+        const legEase = easeInOutSine(a.ambientLegT);
+        const frac = a.ambientDir > 0 ? legEase : 1 - legEase;
+        const theta = frac * a.ambientSpan;
+
+        const ambientPoint = (th: number, out: THREE.Vector3) => {
+          out
+            .copy(ae1)
+            .multiplyScalar(Math.cos(th))
+            .addScaledVector(ae2, Math.sin(th))
+            .multiplyScalar(AMBIENT_ALT);
+          return spin.localToWorld(out);
+        };
+        ambientPoint(theta, posA);
+        ambientPoint(theta + 0.015 * a.ambientDir, posB);
+        tern.position.copy(posA);
+        tangent.subVectors(posB, posA);
+        if (tangent.lengthSq() > 1e-10) tangent.normalize();
+
+        spin.getWorldPosition(globeCenter);
+        radial.subVectors(posA, globeCenter).normalize();
+        // Rate-limited slerp instead of copy: at the endpoints the tangent
+        // reverses, and the lag turns the snap into a banking turnaround.
+        const kq = 1 - Math.exp(-dt * 6);
+        tern.quaternion.slerp(orientAlong(tangent, radial, -0.18 * a.ambientDir), kq);
+
+        // Flap fast mid-leg, slow into the turnarounds.
+        a.flapPhase += dt * (4.5 + 6.5 * Math.sin(Math.PI * a.ambientLegT));
+        const amp = 0.5;
+        wingGroups[0].rotation.x = Math.sin(a.flapPhase) * amp - 0.12;
+        wingGroups[1].rotation.x = -(Math.sin(a.flapPhase) * amp - 0.12);
+        wingGroups[0].scale.z = 1;
+        wingGroups[1].scale.z = 1;
+
+        const ambientFade = smoothstep(ambientT, 0, AMBIENT_FADE_MS);
+        tern.scale.setScalar(TERN_SCALE * AMBIENT_SCALE * (0.7 + 0.3 * ambientFade));
+        glassMat.opacity = 0.2 * ambientFade * flightFade;
+        wingMat.opacity = 0.18 * ambientFade * flightFade;
+        edgeMat.opacity = 0.45 * ambientFade * flightFade;
+        tern.visible = ambientFade * flightFade > 0.01;
+      } else if (tern.visible) {
+        tern.visible = false;
+      }
     }
   });
 
