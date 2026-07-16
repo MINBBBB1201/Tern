@@ -21,16 +21,21 @@ export const heroRoute = {
   version: 0,
   from: { iata: "ICN", city: "Seoul", lat: 37.469, lon: 126.451 } as HeroRouteEnd,
   to: { iata: "LHR", city: "London", lat: 51.47, lon: -0.454 } as HeroRouteEnd,
-  /** Update from IATA codes; unknown codes keep the last valid route. */
+  /** Update from IATA codes. Each end resolves independently: an unknown
+   *  code keeps that end's last valid airport instead of vetoing the whole
+   *  update, so a stale/invalid value in one field can never block a valid
+   *  change in the other. */
   set(fromIata: string, toIata: string) {
     const from = fromIata.trim().toUpperCase();
     const to = toIata.trim().toUpperCase();
-    if (from === this.from.iata && to === this.to.iata) return;
     const f = getAirport(from);
     const t = getAirport(to);
-    if (!f || !t || from === to) return;
-    this.from = { iata: from, city: f.city, lat: f.lat, lon: f.lon };
-    this.to = { iata: to, city: t.city, lat: t.lat, lon: t.lon };
+    const nextFrom: HeroRouteEnd = f ? { iata: from, city: f.city, lat: f.lat, lon: f.lon } : this.from;
+    const nextTo: HeroRouteEnd = t ? { iata: to, city: t.city, lat: t.lat, lon: t.lon } : this.to;
+    if (nextFrom.iata === nextTo.iata) return; // degenerate route
+    if (nextFrom.iata === this.from.iata && nextTo.iata === this.to.iata) return;
+    this.from = nextFrom;
+    this.to = nextTo;
     this.version++;
     listeners.forEach((l) => l());
   },
