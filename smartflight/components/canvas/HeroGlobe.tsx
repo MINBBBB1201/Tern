@@ -158,13 +158,16 @@ const globeFragment = /* glsl */ `
     vec3 dayCol = mix(uDay, dayReal, uTexMix);
     vec3 nightCol = mix(uNight, nightReal, uTexMix);
 
-    float dayF = smoothstep(-0.1, 0.14, sunDot);
+    float dayF = smoothstep(-0.18, 0.22, sunDot);
     vec3 base = mix(nightCol, dayCol, dayF);
 
-    // Civil twilight band: solar elevation 0° .. −6° → sunDot −0.1045 .. 0.
-    // Soft shoulders so the band reads as a glow, not a hard stripe.
-    float tw = smoothstep(-0.21, -0.1045, sunDot) * (1.0 - smoothstep(0.0, 0.10, sunDot));
-    base += uTwilight * tw * 0.55;
+    // Civil twilight: not a painted stripe but warm light grazing the
+    // terminator. Wide shoulders (~±20° elevation), and the warmth
+    // mostly MULTIPLIES the surface (dusk light on ground and clouds)
+    // with only a whisper of additive glow — it reads as lighting, not
+    // as an orange band laid over the planet.
+    float tw = smoothstep(-0.42, -0.1, sunDot) * (1.0 - smoothstep(-0.02, 0.3, sunDot));
+    base = base * (vec3(1.0) + uTwilight * tw * 0.9) + uTwilight * tw * 0.1;
 
     // Graticule: a whisper over the real surface (was the whole surface
     // pre-texture; stays stronger while the fallback shading shows).
