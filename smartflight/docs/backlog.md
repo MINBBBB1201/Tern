@@ -21,7 +21,7 @@ button site-wide (CTA, Select, Continue to booking, View Official Deals…).
 - Done when: hovering any primary button shows the same sheen, and the
   sheen is defined in exactly one place in the codebase.
 
-## B2. Glass UI material upgrade — [ ]
+## B2. Glass UI material upgrade — [x]
 
 Target image: "glass you look through from an airplane window" — deep blur,
 soft edges, faint internal reflections and light gradients, a very subtle

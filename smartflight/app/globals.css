@@ -132,13 +132,30 @@
 
   --contrail-glow: 0 0 8px rgba(143,224,232,0.9), 0 0 20px rgba(143,224,232,0.45);
 
-  /* ── Glass system — the core material, defined once ── */
+  /* ── Glass system — the core material, defined once.
+     Target: the pane you look through from an airplane window — deep
+     blur, edges that read as caught light (not drawn lines), a faint
+     internal reflection, and a whisper of a second layer. ── */
   --glass-fill-dark:   rgba(255,255,255,0.06);
   --glass-fill-light:  rgba(255,255,255,0.55);
   --glass-fill-strong: rgba(255,255,255,0.78); /* modal-over-dim instances that would fail AA at 0.55 */
-  --glass-border:      rgba(143,224,232,0.28);
+  --glass-border:      rgba(143,224,232,0.28); /* single-edge uses (nav bottom, dividers, small controls) */
   --glass-highlight:   rgba(255,255,255,0.35);
-  --glass-blur:        18px;
+  --glass-blur:        24px;
+  --glass-saturate:    160%;
+
+  /* Edge-as-light: gradients painted into the 1px border ring via the
+     padding-box/border-box pairing — the boundary becomes a highlight
+     that catches light at the top-left and glints again bottom-right. */
+  --glass-edge-light: linear-gradient(155deg, rgba(255,255,255,0.85) 0%, rgba(143,224,232,0.32) 32%, rgba(143,224,232,0.10) 64%, rgba(255,255,255,0.42) 100%);
+  --glass-edge-dark:  linear-gradient(155deg, rgba(255,255,255,0.38) 0%, rgba(143,224,232,0.24) 32%, rgba(143,224,232,0.07) 64%, rgba(255,255,255,0.20) 100%);
+
+  /* Internal reflection: the faint diagonal light wash a real pane
+     carries. Layered over the fill, never over text contrast (white
+     wash on light fills raises contrast for dark text; the dark
+     variant stays ≤0.08 alpha). */
+  --glass-reflect:      linear-gradient(165deg, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0.04) 42%, rgba(143,224,232,0.05) 100%);
+  --glass-reflect-dark: linear-gradient(165deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.015) 45%, rgba(143,224,232,0.04) 100%);
 }
 
 /* ─────────────────────────────────────────────
@@ -372,44 +389,75 @@ body {
    the most opaque, certain element on the page.
    ───────────────────────────────────────────── */
 
+/* All panel recipes share the same anatomy, driven entirely by tokens:
+   [internal reflection] over [fill] in padding-box, [edge-as-light]
+   in border-box behind a transparent 1px border, plus an inner 1px
+   hairline in the shadow stack for the double-layer feel. */
 .glass-panel {
-  background: var(--glass-fill-light);
-  backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid var(--glass-border);
-  box-shadow: inset 0 1px 0 var(--glass-highlight), 0 8px 30px rgba(10,15,30,0.08);
+  background:
+    var(--glass-reflect) padding-box,
+    linear-gradient(var(--glass-fill-light), var(--glass-fill-light)) padding-box,
+    var(--glass-edge-light) border-box;
+  border: 1px solid transparent;
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  box-shadow:
+    inset 0 1px 0 var(--glass-highlight),
+    inset 0 0 0 1px rgba(255,255,255,0.07),
+    0 8px 30px rgba(10,15,30,0.08);
 }
 
 .glass-panel-dark {
-  background: var(--glass-fill-dark);
-  backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid var(--glass-border);
-  box-shadow: inset 0 1px 0 var(--glass-highlight), 0 8px 30px rgba(10,15,30,0.35);
+  background:
+    var(--glass-reflect-dark) padding-box,
+    linear-gradient(var(--glass-fill-dark), var(--glass-fill-dark)) padding-box,
+    var(--glass-edge-dark) border-box;
+  border: 1px solid transparent;
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  box-shadow:
+    inset 0 1px 0 var(--glass-highlight),
+    inset 0 0 0 1px rgba(255,255,255,0.04),
+    0 8px 30px rgba(10,15,30,0.35);
 }
 
 /* Offer cards: dozens in a list must stay fast to scan — higher fill,
    lighter blur, so the glass is felt at the edges without slowing reading. */
 .glass-panel-scan {
-  background: rgba(255,255,255,0.72);
-  backdrop-filter: blur(8px);
-  border: 1px solid var(--glass-border);
-  box-shadow: inset 0 1px 0 var(--glass-highlight), 0 4px 16px rgba(10,15,30,0.06);
+  background:
+    var(--glass-reflect) padding-box,
+    linear-gradient(rgba(255,255,255,0.72), rgba(255,255,255,0.72)) padding-box,
+    var(--glass-edge-light) border-box;
+  border: 1px solid transparent;
+  backdrop-filter: blur(8px) saturate(130%);
+  box-shadow:
+    inset 0 1px 0 var(--glass-highlight),
+    inset 0 0 0 1px rgba(255,255,255,0.07),
+    0 4px 16px rgba(10,15,30,0.06);
 }
 
 /* Modal floating over a dimmed backdrop: 0.55 fill fails AA for muted text
    there, so this instance raises fill opacity instead of lightening text. */
 .glass-panel-strong {
-  background: var(--glass-fill-strong);
-  backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid var(--glass-border);
-  box-shadow: inset 0 1px 0 var(--glass-highlight), 0 24px 60px rgba(10,15,30,0.25);
+  background:
+    var(--glass-reflect) padding-box,
+    linear-gradient(var(--glass-fill-strong), var(--glass-fill-strong)) padding-box,
+    var(--glass-edge-light) border-box;
+  border: 1px solid transparent;
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  box-shadow:
+    inset 0 1px 0 var(--glass-highlight),
+    inset 0 0 0 1px rgba(255,255,255,0.07),
+    0 24px 60px rgba(10,15,30,0.25);
 }
 
 /* Small elements (chips, badges, nested rows) inside glass panels: same
-   material at lower volume — glass border + translucent fill, no second
+   material at lower volume — light edge + translucent fill, no second
    backdrop-filter (nested blur costs paint time and adds nothing visible). */
 .glass-chip {
-  background: rgba(255,255,255,0.5);
-  border: 1px solid var(--glass-border);
+  background:
+    var(--glass-reflect) padding-box,
+    linear-gradient(rgba(255,255,255,0.5), rgba(255,255,255,0.5)) padding-box,
+    var(--glass-edge-light) border-box;
+  border: 1px solid transparent;
   box-shadow: inset 0 1px 0 var(--glass-highlight);
 }
 
@@ -435,7 +483,7 @@ body {
    reads as a floating panel, a nav bar is a surface the page slides under. */
 .glass-nav {
   background: var(--glass-fill-light);
-  backdrop-filter: blur(var(--glass-blur));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
   border-bottom: 1px solid var(--glass-border);
   box-shadow: inset 0 1px 0 var(--glass-highlight), 0 8px 30px rgba(10,15,30,0.08);
   transition: background 0.3s ease, box-shadow 0.3s ease;
@@ -444,7 +492,7 @@ body {
 /* Same nav sitting over the dark hero at the top of the page. */
 .glass-nav-dark {
   background: var(--glass-fill-dark);
-  backdrop-filter: blur(var(--glass-blur));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
   border-bottom: 1px solid rgba(143,224,232,0.12);
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
   transition: background 0.3s ease, box-shadow 0.3s ease;
@@ -459,12 +507,13 @@ body {
 .glass-boost .glass-panel,
 .glass-boost .glass-panel-scan,
 .glass-boost .glass-chip {
-  border-color: rgba(143, 224, 232, 0.52);
+  --glass-edge-light: linear-gradient(155deg, rgba(255,255,255,1) 0%, rgba(143,224,232,0.60) 30%, rgba(143,224,232,0.26) 62%, rgba(255,255,255,0.68) 100%);
 }
 
 .glass-boost .glass-panel {
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 1),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.07),
     inset 0 16px 28px -18px rgba(143, 224, 232, 0.38),
     0 8px 30px rgba(10, 15, 30, 0.08);
 }
@@ -472,6 +521,7 @@ body {
 .glass-boost .glass-panel-scan {
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 1),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.07),
     inset 0 16px 28px -18px rgba(143, 224, 232, 0.38),
     0 4px 16px rgba(10, 15, 30, 0.06);
 }
@@ -483,15 +533,19 @@ body {
 }
 
 @media (prefers-reduced-transparency: reduce) {
+  /* The background shorthand reset also wipes the border-box edge
+     gradient, so each opaque fallback restores a visible flat border. */
   .glass-panel,
   .glass-panel-scan,
   .glass-panel-strong,
   .glass-nav {
     background: var(--paper-50);
     backdrop-filter: none;
+    border-color: var(--glass-border);
   }
   .glass-chip {
     background: #ffffff;
+    border-color: var(--glass-border);
   }
   .glass-panel-dark,
   .glass-nav-dark,
@@ -499,6 +553,7 @@ body {
   .vol-popover {
     background: #141F3D;
     backdrop-filter: none;
+    border-color: var(--glass-border);
   }
 }
 
@@ -639,9 +694,11 @@ body {
 }
 
 .boarding-pass-static {
-  background: linear-gradient(165deg, rgba(255,255,255,0.10) 0%, var(--glass-fill-dark) 55%, rgba(143,224,232,0.05) 100%);
-  backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid var(--glass-border);
+  background:
+    linear-gradient(165deg, rgba(255,255,255,0.10) 0%, var(--glass-fill-dark) 55%, rgba(143,224,232,0.05) 100%) padding-box,
+    var(--glass-edge-dark) border-box;
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  border: 1px solid transparent;
   border-radius: 14px;
   box-shadow:
     inset 0 1px 0 var(--glass-highlight),
@@ -659,6 +716,7 @@ body {
   .boarding-pass-static {
     background: #141F3D;
     backdrop-filter: none;
+    border-color: var(--glass-border);
   }
 }
 
@@ -998,13 +1056,17 @@ body {
 
 /* ── Outer shell: glass card floating on the twilight hero ── */
 .vol-shell {
-  background: linear-gradient(180deg, rgba(27,42,82,0.6) 0%, rgba(10,15,30,0.6) 100%);
-  border: 1px solid var(--glass-border);
+  background:
+    var(--glass-reflect-dark) padding-box,
+    linear-gradient(180deg, rgba(27,42,82,0.6) 0%, rgba(10,15,30,0.6) 100%) padding-box,
+    var(--glass-edge-dark) border-box;
+  border: 1px solid transparent;
   border-radius: 24px;
-  backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
   box-shadow:
     0 20px 60px rgba(0,0,0,0.35),
     inset 0 1px 0 var(--glass-highlight),
+    inset 0 0 0 1px rgba(255,255,255,0.04),
     0 0 0 1px rgba(143,224,232,0.06);
   position: relative;
   overflow: visible;
@@ -1217,13 +1279,17 @@ body {
   top: calc(100% + 10px);
   right: 0;
   width: 268px;
-  background: linear-gradient(160deg, rgba(27,42,82,0.97) 0%, rgba(10,15,30,0.97) 100%);
-  border: 1px solid rgba(143,224,232,0.25);
+  background:
+    var(--glass-reflect-dark) padding-box,
+    linear-gradient(160deg, rgba(27,42,82,0.97) 0%, rgba(10,15,30,0.97) 100%) padding-box,
+    var(--glass-edge-dark) border-box;
+  border: 1px solid transparent;
   border-radius: 18px;
-  backdrop-filter: blur(20px);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
   box-shadow:
     0 20px 60px rgba(0,0,0,0.4),
-    inset 0 1px 0 rgba(255,255,255,0.06);
+    inset 0 1px 0 rgba(255,255,255,0.06),
+    inset 0 0 0 1px rgba(255,255,255,0.04);
   padding: 18px;
   z-index: 200;
 }
