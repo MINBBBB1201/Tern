@@ -555,7 +555,7 @@ function buildScene() {
     trailGeo.setAttribute("position", new THREE.BufferAttribute(trailPos, 3));
     trailGeo.setAttribute("color", new THREE.BufferAttribute(trailCol, 3));
     const trailMat = new THREE.PointsMaterial({
-      size: 0.11,
+      size: 0.095,
       sizeAttenuation: true,
       vertexColors: true,
       blending: THREE.AdditiveBlending,
@@ -904,8 +904,10 @@ function TernSequence() {
         // so the orbit is exactly one revolution).
         const t = easeInOutSine(clamp01(elapsed / ENTRY_MS));
         orbitWorld(a.theta0, posB); // insertion
-        entryStart.set(globeCenter.x - globeR * 2.6, globeCenter.y + globeR * 1.6, 0.5);
-        entryCtrl.set(globeCenter.x - globeR * 0.7, globeCenter.y + globeR * 1.75, posB.z * 0.5 + 0.4);
+        // Swoop stays below the nav bar: entry apex ≈ 1.15 globe radii
+        // above center (the old 1.6–1.75 clipped behind the nav).
+        entryStart.set(globeCenter.x - globeR * 2.6, globeCenter.y + globeR * 1.05, 0.5);
+        entryCtrl.set(globeCenter.x - globeR * 0.7, globeCenter.y + globeR * 1.18, posB.z * 0.5 + 0.4);
         const u = 1 - t;
         tern.position
           .copy(entryStart)
