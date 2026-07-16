@@ -451,62 +451,57 @@ const DestinationCard = ({
 const bestOfferCards = [
   {
     title: "Your next destination awaits",
-    subtitle: "Limited-time booking perks",
+    subtitle: "Start with a search — live fares in seconds",
     cta: "Explore",
     image:
       "https://images.unsplash.com/photo-1493558103817-58b2924bce98?auto=format&fit=crop&w=1200&q=80",
   },
   {
-    title: "Up to 50% Off Flights!",
-    subtitle: "Flash campaign · selected routes",
+    title: "Chase the season's fare drops",
+    subtitle: "Compare live prices across carriers",
     cta: "See Deals",
     image:
       "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=1200&q=80",
   },
   {
     title: "Get ready for the next adventure",
-    subtitle: "Seasonal fare drop",
+    subtitle: "Set a price alert and catch the drop",
     cta: "View Offer",
     image:
       "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=1200&q=80",
   },
 ];
 
-const couponAds = [
+// Every fact on these cards must be verifiable on the linked page —
+// no invented codes, discounts, or expiry dates attributed to real
+// airlines. Cards only describe what the airline's own deals page is.
+const airlineDealPages = [
   {
     airline: "Korean Air",
     iata: "KE",
-    title: "Take 8% Off",
-    desc: "Valid on ICN departures above $200 for multi-city bookings.",
-    code: "KOREAN8",
-    expires: "Until 30 Nov",
+    desc: "Fare specials and seasonal route promotions from Korea's flag carrier.",
+    domain: "koreanair.com",
     url: "https://www.koreanair.com/kr/en/book/deals",
   },
   {
     airline: "Turkish Airlines",
     iata: "TK",
-    title: "Business Class -10%",
-    desc: "Premium cabin promo for Europe routes from Korea.",
-    code: "TKBIZ10",
-    expires: "Until 12 Dec",
+    desc: "Campaign fares across Europe and long-haul routes, updated by the airline.",
+    domain: "turkishairlines.com",
     url: "https://www.turkishairlines.com/en-int/flights/flight-ticket/",
   },
   {
     airline: "Asiana Airlines",
     iata: "OZ",
-    title: "Free Baggage Upgrade",
-    desc: "Extra 10kg baggage on selected long-haul flights.",
-    code: "OZBAG10",
-    expires: "Until 25 Dec",
+    desc: "Current events and travel offers on Asiana's official site.",
+    domain: "flyasiana.com",
     url: "https://flyasiana.com/C/KR/EN/contents/travel-information",
   },
   {
     airline: "Jeju Air",
     iata: "7C",
-    title: "Weekend Saver 7%",
-    desc: "Savings for Fri-Sun bookings to Japan and SEA.",
-    code: "WEEKEND7",
-    expires: "Until 15 Dec",
+    desc: "Special-price events for Japan and Southeast Asia routes.",
+    domain: "jejuair.net",
     url: "https://www.jejuair.net/en/specialprice/event.do",
   },
 ];
@@ -846,12 +841,13 @@ export default function Home() {
 
       {/* Explore the best offer for you — same photo-card language as
           "Explore Top Destinations" below: real destination photo, glass
-          content bar, glass-chip sponsored tag (kept for disclosure). */}
+          content bar. No "Sponsored" tag: nothing here is sponsored, and
+          claiming so is a false disclosure. */}
       <section className="py-14" style={{ background: 'var(--paper-50)' }}>
         <div className="max-w-6xl mx-auto px-6">
           <div data-fx-head className="mb-8">
             <h2 className="text-3xl font-bold text-foreground">Explore the best offers for you</h2>
-            <p className="text-muted mt-2">Curated fare campaigns and destination promotions from partner airlines.</p>
+            <p className="text-muted mt-2">Destination inspiration to start your next search.</p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-5">
@@ -862,9 +858,6 @@ export default function Home() {
                   style={{ backgroundImage: `url(${offer.image})` }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[rgba(10,15,30,0.45)] via-transparent to-[rgba(10,15,30,0.12)]" />
-                <span className="glass-chip absolute left-3 top-3 rounded-full px-2.5 py-1 data-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-foreground">
-                  Sponsored
-                </span>
                 <div className="glass-panel absolute inset-x-3 bottom-3 rounded-xl p-4">
                   <h3 className="text-lg font-bold leading-snug text-foreground">{offer.title}</h3>
                   <p className="mt-0.5 text-xs text-muted">{offer.subtitle}</p>
@@ -879,26 +872,27 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Exclusive Flight Coupons for Smarter Travelers — glass panels; the
-          promo code is data (like flight numbers), so it gets the mono chip. */}
+      {/* Airline Deals & Promotions — glass panels linking to the carriers'
+          own deals pages. The domain is data (like flight numbers), so it
+          gets the mono chip. */}
       <section className="glass-boost py-12 bg-white border-y" style={{ borderColor: 'rgba(27,42,82,0.08)' }}>
         <div className="max-w-6xl mx-auto px-6">
           <div data-fx-head className="mb-8">
-            <h2 className="text-3xl font-bold text-foreground">Exclusive Flight Coupons for Smarter Travelers</h2>
-            <p className="text-muted mt-2">Ad-ready coupon placements for airline promotions and future in-app monetization.</p>
+            <h2 className="text-3xl font-bold text-foreground">Airline Deals &amp; Promotions</h2>
+            <p className="text-muted mt-2">Live campaigns from the carriers themselves — every card links to the airline&rsquo;s official promotions page.</p>
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {couponAds.map((coupon) => (
-              <article data-fx-card key={coupon.code} className="glass-panel relative rounded-2xl p-4 transition-shadow hover:shadow-md">
+            {airlineDealPages.map((deal) => (
+              <article data-fx-card key={deal.iata} className="glass-panel relative rounded-2xl p-4 transition-shadow hover:shadow-md">
                 <div className="flex items-start justify-between gap-3">
                   <span className="glass-chip rounded-full px-2.5 py-1 data-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-muted">
-                    Sponsored
+                    Official
                   </span>
                   <div className="glass-chip flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl">
                     <img
-                      src={`https://images.kiwi.com/airlines/64/${coupon.iata}.png`}
-                      alt={coupon.airline}
+                      src={`https://images.kiwi.com/airlines/64/${deal.iata}.png`}
+                      alt={deal.airline}
                       className="w-7 h-7 object-contain"
                       onError={(e) => {
                         const img = e.currentTarget;
@@ -909,23 +903,22 @@ export default function Home() {
                   </div>
                 </div>
 
-                <p className="mt-3 text-lg font-bold text-foreground">{coupon.title}</p>
-                <p className="text-xs text-muted mt-1">{coupon.desc}</p>
+                <p className="mt-3 text-lg font-bold text-foreground">{deal.airline}</p>
+                <p className="text-xs text-muted mt-1">{deal.desc}</p>
 
-                <div className="mt-4 pt-3 border-t border-dashed border-[var(--glass-border)] flex items-center justify-between gap-2">
+                <div className="mt-4 pt-3 border-t border-dashed border-[var(--glass-border)]">
                   <span className="glass-chip data-mono rounded-md px-2.5 py-1 text-xs font-semibold text-foreground">
-                    {coupon.code}
+                    {deal.domain}
                   </span>
-                  <span className="data-mono text-[11px] text-muted">{coupon.expires}</span>
                 </div>
 
                 <a
-                  href={coupon.url}
+                  href={deal.url}
                   target="_blank"
                   rel="noreferrer"
                   className="mt-3 w-full py-2 rounded-full bg-primary text-white text-xs font-semibold hover:bg-primary/90 transition inline-flex items-center justify-center"
                 >
-                  Official Offer Page
+                  View Official Deals
                 </a>
               </article>
             ))}
