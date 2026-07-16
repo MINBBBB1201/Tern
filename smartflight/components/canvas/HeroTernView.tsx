@@ -57,7 +57,9 @@ const AMBIENT_FADE_MS = 600;
 const AMBIENT_ALT = 1.09; // just above the drawn route line
 const AMBIENT_RATE = 0.35; // rad/s along the arc (legs scale with span)
 const AMBIENT_MIN_LEG_MS = 3000;
-const AMBIENT_SCALE = 0.5; // background actor, half the hero bird
+// Distant background actor: ~7% of the globe's on-screen diameter
+// (bird length ≈ 2.36 world × 0.6 × 0.2 ≈ 0.28 ≈ 41px vs globe 540px).
+const AMBIENT_SCALE = 0.2;
 
 const CONTRAIL = new THREE.Color("#8FE0E8");
 const PASS_W = 1.9;
@@ -1159,7 +1161,10 @@ function TernSequence() {
 
         const ambientFade = smoothstep(ambientT, 0, AMBIENT_FADE_MS);
         tern.scale.setScalar(TERN_SCALE * AMBIENT_SCALE * (0.7 + 0.3 * ambientFade));
-        setBirdFade(0.6 * ambientFade * flightFade);
+        setBirdFade(0.75 * ambientFade * flightFade);
+        // At ~40px the GL edge lines alias into sparkle — the distant
+        // bird reads by its plumage values alone.
+        built.edgeMat.opacity *= 0.15;
         tern.visible = ambientFade * flightFade > 0.01;
       } else if (tern.visible) {
         tern.visible = false;
