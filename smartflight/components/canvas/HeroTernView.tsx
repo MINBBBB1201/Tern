@@ -486,6 +486,11 @@ function buildScene() {
       clearcoatRoughness: 0.4,
       transparent: true,
       opacity: 0.92,
+      // The cap is an open dome (partial sphere): when the tern orbits the
+      // far side of the globe we see it from behind/underneath, where only
+      // interior faces point at the camera — single-sided they get culled
+      // and the cap vanishes while the DoubleSide body stays visible.
+      side: THREE.DoubleSide,
       depthWrite: false,
     });
     const billMat = new THREE.MeshPhysicalMaterial({
