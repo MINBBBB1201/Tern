@@ -43,3 +43,9 @@ next-env.d.ts
 
 # local editor/AI-assistant config (contains API keys)
 .continue/
+
+# agent/deploy local state
+.agents/
+.claude/
+.firebase/
+firebase-hosting-placeholder/

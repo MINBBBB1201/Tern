@@ -55,69 +55,85 @@ Look for incremental wins, not a teardown:
 
 ## Stage 1.5 — Signature brand features
 
-**UPDATE #3, after live review of the update-#2 build**: the globe reads
-as a bare wireframe grid sphere, not an actual planet — needs a real
-Earth surface, not just graticule lines on a shader gradient. Three more
-concrete gaps identified live. All four items below are the current
-priority, superseding "done" status on globe work from update #2.
+**UPDATE #2, after live review of the first globe implementation**:
+user feedback was that the small secondary globe (tucked beside the
+boarding pass) reads as awkward, not impressive. Direction changes
+below supersede the "small, secondary accent" framing from the first
+update — the globe is now a primary compositional element, not an
+accent.
 
-1. **Real Earth texture, day/night blended at the terminator.** Replace
-   the current procedural-only shader (graticule + flat day/night
-   colors) with actual Earth imagery: a day-side color map (continents,
-   oceans — NASA "Blue Marble" is public domain, no licensing issue) and
-   a night-side city-lights map (NASA "Black Marble", also public
-   domain), blended by the same subsolar-point dot product already
-   driving the twilight band — this is the standard technique (the
-   classic three.js Earth example does exactly this), and it plugs
-   directly into the terminator math already built and verified in
-   `lib/solar.ts`. Source the texture files from NASA's public Visible
-   Earth / Blue Marble imagery (public domain, safe to redistribute) —
-   don't pull from a random textures site that may require attribution
-   or a paid license. Keep the graticule/twilight-glow shader work as a
-   thin overlay on top of the real texture if it still adds value, but
-   the base sphere must read as an actual planet, not a wireframe.
+1. **Globe: bigger, standalone, continuously spinning, left-positioned.**
+   Not "position doesn't matter" in the literal sense — left works
+   because it rebalances the hero now that it's a large element (right
+   side currently anchors the boarding pass). Concretely:
+   - Significantly larger radius than the current implementation —
+     should read as a real focal object, not a detail near the pass.
+   - Continuous rotation is fine now that it's foregrounded as its own
+     thing — the earlier "sun appears to orbit" tradeoff was awkward
+     specifically because the globe was small and easy to scrutinize as
+     a secondary detail; at a larger, more confident scale it should
+     read as "the earth is turning," which is exactly correct.
+   - Hero layout needs to change to fit this, not just add it: the
+     headline is currently centered — evaluate right-aligning the
+     text block (or overlaying it on the globe's negative space) so
+     the globe has room to be a real presence on the left rather than
+     competing with centered text for the same space. Try both, keep
+     whichever reads cleaner in a screenshot at 1440×900 and mobile.
+   - Terminator/solar math from the first pass stays (already verified
+     against almanac values) — carry `lib/solar.ts` and the shader
+     approach forward, just at the new scale/position.
 
-2. **Route line reflects the real search, not a hardcoded ICN→LHR.**
-   The globe currently always draws the same demo route regardless of
-   what's in the search form. Wire it to SearchBar's live `from`/`to`
-   state (already has lat/lon available via the same `lib/airportData.ts`
-   dataset weather/Uber/floor-guides all use) so the arc updates in
-   real time as the user changes origin or destination — e.g. typing
-   "Qingdao" retargets the line to QAO's real coordinates instantly.
-   This turns the globe from decoration into a genuine reflection of
-   what the user is doing, which is a much stronger feature than a
-   static demo route.
+2. **Unify tern + globe + boarding pass into one continuous sequence.**
+   Currently the tern's open-space flight and the globe are two
+   unrelated elements sharing a scene. Redirect the tern's flight path
+   to orbit the globe once, tracing the same great-circle route already
+   drawn on the globe's surface (ICN→LHR line), then break off toward
+   camera and condense into the boarding pass — one continuous
+   cinematic beat (circle the world → become your ticket) instead of
+   two separate motifs. This likely means reworking `TernSequence`'s
+   keypoints to originate from/relate to the globe's actual position
+   and radius instead of independent fractional hero coordinates.
 
-3. **Tern-to-boarding-pass transformation still reads as unnatural.**
-   Keep iterating — the breakaway/condense beat from update #2 isn't
-   selling the transformation yet. Worth trying: a brief cross-fade
-   where the tern's opacity drops while the pass's opacity/scale rises
-   from the same screen point (not a hard cut), possibly a small
-   particle/flash burst at the exact crossover frame to sell the
-   "materialize" moment. Get a version onto screen and iterate live
-   rather than reasoning about it in the abstract — this kind of timing
-   only really evaluates correctly by eye.
+3. **Bird model quality pass.** Current tern reads as a placeholder
+   silhouette. Improve: individual primary-feather detail at the wing
+   tips (not a smooth wing edge), the Arctic Tern's signature forked
+   tail (currently likely simplified), and a translucency/rim-light
+   response on the wings when backlit by the dusk gradient (thin
+   membrane catching light at the edges) rather than flat shading.
+   Reference real Arctic Tern photos for the silhouette specifics if
+   unsure — this is a real bird, get the shape right, not a generic
+   bird shape.
 
-4. **3D elements need to fade gracefully on scroll, not cut abruptly.**
-   Right now scrolling past some threshold makes the globe/tern/pass
-   disappear crudely (looks like a visibility snap, not a transition).
-   Tie their opacity/scale to scroll position with GSAP ScrollTrigger
-   (scrub, not a toggle) so they fade smoothly as the hero scrolls out
-   of view, consistent with how the rest of the hero already handles
-   scroll-out (`scrollOut` is already computed somewhere in
-   `HeroTernView` for the existing pass rotation/dimming — reuse that
-   same value to drive the globe's fade instead of introducing a second
-   scroll-tracking mechanism).
+4. **Replace the fake stats row.** "500+ Airlines / 2M+ Routes / 4.9/5
+   Rating / 10M+ Travelers" (app/page.tsx ~line 704) are hardcoded
+   placeholder numbers with no real data behind them — flagged during
+   design review as a trust problem, not just a style one: this is an
+   early-stage solo project with no real traffic, and displaying
+   fabricated social-proof numbers is dishonest, not just generic-
+   looking. Remove entirely. Replace with a compact horizontal strip
+   showing the 5 real SmartPicks categories (Cheapest / Fastest /
+   Earliest arrival / AI pick / Lowest delay risk) with small icons —
+   demonstrates the actual product differentiator instead of invented
+   social proof. Labels already exist and are already translated
+   (`SmartPicks` namespace in messages/*.json) — reuse those keys,
+   don't write new copy.
 
-Do 1 and 2 together (both touch `HeroGlobe`'s core setup). Then 4
-(likely a small, contained fix once `scrollOut` is being reused
-correctly). Then keep iterating on 3 with live screenshots — treat it
-as open-ended polish, not a single fix.
+5. **Arctic Tern as the app-wide loading/wayfinding motif** (carried
+   over from update #1, still pending). Reuse the tern for the flight-
+   search loading state — flying the actual searched route instead of a
+   generic spinner.
 
-**Superseded from update #2**: items 5 (tern as loading indicator), 6
-(boarding-pass materialize on offer select), 7 (airport-page sky color)
-are still pending and unaffected by this update — pick them up after
-1-4 above are solid.
+6. **"Boarding pass materialize" transition on offer selection**
+   (carried over, still pending).
+
+7. **Live local-sky-color background on airport guide pages** (carried
+   over, still pending).
+
+Priority order: 1 and 2 together (the globe rework and the unified
+sequence are really one piece of work — do them in the same pass since
+2 depends on 1's new globe geometry), then 4 (quick, no 3D work, real
+trust issue worth fixing fast), then 3 (bird quality — can happen
+alongside or after), then 5-7.
 
 ## Stage 2 — Booking results page (the actual product surface)
 
@@ -135,14 +151,6 @@ the homepage. Candidates for polish:
 - Loading states: what does the UI look like while search results stream
   in? This is a real moment users watch — a generic spinner is a missed
   opportunity given the 3D/motion identity established on the homepage.
-- **Second fake stats bar, further down the homepage** ("500+
-  Destinations / 50M+ Happy Travelers / 200+ Airlines / 4.9 User
-  Rating") — same fabricated-numbers trust problem as the hero row
-  fixed in Stage 1.5 item 4, not yet addressed. Needs a content
-  decision on what replaces it (not yet made) — flag for the user
-  rather than picking silently, since the hero row's replacement used
-  an existing translated data source (SmartPicks) and this section may
-  not have an equally natural substitute on hand.
 
 ## Stage 3 — Airport guide pages
 
