@@ -75,7 +75,7 @@ export function AuthMenu({ dark }: AuthMenuProps) {
   return (
     <button
       onClick={handleSignIn}
-      className="px-5 py-2 rounded-full bg-primary text-white text-sm font-semibold hover:bg-primary/90 transition shadow-lg shadow-primary/25"
+      className="btn-sheen px-5 py-2 rounded-full bg-primary text-white text-sm font-semibold hover:bg-primary/90 transition shadow-lg shadow-primary/25"
     >
       {t("signIn")}
     </button>

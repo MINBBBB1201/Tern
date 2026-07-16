@@ -223,121 +223,39 @@ body {
   box-shadow: 0 0 0 3px rgba(26, 58, 107, 0.08);
 }
 
-/* Dark navy search button — 3D volumetric depth */
-.btn-search-navy {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  height: 52px;
-  padding: 0 28px;
-  background: linear-gradient(160deg, #2a5a9a 0%, #1a3a6b 40%, #0d2040 100%);
-  color: #ffffff;
-  font-size: 15px;
-  font-weight: 700;
-  font-family: var(--font-sans);
-  border: none;
-  border-radius: var(--radius-full);
-  cursor: pointer;
-  transition: background 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
-  white-space: nowrap;
-  letter-spacing: -0.01em;
-  box-shadow:
-    0 4px 16px rgba(13, 32, 64, 0.4),
-    0 1px 4px rgba(13, 32, 64, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.12),
-    inset 0 -2px 0 rgba(0, 0, 0, 0.2);
+/* ─────────────────────────────────────────────
+   PRIMARY-ACTION SHEEN — the one hover language
+   for solid CTAs, defined once. Add .btn-sheen to
+   any primary button/link; runs a single sweep per
+   hover, never loops. (Origin: the Search flights
+   treatment, promoted site-wide.)
+   ───────────────────────────────────────────── */
+
+.btn-sheen {
+  position: relative;
+  overflow: hidden;
 }
 
-.btn-search-navy:hover {
-  background: linear-gradient(160deg, #3a6aaa 0%, #2a4a7b 40%, #1a3060 100%);
-  box-shadow:
-    0 6px 24px rgba(13, 32, 64, 0.5),
-    0 2px 8px rgba(13, 32, 64, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.15),
-    inset 0 -2px 0 rgba(0, 0, 0, 0.2);
-  transform: translateY(-1px);
+.btn-sheen::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -60%;
+  width: 45%;
+  background: linear-gradient(105deg, transparent, rgba(255,255,255,0.32), transparent);
+  transform: skewX(-18deg);
+  opacity: 0;
+  pointer-events: none;
 }
 
-.btn-search-navy:active {
-  background: linear-gradient(160deg, #1a3a6b 0%, #0d2040 100%);
-  transform: translateY(0);
-  box-shadow:
-    0 2px 8px rgba(13, 32, 64, 0.4),
-    inset 0 2px 4px rgba(0, 0, 0, 0.2);
+.btn-sheen:hover::after {
+  animation: btn-sheen 0.65s ease-out forwards;
 }
 
-.btn-search-navy:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
-}
-
-/* Primary button — blue */
-.btn-primary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  height: 44px;
-  padding: 0 20px;
-  background: linear-gradient(135deg, #0070f3 0%, #0062e3 50%, #0052c2 100%);
-  color: #ffffff;
-  font-size: 14px;
-  font-weight: 600;
-  font-family: var(--font-sans);
-  border: none;
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  transition: background 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
-  white-space: nowrap;
-  letter-spacing: -0.01em;
-  box-shadow: 0 2px 8px rgba(0, 98, 227, 0.35), inset 0 1px 0 rgba(255,255,255,0.15);
-}
-
-.btn-primary:hover {
-  background: linear-gradient(135deg, #0080ff 0%, #0070f3 50%, #005ed4 100%);
-  box-shadow: var(--shadow-navy);
-  transform: translateY(-1px);
-}
-
-.btn-primary:active {
-  background: linear-gradient(135deg, #0052c2 0%, #0044a8 100%);
-  transform: translateY(0);
-  box-shadow: var(--shadow-search);
-}
-
-.btn-primary:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
-}
-
-/* Ghost button */
-.btn-ghost {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  height: 32px;
-  padding: 0 12px;
-  background: transparent;
-  color: var(--color-foreground-muted);
-  font-size: 13px;
-  font-weight: 500;
-  font-family: var(--font-sans);
-  border: 1px solid transparent;
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
-}
-
-.btn-ghost:hover {
-  background: var(--color-surface);
-  border-color: var(--color-border);
-  color: var(--color-foreground);
+@keyframes btn-sheen {
+  from { left: -60%; opacity: 1; }
+  to   { left: 125%; opacity: 1; }
 }
 
 /* Vertical dashed divider */
@@ -850,39 +768,6 @@ body {
 
 
 /* ─────────────────────────────────────────────
-   TRIP TYPE PILLS — inside white card header
-   ───────────────────────────────────────────── */
-
-/* Inline pill inside the white card */
-.pill-option {
-  display: inline-flex;
-  align-items: center;
-  padding: 4px 12px;
-  border-radius: var(--radius-full);
-  font-size: 12px;
-  font-weight: 500;
-  font-family: var(--font-sans);
-  cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
-  border: none;
-  background: transparent;
-  color: var(--color-foreground-muted);
-  white-space: nowrap;
-  letter-spacing: -0.005em;
-}
-
-.pill-option:hover {
-  background: rgba(26, 58, 107, 0.06);
-  color: var(--color-navy);
-}
-
-.pill-option.active {
-  background: rgba(26, 58, 107, 0.1);
-  color: var(--color-navy);
-  font-weight: 600;
-}
-
-/* ─────────────────────────────────────────────
    HERO SMARTPICKS STRIP — the product's real
    differentiators as quiet dark-glass chips
    (replaced the fabricated social-proof stats).
@@ -1102,7 +987,7 @@ body {
   .ambient-drift,
   .hero-stars,
   .boarding-pass-static,
-  .vol-search-btn::after {
+  .btn-sheen::after {
     animation: none !important;
   }
 }
@@ -1272,31 +1157,8 @@ body {
     inset 0 1px 0 rgba(255,255,255,0.2);
 }
 
-/* One-pass sheen sweep on hover — material feedback on the page's primary
-   action (reference: Aceternity/21st.dev CTA treatments), rebuilt as plain
-   CSS on the existing token gradient. Runs once per hover, never loops. */
-.vol-search-btn::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: -60%;
-  width: 45%;
-  background: linear-gradient(105deg, transparent, rgba(255,255,255,0.32), transparent);
-  transform: skewX(-18deg);
-  opacity: 0;
-  pointer-events: none;
-}
-
-.vol-search-btn:hover::after {
-  animation: btn-sheen 0.65s ease-out forwards;
-}
-
-@keyframes btn-sheen {
-  from { left: -60%; opacity: 1; }
-  to   { left: 125%; opacity: 1; }
-}
-
+/* Hover sheen comes from the shared .btn-sheen class (see PRIMARY-ACTION
+   SHEEN above) — added in JSX alongside this class. */
 .vol-search-btn:hover {
   box-shadow:
     0 10px 32px rgba(47,111,237,0.55),

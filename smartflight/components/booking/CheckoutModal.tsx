@@ -156,7 +156,7 @@ function CheckoutModalShell({ checkoutOffer, checkoutStep, fromCity, toCity, fro
             <button
               type="button"
               onClick={onAdvanceToBook}
-              className="w-full rounded-2xl bg-primary py-3 text-sm font-bold text-white hover:bg-primary/90 transition-colors"
+              className="btn-sheen w-full rounded-2xl bg-primary py-3 text-sm font-bold text-white hover:bg-primary/90 transition-colors"
             >
               {t("continueToBooking")}
             </button>
@@ -197,7 +197,7 @@ function CheckoutModalShell({ checkoutOffer, checkoutStep, fromCity, toCity, fro
               type="button"
               onClick={startHostedCheckout}
               disabled={checkoutLoading}
-              className="w-full rounded-2xl bg-primary py-3 text-sm font-bold text-white hover:bg-primary/90 transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+              className="btn-sheen w-full rounded-2xl bg-primary py-3 text-sm font-bold text-white hover:bg-primary/90 transition-colors disabled:cursor-not-allowed disabled:opacity-60"
             >
               {checkoutLoading ? t("openingCheckout") : t("continueToCheckout")}
             </button>

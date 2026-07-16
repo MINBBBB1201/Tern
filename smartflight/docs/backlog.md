@@ -12,7 +12,7 @@ screenshots from the running app — "correct in code" is not verification.
 Must not break: sun-position sync, search→arc sync, ambient bird, locale
 switching, affiliate links, mobile static branch. tsc/eslint stay clean.
 
-## B1. Unify button hover effect — [ ]
+## B1. Unify button hover effect — [x]
 
 Apply the Search flights button's hover sheen consistently to every primary
 button site-wide (CTA, Select, Continue to booking, View Official Deals…).

@@ -237,7 +237,7 @@ const FlightTicketCard = ({
           <p className="text-xs text-muted">per person</p>
           <button
             type="button"
-            className="rounded-full bg-primary px-4 py-1.5 text-xs font-semibold text-white hover:bg-primary/90 transition-colors"
+            className="btn-sheen rounded-full bg-primary px-4 py-1.5 text-xs font-semibold text-white hover:bg-primary/90 transition-colors"
           >
             Book Now
           </button>
@@ -916,7 +916,7 @@ export default function Home() {
                   href={deal.url}
                   target="_blank"
                   rel="noreferrer"
-                  className="mt-3 w-full py-2 rounded-full bg-primary text-white text-xs font-semibold hover:bg-primary/90 transition inline-flex items-center justify-center"
+                  className="btn-sheen mt-3 w-full py-2 rounded-full bg-primary text-white text-xs font-semibold hover:bg-primary/90 transition inline-flex items-center justify-center"
                 >
                   View Official Deals
                 </a>
@@ -1014,7 +1014,7 @@ export default function Home() {
                 href={selectedAirline.website}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center justify-center px-4 py-2.5 rounded-full bg-primary text-white text-sm font-semibold hover:bg-primary/90 transition"
+                className="btn-sheen inline-flex items-center justify-center px-4 py-2.5 rounded-full bg-primary text-white text-sm font-semibold hover:bg-primary/90 transition"
               >
                 Visit Official Website
               </a>
@@ -1204,7 +1204,7 @@ export default function Home() {
                   <h3 className="text-lg font-semibold text-foreground mb-4">Set Price Alert</h3>
                   <div className="flex gap-3">
                     <input type="number" value={alertPrice} onChange={(e) => setAlertPrice(e.target.value)} placeholder="Target price (USD)" className="flex-1 p-3 rounded-xl bg-gray-50 text-foreground border border-gray-200 placeholder-gray-400 outline-none focus:border-primary transition" />
-                    <button onClick={addAlert} disabled={!alertPrice} className="px-6 py-3 rounded-xl bg-primary text-white font-semibold hover:bg-primary/90 transition disabled:opacity-50">Set Alert</button>
+                    <button onClick={addAlert} disabled={!alertPrice} className="btn-sheen px-6 py-3 rounded-xl bg-primary text-white font-semibold hover:bg-primary/90 transition disabled:opacity-50">Set Alert</button>
                   </div>
                   {alerts.length > 0 && (
                     <div className="mt-4 space-y-2">

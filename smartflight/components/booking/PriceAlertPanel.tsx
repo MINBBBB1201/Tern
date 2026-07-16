@@ -28,7 +28,7 @@ export default function PriceAlertPanel({ alerts, alertPrice, setAlertPrice, onA
         <button
           type="button"
           onClick={onAddAlert}
-          className="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90 transition-colors"
+          className="btn-sheen rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90 transition-colors"
         >
           {t("setAlert")}
         </button>

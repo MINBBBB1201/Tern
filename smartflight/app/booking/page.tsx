@@ -128,7 +128,7 @@ function BookingPageClient() {
             </span>
             <LocaleSwitcher />
             <AuthMenu />
-            <Link href="/" className="rounded-full bg-primary px-4 py-2 font-semibold text-white">
+            <Link href="/" className="btn-sheen rounded-full bg-primary px-4 py-2 font-semibold text-white">
               {tNav("changeSearch")}
             </Link>
           </div>

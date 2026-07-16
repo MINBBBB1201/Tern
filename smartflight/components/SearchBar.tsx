@@ -361,7 +361,7 @@ export default function SearchBar({ onSearch, loading = false, routeLineRef }: S
           {/* ── Search button ── */}
           <div style={{ display: "flex", alignItems: "center", padding: "4px 4px 4px 6px", flexShrink: 0 }}>
             <button
-              className="vol-search-btn"
+              className="vol-search-btn btn-sheen"
               onClick={handleSubmit}
               disabled={loading}
               style={{ height: "calc(100% - 8px)", minHeight: "52px" }}

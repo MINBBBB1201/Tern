@@ -30,7 +30,7 @@ export default function PriceTrendChart({ priceChartData, chartLoading, onLoadTr
           type="button"
           onClick={onLoadTrend}
           disabled={chartLoading}
-          className="rounded-full bg-primary px-4 py-2 text-xs font-semibold text-white disabled:opacity-60 hover:bg-primary/90 transition-colors"
+          className="btn-sheen rounded-full bg-primary px-4 py-2 text-xs font-semibold text-white disabled:opacity-60 hover:bg-primary/90 transition-colors"
         >
           {chartLoading ? "Loading…" : "Load trend"}
         </button>
