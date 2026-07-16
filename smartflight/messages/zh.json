@@ -29,7 +29,9 @@
   },
   "Hero": {
     "title": "追逐地平线。",
-    "subtitle": "每次搜索,我们都会并列比较最低价、最快、延误风险最低及积分兑换最划算的票价。"
+    "subtitle": "每次搜索,我们都会并列比较最低价、最快、延误风险最低及积分兑换最划算的票价。",
+    "popularRoute": "热门航线",
+    "searchableAirlines": "可搜索的航空公司"
   },
   "Search": {
     "roundTrip": "往返",

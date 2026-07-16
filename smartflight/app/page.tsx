@@ -287,6 +287,50 @@ const resolveAirlineLogoByName = (name?: string) => {
   return airlineLogoByName[name.toLowerCase()] ?? undefined;
 };
 
+/* Popular-routes ticker: rotates through routes only — deliberately no
+   prices and no booking/activity claims. A "just booked" feed was
+   considered and rejected as fabricated social proof (same trust
+   principle that removed the fake stats rows). */
+const popularRoutes = [
+  { from: "ICN", to: "NRT", cities: "Seoul · Tokyo" },
+  { from: "ICN", to: "JFK", cities: "Seoul · New York" },
+  { from: "ICN", to: "CDG", cities: "Seoul · Paris" },
+  { from: "ICN", to: "DXB", cities: "Seoul · Dubai" },
+  { from: "ICN", to: "LAX", cities: "Seoul · Los Angeles" },
+];
+
+const HeroRouteTicker = ({ label }: { label: string }) => {
+  const [idx, setIdx] = useState(0);
+  const [entering, setEntering] = useState(true);
+
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    let swap: ReturnType<typeof setTimeout>;
+    const interval = setInterval(() => {
+      setEntering(false);
+      swap = setTimeout(() => {
+        setIdx((i) => (i + 1) % popularRoutes.length);
+        setEntering(true);
+      }, 320);
+    }, 7000);
+    return () => {
+      clearInterval(interval);
+      clearTimeout(swap);
+    };
+  }, []);
+
+  const route = popularRoutes[idx];
+  return (
+    <div className="hero-ticker">
+      <span className="hero-ticker-label">{label}</span>
+      <span className={`data-mono hero-ticker-route ${entering ? "is-in" : ""}`}>
+        {route.from} → {route.to}
+        <span className="hero-ticker-cities">{route.cities}</span>
+      </span>
+    </div>
+  );
+};
+
 const destinationDeals = [
   {
     city: "Tokyo",
@@ -722,6 +766,11 @@ export default function Home() {
           >
             {tHero("subtitle")}
           </p>
+          {/* Popular-routes ticker: quiet live-feeling chip below the copy,
+              honest content (routes only — no fabricated booking activity) */}
+          <div className="animate-hero-text" style={{ animationDelay: '0.25s', marginTop: '-16px', marginBottom: '26px' }}>
+            <HeroRouteTicker label={tHero("popularRoute")} />
+          </div>
           </div>
 
           {/* Search bar */}
@@ -744,6 +793,27 @@ export default function Home() {
               <span key={key} className="hero-pick-chip">
                 {icon}
                 {label}
+              </span>
+            ))}
+          </div>
+
+          {/* Airline strip: real carrier marks already used elsewhere on
+              the page — a factual "you can search these here" signal, not
+              a partnership claim. Toned to the dark glass family. */}
+          <div className="animate-hero-text hero-airlines" style={{ animationDelay: '0.45s' }}>
+            <span className="hero-airlines-label">{tHero("searchableAirlines")}</span>
+            {popularAirlines.map((airline) => (
+              <span key={airline.iata} className="hero-airline-chip" title={airline.name}>
+                <img
+                  src={`https://images.kiwi.com/airlines/64/${airline.iata}.png`}
+                  alt={airline.name}
+                  loading="lazy"
+                  onError={(e) => {
+                    const img = e.currentTarget;
+                    img.onerror = null;
+                    img.src = "/file.svg";
+                  }}
+                />
               </span>
             ))}
           </div>

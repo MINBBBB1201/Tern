@@ -29,8 +29,9 @@ import HeroGlobe, { globeShared } from "./HeroGlobe";
 
 type PathPoint = { x: number; y: number };
 
-/** Where the boarding pass settles (fractional hero coords). */
-const SETTLE: PathPoint = { x: 0.72, y: 0.26 };
+/** Where the boarding pass settles (fractional hero coords). Raised from
+ *  0.26 when the route ticker lengthened the copy block below it. */
+const SETTLE: PathPoint = { x: 0.72, y: 0.225 };
 
 /**
  * One continuous cinematic beat (Stage 1.5 update #2): the tern swoops in

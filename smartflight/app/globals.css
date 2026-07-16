@@ -435,7 +435,10 @@ body {
     width: 48%;
     align-items: flex-start;
     text-align: left;
-    margin-top: 48px;
+    /* Clears the settled boarding pass above (the ticker row lengthened
+       this block; centered layout would otherwise push the headline up
+       into the pass). */
+    margin-top: 88px;
   }
 }
 
@@ -914,6 +917,109 @@ body {
   height: 14px;
   color: var(--contrail-300);
   flex-shrink: 0;
+}
+
+/* ─────────────────────────────────────────────
+   HERO ROUTE TICKER — quiet rotating chip above
+   the headline: routes only, no activity claims.
+   ───────────────────────────────────────────── */
+
+.hero-ticker {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-fill-dark);
+  backdrop-filter: blur(8px);
+}
+
+.hero-ticker-label {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(143, 224, 232, 0.75);
+  white-space: nowrap;
+}
+
+.hero-ticker-route {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--paper-50);
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  white-space: nowrap;
+}
+
+.hero-ticker-route.is-in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.hero-ticker-cities {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 400;
+  color: rgba(246, 248, 251, 0.55);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-ticker-route {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none;
+  }
+}
+
+/* ─────────────────────────────────────────────
+   HERO AIRLINE STRIP — real carrier marks in the
+   dark-glass family: a factual "searchable here"
+   signal under the SmartPicks chips.
+   ───────────────────────────────────────────── */
+
+.hero-airlines {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.hero-airlines-label {
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  color: rgba(246, 248, 251, 0.5);
+  margin-right: 4px;
+  white-space: nowrap;
+}
+
+/* Same light-glass logo tile the page already uses for carrier marks
+   (Most Popular Airlines section), at strip scale — brand marks stay
+   legible instead of dissolving into the dark fill. */
+.hero-airline-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.38);
+  border: 1px solid var(--glass-border);
+  box-shadow: inset 0 1px 0 var(--glass-highlight);
+}
+
+.hero-airline-chip img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  opacity: 0.92;
 }
 
 /* ─────────────────────────────────────────────

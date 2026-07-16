@@ -29,7 +29,9 @@
   },
   "Hero": {
     "title": "Chase the horizon.",
-    "subtitle": "We compare cheapest, fastest, lowest delay-risk, and best-value-with-points fares side by side, every search."
+    "subtitle": "We compare cheapest, fastest, lowest delay-risk, and best-value-with-points fares side by side, every search.",
+    "popularRoute": "Popular route",
+    "searchableAirlines": "Searchable airlines include"
   },
   "Search": {
     "roundTrip": "Round trip",
