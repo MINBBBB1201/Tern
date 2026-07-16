@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { signInWithGoogle, auth, onAuthStateChanged, handleRedirectResult } from "../../lib/auth";
+import { signInWithGoogle, auth, onAuthStateChanged, handleRedirectResult, authErrorMessage } from "../../lib/auth";
 import type { User } from "firebase/auth";
 import Link from "next/link";
 import Image from "next/image";
@@ -33,7 +33,7 @@ export default function SignInPage() {
       if (u) setUser(u);
     }).catch((err) => {
       console.error("Redirect sign-in failed:", err);
-      setError(err instanceof Error && err.message ? err.message : t("genericError"));
+      setError(authErrorMessage(err) ?? t("genericError"));
     });
     const unsubscribe = onAuthStateChanged(auth, (u) => {
       setUser(u);
@@ -48,11 +48,13 @@ export default function SignInPage() {
     setLoading(true);
     setError("");
     try {
-      await signInWithGoogle();
-      router.push("/");
+      // Popup flow resolves with the signed-in user (or null if the user
+      // dismissed the popup / a redirect fallback is navigating away).
+      const u = await signInWithGoogle();
+      if (u) router.push("/");
     } catch (err) {
       console.error("Login failed:", err);
-      setError(err instanceof Error && err.message ? err.message : t("genericError"));
+      setError(authErrorMessage(err) ?? t("genericError"));
     } finally {
       setLoading(false);
     }
