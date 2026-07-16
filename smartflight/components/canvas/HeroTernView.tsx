@@ -5,12 +5,13 @@
    useFrame callbacks, which is how react-three-fiber animation works.
    The React Compiler rules assume render-path data flow that does not
    apply to a WebGL scene graph. */
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import { View, PerspectiveCamera } from "@react-three/drei";
 import * as THREE from "three";
 import gsap from "gsap";
 import HeroGlobe, { globeShared } from "./HeroGlobe";
+import { heroRoute } from "../../lib/heroRoute";
 
 /**
  * Civil Twilight signature sequence — R3F port of the original raw-Three
@@ -261,7 +262,8 @@ function outlinePoint(f: number, w: number, h: number): { x: number; y: number }
 
 /** Boarding-pass face: route text, perforation, stub, barcode — drawn so
  *  the object is unmistakably a travel document, not an abstract slab.
- *  Route matches the search card below it: FROM ICN ●──✈──● TO LHR. */
+ *  The route is LIVE: it reads heroRoute (the same store the globe arc
+ *  and search bar share) and is redrawn whenever the search changes. */
 function drawPassFace(canvas: HTMLCanvasElement) {
   const W = 1024;
   const H = 458;
@@ -302,15 +304,17 @@ function drawPassFace(canvas: HTMLCanvasElement) {
   g.textAlign = "right";
   g.fillText("TO", 700, 158);
 
-  // IATA codes — glowing faintly, split-flap style
+  // IATA codes — glowing faintly, split-flap style — from the live route
+  const fromCode = heroRoute.from.iata;
+  const toCode = heroRoute.to.iata;
   g.font = `700 92px ${mono}`;
   g.fillStyle = paper + "0.96)";
   g.shadowColor = cyan + "0.85)";
   g.shadowBlur = 20;
   g.textAlign = "left";
-  g.fillText("ICN", 60, 252);
+  g.fillText(fromCode, 60, 252);
   g.textAlign = "right";
-  g.fillText("LHR", 700, 252);
+  g.fillText(toCode, 700, 252);
   g.shadowBlur = 0;
 
   // Route line: dot ── plane glyph ── dot
@@ -345,13 +349,14 @@ function drawPassFace(canvas: HTMLCanvasElement) {
   g.fill();
   g.shadowBlur = 0;
 
-  // Cities
+  // Cities — clamped so long names never collide mid-face
+  const cityLabel = (c: string) => c.toUpperCase().slice(0, 16);
   g.font = `500 22px ${mono}`;
   g.fillStyle = paper + "0.55)";
   g.textAlign = "left";
-  g.fillText("SEOUL INCHEON", 60, 300);
+  g.fillText(cityLabel(heroRoute.from.city), 60, 300);
   g.textAlign = "right";
-  g.fillText("LONDON HEATHROW", 700, 300);
+  g.fillText(cityLabel(heroRoute.to.city), 700, 300);
 
   // Data row
   g.font = `600 23px ${mono}`;
@@ -401,6 +406,15 @@ function drawPassFace(canvas: HTMLCanvasElement) {
 const BARCODE = [3, 1, 2, 1, 3, 2, 1, 1, 3, 1, 2, 3, 1, 2, 1, 3, 1, 1, 2, 3, 1, 2];
 
 function StaticBoardingPass() {
+  // Same live route the 3D pass draws — the static fallback subscribes so
+  // a search edit updates this card too (useSyncExternalStore over the
+  // non-React heroRoute store).
+  useSyncExternalStore(
+    heroRoute.subscribe,
+    () => heroRoute.version,
+    () => heroRoute.version
+  );
+  const cityLabel = (c: string) => c.toUpperCase().slice(0, 12);
   return (
     <div aria-hidden="true" style={{ position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none", zIndex: 2 }}>
       <div className="boarding-pass-static-wrap" style={{ position: "absolute", left: "50%", transform: "translateX(-50%)" }}>
@@ -412,8 +426,8 @@ function StaticBoardingPass() {
           <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 12 }}>
             <div>
               <div className="data-mono" style={{ fontSize: 9, letterSpacing: "0.14em", color: "rgba(143,224,232,0.85)" }}>FROM</div>
-              <div className="data-mono" style={{ fontSize: 30, fontWeight: 700, lineHeight: 1.1 }}>ICN</div>
-              <div className="data-mono" style={{ fontSize: 9, color: "rgba(246,248,251,0.55)" }}>SEOUL</div>
+              <div className="data-mono" style={{ fontSize: 30, fontWeight: 700, lineHeight: 1.1 }}>{heroRoute.from.iata}</div>
+              <div className="data-mono" style={{ fontSize: 9, color: "rgba(246,248,251,0.55)" }}>{cityLabel(heroRoute.from.city)}</div>
             </div>
             <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 4 }}>
               <span style={{ width: 4, height: 4, borderRadius: "50%", background: "var(--contrail-300)", boxShadow: "var(--contrail-glow)" }} />
@@ -424,8 +438,8 @@ function StaticBoardingPass() {
             </div>
             <div style={{ textAlign: "right" }}>
               <div className="data-mono" style={{ fontSize: 9, letterSpacing: "0.14em", color: "rgba(143,224,232,0.85)" }}>TO</div>
-              <div className="data-mono" style={{ fontSize: 30, fontWeight: 700, lineHeight: 1.1 }}>LHR</div>
-              <div className="data-mono" style={{ fontSize: 9, color: "rgba(246,248,251,0.55)" }}>LONDON</div>
+              <div className="data-mono" style={{ fontSize: 30, fontWeight: 700, lineHeight: 1.1 }}>{heroRoute.to.iata}</div>
+              <div className="data-mono" style={{ fontSize: 9, color: "rgba(246,248,251,0.55)" }}>{cityLabel(heroRoute.to.city)}</div>
             </div>
           </div>
           <div style={{ marginTop: 12, borderTop: "1px dashed rgba(143,224,232,0.4)", paddingTop: 10, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -636,18 +650,22 @@ function TernSequence() {
   if (builtRef.current === null) builtRef.current = buildScene();
   const built = builtRef.current;
 
-  // Anisotropy needs the live renderer; fonts redraw the face when ready.
+  // Anisotropy needs the live renderer; fonts redraw the face when ready;
+  // route edits redraw it live (the pass always shows the actual search).
   useEffect(() => {
     built.faceTex.anisotropy = gl.capabilities.getMaxAnisotropy();
     built.faceTex.needsUpdate = true;
     let disposed = false;
-    document.fonts?.ready.then(() => {
+    const redraw = () => {
       if (disposed) return;
       drawPassFace(built.faceCanvas);
       built.faceTex.needsUpdate = true;
-    });
+    };
+    document.fonts?.ready.then(redraw);
+    const unsubscribeRoute = heroRoute.subscribe(redraw);
     return () => {
       disposed = true;
+      unsubscribeRoute();
       built.bodyGeo.dispose();
       built.capGeo.dispose();
       built.billGeo.dispose();
