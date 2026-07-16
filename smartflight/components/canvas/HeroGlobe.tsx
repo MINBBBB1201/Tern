@@ -395,6 +395,10 @@ export default function HeroGlobe() {
     // Resize-safe placement on the GLOBE_Z plane (shared with the orbit).
     const { center, radius } = globePlacement(state.size.width, state.size.height);
     outer.position.copy(center);
+    // Background parallax on scroll: the globe lags the page (drifts
+    // down in hero space), so its sphere doesn't hit the viewport-top
+    // clip line while still clearly visible.
+    outer.position.y -= globeShared.scrollOut * radius * 0.35;
 
     // Gentle scale-in on first appearance so the globe doesn't pop.
     const now0 = performance.now();
@@ -404,7 +408,7 @@ export default function HeroGlobe() {
 
     // Scroll-out (item 4): written per-frame by TernSequence from the
     // hero's bounding rect — fade + slight shrink, no visibility snap.
-    const fade = 1 - THREE.MathUtils.smoothstep(globeShared.scrollOut, 0.05, 0.5);
+    const fade = 1 - THREE.MathUtils.smoothstep(globeShared.scrollOut, 0.03, 0.38);
     globeMaterial.uniforms.uFade.value = fade;
     haloMaterial.uniforms.uFade.value = fade;
     routeMaterial.opacity = 0.95 * fade;

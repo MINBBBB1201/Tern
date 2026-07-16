@@ -1081,9 +1081,11 @@ function TernSequence() {
       pt.sx += (pt.x - pt.sx) * k;
       pt.sy += (pt.y - pt.sy) * k;
       pass.scale.set(1, 1, 1);
+      // Gentle rise with scroll (was 1.6x and rocketed off-screen before
+      // the dim even began) — the pass now leaves mostly by fading.
       pass.position.set(
         settleWorld.x,
-        settleWorld.y + Math.sin(ti * 0.9) * 0.05 + scrollOut * 1.6,
+        settleWorld.y + Math.sin(ti * 0.9) * 0.05 + scrollOut * 0.6,
         0
       );
       pass.rotation.set(
@@ -1091,7 +1093,7 @@ function TernSequence() {
         -0.18 + Math.sin(ti * 0.35) * 0.12 + pt.sx * 0.12,
         0
       );
-      const dim = 1 - smoothstep(scrollOut, 0.35, 0.9);
+      const dim = 1 - smoothstep(scrollOut, 0.22, 0.68);
       slabMat.opacity = 0.15 * dim;
       passEdgeMat.opacity = 0.8 * dim;
       faceMat.opacity = (0.9 + 0.1 * Math.sin(ti * 1.3)) * dim;
