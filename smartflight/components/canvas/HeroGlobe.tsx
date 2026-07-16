@@ -57,12 +57,15 @@ const SPIN_RATE = 0.07; // rad/s — one revolution ≈ 90 s
 const SUN_UPDATE_MS = 1000;
 const ROUTE_SEGMENTS = 64;
 
-/** Placement of the globe on its z-plane for a given canvas size — one
- *  deterministic function shared with TernSequence so the tern's orbit and
- *  the globe never disagree about geometry. */
-export function globePlacement(sizeW: number, sizeH: number) {
+/** Placement of the globe on its z-plane for a given view aspect ratio —
+ *  one deterministic function shared with TernSequence so the tern's orbit
+ *  and the globe never disagree about geometry. Takes the aspect (not a
+ *  size): drei's View portal injects `state.size` once at portal creation
+ *  and it goes stale after a window resize, but the view camera's aspect
+ *  is re-derived from the live tracked rect on every rendered frame. */
+export function globePlacement(aspect: number) {
   const planeH = 2 * (CAM_Z - GLOBE_Z) * Math.tan(THREE.MathUtils.degToRad(FOV_DEG / 2));
-  const planeW = planeH * (sizeW / sizeH);
+  const planeW = planeH * aspect;
   return {
     center: new THREE.Vector3(
       (GLOBE_FRAC_X - 0.5) * planeW,
@@ -393,7 +396,11 @@ export default function HeroGlobe() {
     if (routeVersion.current !== heroRoute.version) applyRoute();
 
     // Resize-safe placement on the GLOBE_Z plane (shared with the orbit).
-    const { center, radius } = globePlacement(state.size.width, state.size.height);
+    // The view camera's aspect tracks the live view rect (drei updates it
+    // just before each scissored render); state.size does NOT survive
+    // window resizes, so it must not be used here.
+    const cam = state.camera as THREE.PerspectiveCamera;
+    const { center, radius } = globePlacement(cam.isPerspectiveCamera ? cam.aspect : state.size.width / Math.max(state.size.height, 1));
     outer.position.copy(center);
     // Background parallax on scroll: the globe lags the page (drifts
     // down in hero space), so its sphere doesn't hit the viewport-top

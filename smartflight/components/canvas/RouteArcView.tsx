@@ -101,12 +101,15 @@ function ArcScene({ progress }: { progress: { p: number } }) {
     const { curve, arc, destMat, glyph } = built;
     const t = tmpRef.current;
 
-    // World width at z=0 from the view rect + camera geometry — drei's
-    // portal injects the tracked rect as `size`, but `viewport` is not
-    // view-scoped (verified empirically), so derive the width ourselves:
-    // worldH = 2·camZ·tan(fov/2); worldW = worldH · rectAspect.
+    // World width at z=0 from the camera geometry — drei's portal injects
+    // the tracked rect as `size` only at portal creation (stale after a
+    // window resize) and `viewport` is not view-scoped, so derive the
+    // width from the view camera's aspect, which drei re-computes from the
+    // live tracked rect before every scissored render:
+    // worldH = 2·camZ·tan(fov/2); worldW = worldH · aspect.
     const worldH = 2 * 6 * Math.tan(THREE.MathUtils.degToRad(45 / 2));
-    const vpw = worldH * (state.size.width / Math.max(state.size.height, 1));
+    const cam = state.camera as THREE.PerspectiveCamera;
+    const vpw = worldH * (cam.isPerspectiveCamera ? cam.aspect : state.size.width / Math.max(state.size.height, 1));
     if (Math.abs(vpw - t.lastW) > 0.5) {
       layoutArc(built, vpw);
       t.lastW = vpw;
