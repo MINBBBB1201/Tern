@@ -6,7 +6,7 @@
 - C2. Deals page — [x]
 - C3. Blog page — [x]
 - C4. Site-wide button/link audit — [x]
-- C5. About / Why "Tern" page — [ ]
+- C5. About / Why "Tern" page — [x]
 - C6. Support / Help page — [ ]
 - C7. Footer restructure — [ ]
 
