@@ -4,7 +4,7 @@
 
 - C1. Fake SPONSORED coupon replacement — [x] (commit 2c61a1c)
 - C2. Deals page — [x]
-- C3. Blog page — [ ]
+- C3. Blog page — [x]
 - C4. Site-wide button/link audit — [ ]
 - C5. About / Why "Tern" page — [ ]
 - C6. Support / Help page — [ ]
