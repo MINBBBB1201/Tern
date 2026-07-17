@@ -1,4 +1,56 @@
-# Backlog — B series (2026-07-17)
+# Backlog — B/C series (2026-07-17 → 2026-07-18)
+
+## C series status
+
+- C1. Fake SPONSORED coupon replacement — [x] (commit 2c61a1c)
+- C2. Deals page — [ ]
+- C3. Blog page — [ ]
+- C4. Site-wide button/link audit — [ ]
+- C5. About / Why "Tern" page — [ ]
+- C6. Support / Help page — [ ]
+- C7. Footer restructure — [ ]
+
+Quality bar: new pages must read as the same site as the hero/search
+pages — an "AI-rushed subpage" feel is failure. Civil Twilight system
+throughout; honest content only (no fake commercial claims, no lorem
+ipsum).
+
+### C2. Deals page
+/deals as a real route reusing the C1 "Airline Deals & Promotions"
+card pattern. Honest per-airline promo info (no invented coupons or
+discount rates — same principle as C1), CTA into search. Done when:
+nav Deals renders a finished page with zero fabricated claims.
+
+### C3. Blog page
+/blog list + detail routing. Content reuses real data already in the
+project (airport guides, transit passenger facilities, loyalty program
+info) reshaped into 3–5 posts. Done when: list → detail renders, and
+locale switching doesn't break.
+
+### C4. Site-wide button/link audit
+Find href="#", empty onClick, dead links across the codebase; wire
+real destinations (incl. pages built this session) or mark honestly
+as coming soon — never fake completeness. Done when: the audit list
+and dispositions are in the commit message, and no dead controls
+remain.
+
+### C5. About / Why "Tern" page
+What the service compares and how it differs; the Arctic Tern name
+story (longest migration of any animal → finding the optimal route).
+Civil Twilight tone, linked from footer/nav.
+
+### C6. Support / Help page
+FAQ (how search works, points booking, refund/change basics) plus a
+contact section. Real content, dedicated route.
+
+### C7. Footer restructure
+Grouped links like a major travel site: Company (About, Why Tern),
+Support (Help/FAQ), Explore (Deals, Blog). All pages from this
+session wired; text correct in all four locales.
+
+---
+
+# B series (2026-07-17)
 
 Quality bar for every item: Linear/Stripe-level restrained professionalism.
 The shared goal is removing "AI-generated" genericness while keeping the
