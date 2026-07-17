@@ -1,4 +1,10 @@
 @import "tailwindcss";
+/* Pretendard variable, self-hosted from the npm package as dynamic
+   subsets: ~110 unicode-range chunks, so a page downloads only the
+   glyph ranges it renders (a Korean page costs tens of KB, not the
+   2MB full variable file — measured better than CDN or single-file
+   next/font preload for CJK). */
+@import "pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css";
 
 /* ─────────────────────────────────────────────
    DESIGN SYSTEM — Light Volumetric Sky
@@ -93,10 +99,13 @@
   --shadow-navy: 0 4px 20px rgba(26, 58, 107, 0.35);
   --shadow-search: 0 2px 8px rgba(26, 58, 107, 0.25);
 
-  /* ── Typography ── */
-  --font-sans: "Geist", "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --font-mono: var(--font-jetbrains-mono), "Geist Mono", ui-monospace, monospace;
-  --font-display: var(--font-space-grotesk), "Geist", ui-sans-serif, sans-serif;
+  /* ── Typography ──
+     Latin/digits resolve first (Space Grotesk for display, JetBrains
+     for data); Hangul falls through to Pretendard. ja/zh locales
+     override these chains via html[lang] below. */
+  --font-sans: "Pretendard Variable", Pretendard, ui-sans-serif, system-ui, -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  --font-mono: var(--font-jetbrains-mono), "Geist Mono", "Pretendard Variable", ui-monospace, monospace;
+  --font-display: var(--font-space-grotesk), "Pretendard Variable", Pretendard, ui-sans-serif, sans-serif;
 
   /* ── Hero gradient — light blue volumetric sky ── */
   --hero-bg:
@@ -156,6 +165,27 @@
      variant stays ≤0.08 alpha). */
   --glass-reflect:      linear-gradient(165deg, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0.04) 42%, rgba(143,224,232,0.05) 100%);
   --glass-reflect-dark: linear-gradient(165deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.015) 45%, rgba(143,224,232,0.04) 100%);
+}
+
+/* ─────────────────────────────────────────────
+   PER-LOCALE TYPE CHAINS — <html lang> is set from
+   the TERN_LOCALE cookie. Korean rides the default
+   chains (Pretendard); Japanese and Chinese swap in
+   their native system stacks so kana/hanzi never
+   render through Korean-shaped fallbacks. Latin
+   display/data fonts stay first in every chain.
+   ───────────────────────────────────────────── */
+
+html[lang="ja"] {
+  --font-sans: "Hiragino Sans", "Noto Sans JP", "Yu Gothic UI", "Yu Gothic", Meiryo, ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), "Geist Mono", "Hiragino Sans", "Noto Sans JP", Meiryo, ui-monospace, monospace;
+  --font-display: var(--font-space-grotesk), "Hiragino Sans", "Noto Sans JP", "Yu Gothic UI", Meiryo, ui-sans-serif, sans-serif;
+}
+
+html[lang="zh"] {
+  --font-sans: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), "Geist Mono", "PingFang SC", "Noto Sans SC", "Microsoft YaHei", ui-monospace, monospace;
+  --font-display: var(--font-space-grotesk), "PingFang SC", "Noto Sans SC", "Microsoft YaHei", ui-sans-serif, sans-serif;
 }
 
 /* ─────────────────────────────────────────────

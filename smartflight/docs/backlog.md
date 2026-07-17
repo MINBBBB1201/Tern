@@ -56,7 +56,7 @@ grids disconnected from the hero.
 - Done when: captures taken mid-scroll from the hero downward no longer
   read as "two different sites stitched together".
 
-## B5. Korean typography — [ ]
+## B5. Korean typography — [x]
 
 - Introduce Pretendard (variable font; self-host or CDN, whichever performs
   better). Korean uses Pretendard; Latin/digits keep Space Grotesk via the
