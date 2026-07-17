@@ -461,6 +461,32 @@ body {
   box-shadow: inset 0 1px 0 var(--glass-highlight);
 }
 
+/* Checkout modal: the hero's dark glass brought into the light booking
+   flow. Near-opaque dusk fill (readability over a dimmed light page),
+   same edge-as-light ring as .vol-popover. */
+.glass-modal-dark {
+  background:
+    var(--glass-reflect-dark) padding-box,
+    linear-gradient(170deg, rgba(27,42,82,0.97) 0%, rgba(10,15,30,0.97) 100%) padding-box,
+    var(--glass-edge-dark) border-box;
+  border: 1px solid transparent;
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  box-shadow:
+    0 24px 80px rgba(0,0,0,0.5),
+    inset 0 1px 0 rgba(255,255,255,0.08),
+    inset 0 0 0 1px rgba(255,255,255,0.04);
+}
+
+/* Dark sibling of .glass-chip for rows nested in dark panels. */
+.glass-chip-dark {
+  background:
+    var(--glass-reflect-dark) padding-box,
+    linear-gradient(rgba(255,255,255,0.06), rgba(255,255,255,0.06)) padding-box,
+    var(--glass-edge-dark) border-box;
+  border: 1px solid transparent;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+}
+
 /* Selectable glass list rows (homepage airline picker): hover/active accent
    lives here, not in utility classes — .glass-panel is unlayered CSS, so a
    layered Tailwind border-color utility can never override its border. */
@@ -549,6 +575,8 @@ body {
   }
   .glass-panel-dark,
   .glass-nav-dark,
+  .glass-modal-dark,
+  .glass-chip-dark,
   .vol-shell,
   .vol-popover {
     background: #141F3D;

@@ -1,13 +1,10 @@
 "use client";
 
-import { useRef, useState } from "react";
-import gsap from "gsap";
-import { useGSAP } from "@gsap/react";
+import { useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { buildBookingPrograms, dateLabel, durationLabel, type Offer } from "../../lib/offerUtils";
 import { PriceDisplay } from "../../lib/PriceDisplay";
-
-gsap.registerPlugin(useGSAP);
 
 type CheckoutModalProps = {
   checkoutOffer: Offer | null;
@@ -21,17 +18,30 @@ type CheckoutModalProps = {
   aviasalesUrl: string | null;
 };
 
+/* Civil Twilight dark-glass text tones (the modal floats over a dimmed
+   light page, so these are fixed, not theme tokens). */
+const tone = {
+  base: "text-[#F6F8FB]",
+  muted: "text-[rgba(246,248,251,0.65)]",
+  faint: "text-[rgba(246,248,251,0.5)]",
+  label: "text-[rgba(143,224,232,0.75)]",
+};
+
 export default function CheckoutModal(props: CheckoutModalProps) {
-  // Hook-safe gate: the animated shell mounts only while an offer is open,
-  // so its useGSAP entrance runs exactly once per open.
-  if (!props.checkoutOffer) return null;
-  return <CheckoutModalShell {...props} checkoutOffer={props.checkoutOffer} />;
+  // AnimatePresence stays mounted across open/close so the exit
+  // transition can play before the shell unmounts.
+  return (
+    <AnimatePresence>
+      {props.checkoutOffer && (
+        <CheckoutModalShell key="checkout-modal" {...props} checkoutOffer={props.checkoutOffer} />
+      )}
+    </AnimatePresence>
+  );
 }
 
 function CheckoutModalShell({ checkoutOffer, checkoutStep, fromCity, toCity, from, to, onAdvanceToBook, onClose, aviasalesUrl }: CheckoutModalProps & { checkoutOffer: Offer }) {
   const t = useTranslations("Checkout");
-  const rootRef = useRef<HTMLDivElement>(null);
-  const stepRef = useRef<HTMLDivElement>(null);
+  const reduceMotion = useReducedMotion();
 
   // Duffel Links handoff (TEST MODE / DEMO): payment and ticketing happen on
   // Duffel's hosted checkout, never in Tern. We mint a session server-side,
@@ -65,43 +75,25 @@ function CheckoutModalShell({ checkoutOffer, checkoutStep, fromCity, toCity, fro
     }
   };
 
-  // "Sliding through glass": backdrop frosts in while the pass-shaped
-  // panel rises with real perspective depth and settles. Step changes
-  // crossfade the content quietly. Reduced motion: no tweens, the modal
-  // simply appears (its natural CSS state).
-  useGSAP(
-    () => {
-      const mm = gsap.matchMedia();
-      mm.add("(prefers-reduced-motion: no-preference)", () => {
-        gsap.from(rootRef.current, { autoAlpha: 0, duration: 0.22, ease: "power1.out" });
-        gsap.from("[data-modal-panel]", {
-          y: 56,
-          rotateX: 9,
-          transformPerspective: 1100,
-          transformOrigin: "50% 100%",
-          scale: 0.97,
-          autoAlpha: 0,
-          duration: 0.45,
-          ease: "power3.out",
-        });
-      });
-    },
-    { scope: rootRef }
-  );
-
-  useGSAP(
-    () => {
-      const mm = gsap.matchMedia();
-      mm.add("(prefers-reduced-motion: no-preference)", () => {
-        gsap.from(stepRef.current, { autoAlpha: 0, y: 10, duration: 0.28, ease: "power2.out" });
-      });
-    },
-    { scope: rootRef, dependencies: [checkoutStep] }
-  );
-
   return (
-    <div ref={rootRef} className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 backdrop-blur-sm sm:items-center">
-      <div data-modal-panel className="glass-panel-strong w-full max-w-lg rounded-t-3xl p-6 sm:rounded-3xl">
+    <motion.div
+      className="fixed inset-0 z-50 flex items-end justify-center bg-[rgba(10,15,30,0.55)] backdrop-blur-sm sm:items-center"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0, transition: { duration: 0.2, ease: "easeIn" } }}
+      transition={{ duration: 0.22, ease: "easeOut" }}
+    >
+      <motion.div
+        className={`glass-modal-dark w-full max-w-lg rounded-t-3xl p-6 sm:rounded-3xl ${tone.base}`}
+        initial={reduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.96, y: 28 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={
+          reduceMotion
+            ? { opacity: 0, transition: { duration: 0.15 } }
+            : { opacity: 0, scale: 0.97, y: 16, transition: { duration: 0.18, ease: "easeIn" } }
+        }
+        transition={{ type: "spring", stiffness: 380, damping: 32, mass: 0.9 }}
+      >
         {/* Static boarding-pass mark — the hero's signature object, flat and small */}
         <div className="boarding-pass-mark data-mono mb-5" aria-hidden="true">
           <span>{from}</span>
@@ -118,123 +110,154 @@ function CheckoutModalShell({ checkoutOffer, checkoutStep, fromCity, toCity, fro
           <p className="text-lg font-bold">
             {checkoutStep === "review" ? t("reviewTitle") : t("bookTitle")}
           </p>
-          <button type="button" onClick={onClose} className="rounded-full p-1.5 hover:bg-gray-100">
+          <button
+            type="button"
+            onClick={onClose}
+            className={`rounded-full p-1.5 ${tone.muted} hover:bg-white/10 hover:text-white transition-colors`}
+          >
             <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M18 6L6 18M6 6l12 12" />
             </svg>
           </button>
         </div>
 
-        <div ref={stepRef}>
-        {checkoutStep === "review" && (
-          <div className="space-y-4">
-            <div className="glass-chip rounded-2xl p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-semibold">{checkoutOffer.airline || t("partnerAirline")}</p>
-                  <p className="text-sm text-muted">{fromCity} ({from}) → {toCity} ({to})</p>
-                  <p className="text-sm text-muted">{dateLabel(checkoutOffer.departure)} · {durationLabel(checkoutOffer.duration)}</p>
-                </div>
-                <p className="text-2xl font-black text-primary">
-                  <PriceDisplay amount={Number(checkoutOffer.price)} currency={checkoutOffer.currency} />
-                </p>
-              </div>
-            </div>
-
-            <div>
-              <p className="mb-2 text-sm font-semibold">{t("bookWithPointsOrCash")}</p>
-              <div className="space-y-2">
-                {buildBookingPrograms(checkoutOffer).transferOptions.map((opt) => (
-                  <div key={opt.program} className="glass-chip flex items-center justify-between rounded-xl px-3 py-2.5 text-sm">
-                    <span className="font-medium">{opt.program}</span>
-                    <span className="text-primary-hover font-semibold">{opt.points.toLocaleString()} {t("pts")} {opt.cash}</span>
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={checkoutStep}
+            initial={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: -6 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+          >
+            {checkoutStep === "review" && (
+              <div className="space-y-5">
+                {/* Flight summary — airline leads, route/date support, price is
+                    the loudest number in the panel. */}
+                <div className="glass-chip-dark rounded-2xl p-4">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="min-w-0">
+                      <p className="font-semibold">{checkoutOffer.airline || t("partnerAirline")}</p>
+                      <p className={`text-sm ${tone.muted} mt-0.5`}>
+                        {fromCity} ({from}) → {toCity} ({to})
+                      </p>
+                      <p className={`data-mono text-xs ${tone.faint} mt-1`}>
+                        {dateLabel(checkoutOffer.departure)} · {durationLabel(checkoutOffer.duration)}
+                      </p>
+                    </div>
+                    <p className="data-mono text-2xl font-black text-white shrink-0">
+                      <PriceDisplay amount={Number(checkoutOffer.price)} currency={checkoutOffer.currency} />
+                    </p>
                   </div>
-                ))}
+                </div>
+
+                <div>
+                  <p className={`data-mono mb-2.5 text-[11px] font-semibold uppercase tracking-[0.14em] ${tone.label}`}>
+                    {t("bookWithPointsOrCash")}
+                  </p>
+                  <div className="space-y-2">
+                    {buildBookingPrograms(checkoutOffer).transferOptions.map((opt) => (
+                      <div
+                        key={opt.program}
+                        className="glass-chip-dark flex items-center justify-between gap-3 rounded-xl px-3.5 py-2.5"
+                      >
+                        <span className="text-[13px] font-medium text-[rgba(246,248,251,0.88)] truncate">
+                          {opt.program}
+                        </span>
+                        <span className="flex items-baseline gap-1.5 shrink-0">
+                          <span className="data-mono text-sm font-bold text-white">
+                            {opt.points.toLocaleString()}
+                          </span>
+                          <span className={`text-[11px] ${tone.faint}`}>{t("pts")}</span>
+                          <span className="data-mono text-xs text-[rgba(143,224,232,0.9)]">{opt.cash}</span>
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={onAdvanceToBook}
+                  className="btn-sheen w-full rounded-2xl bg-primary py-3 text-sm font-bold text-white hover:bg-primary/90 transition-colors"
+                >
+                  {t("continueToBooking")}
+                </button>
               </div>
-            </div>
-
-            <button
-              type="button"
-              onClick={onAdvanceToBook}
-              className="btn-sheen w-full rounded-2xl bg-primary py-3 text-sm font-bold text-white hover:bg-primary/90 transition-colors"
-            >
-              {t("continueToBooking")}
-            </button>
-          </div>
-        )}
-
-        {checkoutStep === "book" && (
-          <div className="space-y-4">
-            {/* Honest handoff copy: Duffel Links opens a fresh search — the
-                selected offer does NOT carry over (confirmed against the live
-                API; only currency and branding transfer). Never imply the
-                exact flight is pre-loaded and ready to pay for. */}
-            <p className="text-sm text-muted">
-              {t.rich("duffelHandoff", {
-                from,
-                to,
-                route: (chunks) => <strong>{chunks}</strong>,
-              })}
-            </p>
-            <div className="glass-chip rounded-2xl p-4 text-sm">
-              <p className="font-semibold">{checkoutOffer.airline || t("partnerAirline")}</p>
-              <p className="text-muted">
-                {fromCity} ({from}) → {toCity} ({to}) · {dateLabel(checkoutOffer.departure)}
-              </p>
-              <p className="text-muted">
-                {t("aroundPricePrefix")}{" "}
-                <PriceDisplay amount={Number(checkoutOffer.price)} currency={checkoutOffer.currency} />{" "}
-                {t("aroundPriceSuffix")}
-              </p>
-            </div>
-            <div className="glass-chip rounded-2xl p-4 text-sm text-muted">
-              {t("testModeNotice")}
-            </div>
-            {checkoutError && (
-              <p className="text-sm text-red-600" role="alert">{checkoutError}</p>
             )}
-            <button
-              type="button"
-              onClick={startHostedCheckout}
-              disabled={checkoutLoading}
-              className="btn-sheen w-full rounded-2xl bg-primary py-3 text-sm font-bold text-white hover:bg-primary/90 transition-colors disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {checkoutLoading ? t("openingCheckout") : t("continueToCheckout")}
-            </button>
-            {/* Second revenue path (Travelpayouts White Label on our own
-                book.flytern.site). Same honesty bar as the Duffel copy above:
-                the deep link is search-level, so it opens a pre-filled search
-                for this route/date — the exact offer does not carry over. */}
-            {aviasalesUrl && (
-              <div className="space-y-2">
-                <p className="text-xs text-muted">
-                  {t.rich("whiteLabelHandoff", {
+
+            {checkoutStep === "book" && (
+              <div className="space-y-4">
+                {/* Honest handoff copy: Duffel Links opens a fresh search — the
+                    selected offer does NOT carry over (confirmed against the live
+                    API; only currency and branding transfer). Never imply the
+                    exact flight is pre-loaded and ready to pay for. */}
+                <p className={`text-sm ${tone.muted}`}>
+                  {t.rich("duffelHandoff", {
                     from,
                     to,
-                    route: (chunks) => <strong>{chunks}</strong>,
+                    route: (chunks) => <strong className="text-white">{chunks}</strong>,
                   })}
                 </p>
-                <a
-                  href={aviasalesUrl}
-                  target="_blank"
-                  rel="sponsored noopener noreferrer"
-                  className="block w-full rounded-2xl border border-[#d5dfec] py-3 text-center text-sm font-semibold hover:bg-gray-50 transition-colors"
+                <div className="glass-chip-dark rounded-2xl p-4 text-sm">
+                  <p className="font-semibold">{checkoutOffer.airline || t("partnerAirline")}</p>
+                  <p className={tone.muted}>
+                    {fromCity} ({from}) → {toCity} ({to}) · {dateLabel(checkoutOffer.departure)}
+                  </p>
+                  <p className={tone.muted}>
+                    {t("aroundPricePrefix")}{" "}
+                    <PriceDisplay amount={Number(checkoutOffer.price)} currency={checkoutOffer.currency} />{" "}
+                    {t("aroundPriceSuffix")}
+                  </p>
+                </div>
+                <div className={`glass-chip-dark rounded-2xl p-4 text-sm ${tone.muted}`}>
+                  {t("testModeNotice")}
+                </div>
+                {checkoutError && (
+                  <p className="text-sm text-red-400" role="alert">{checkoutError}</p>
+                )}
+                <button
+                  type="button"
+                  onClick={startHostedCheckout}
+                  disabled={checkoutLoading}
+                  className="btn-sheen w-full rounded-2xl bg-primary py-3 text-sm font-bold text-white hover:bg-primary/90 transition-colors disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  {t("bookThisRoute")}
-                </a>
+                  {checkoutLoading ? t("openingCheckout") : t("continueToCheckout")}
+                </button>
+                {/* Second revenue path (Travelpayouts White Label on our own
+                    book.flytern.site). Same honesty bar as the Duffel copy above:
+                    the deep link is search-level, so it opens a pre-filled search
+                    for this route/date — the exact offer does not carry over. */}
+                {aviasalesUrl && (
+                  <div className="space-y-2">
+                    <p className={`text-xs ${tone.muted}`}>
+                      {t.rich("whiteLabelHandoff", {
+                        from,
+                        to,
+                        route: (chunks) => <strong className="text-white">{chunks}</strong>,
+                      })}
+                    </p>
+                    <a
+                      href={aviasalesUrl}
+                      target="_blank"
+                      rel="sponsored noopener noreferrer"
+                      className={`block w-full rounded-2xl border border-[rgba(143,224,232,0.28)] py-3 text-center text-sm font-semibold ${tone.base} hover:bg-white/5 transition-colors`}
+                    >
+                      {t("bookThisRoute")}
+                    </a>
+                  </div>
+                )}
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className={`w-full rounded-2xl border border-[rgba(143,224,232,0.28)] py-3 text-sm font-semibold ${tone.base} hover:bg-white/5 transition-colors`}
+                >
+                  {t("close")}
+                </button>
               </div>
             )}
-            <button
-              type="button"
-              onClick={onClose}
-              className="w-full rounded-2xl border border-[#d5dfec] py-3 text-sm font-semibold hover:bg-gray-50 transition-colors"
-            >
-              {t("close")}
-            </button>
-          </div>
-        )}
-        </div>
-      </div>
-    </div>
+          </motion.div>
+        </AnimatePresence>
+      </motion.div>
+    </motion.div>
   );
 }

@@ -32,7 +32,7 @@ double-layer feel.
 - Done when: in a zoomed capture of the hero search bar the boundary reads
   as "light", not a "line". No text-contrast regression.
 
-## B3. Review-your-flight modal — [ ]
+## B3. Review-your-flight modal — [x]
 
 Current problems: appears abruptly on Select, and the light card design
 breaks from the hero's dark glass tone — generic.
