@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { heroRoute } from "../lib/heroRoute";
 import {
   ArrowLeftRight,
@@ -39,15 +39,18 @@ const fmt = (d: Date) => d.toISOString().split("T")[0];
 const nextWeek = () => { const d = new Date(); d.setDate(d.getDate() + 7); return fmt(d); };
 const twoWeeks = () => { const d = new Date(); d.setDate(d.getDate() + 14); return fmt(d); };
 
-const displayDate = (iso: string) => {
+/* Dates render in the active locale (ko: 7월 24일 / 금), not en-US. */
+const LOCALE_TAGS: Record<string, string> = { en: "en-US", ko: "ko-KR", ja: "ja-JP", zh: "zh-CN" };
+
+const displayDate = (iso: string, locale: string) => {
   if (!iso) return "";
   const d = new Date(iso + "T00:00:00");
-  return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  return d.toLocaleDateString(LOCALE_TAGS[locale] ?? "en-US", { month: "short", day: "numeric" });
 };
 
-const displayWeekday = (iso: string) => {
+const displayWeekday = (iso: string, locale: string) => {
   if (!iso) return "";
-  return new Date(iso + "T00:00:00").toLocaleDateString("en-US", { weekday: "short" });
+  return new Date(iso + "T00:00:00").toLocaleDateString(LOCALE_TAGS[locale] ?? "en-US", { weekday: "short" });
 };
 
 export default function SearchBar({ onSearch, loading = false, routeLineRef }: SearchBarProps) {
@@ -109,10 +112,10 @@ export default function SearchBar({ onSearch, loading = false, routeLineRef }: S
   };
 
   const totalPassengers = adults + children + infants;
-  const passengerLabel = totalPassengers === 1 ? "1 Passenger" : `${totalPassengers} Passengers`;
+  const passengerLabel = t("passengerCount", { count: totalPassengers });
 
   return (
-    <div style={{ width: "100%", fontFamily: "'Geist', 'Inter', ui-sans-serif, system-ui, sans-serif" }}>
+    <div style={{ width: "100%", fontFamily: "var(--font-sans)" }}>
 
       {/* ── Volumetric 3D Shell ── */}
       <div className="vol-shell">
@@ -579,6 +582,7 @@ interface DateFieldProps {
 
 function DateField({ label, value, onChange, placeholder }: DateFieldProps) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const locale = useLocale();
 
   return (
     <div
@@ -597,12 +601,12 @@ function DateField({ label, value, onChange, placeholder }: DateFieldProps) {
       </div>
       <div className="vol-value" style={{ fontSize: "18px" }}>
         {value
-          ? displayDate(value)
+          ? displayDate(value, locale)
           : <span style={{ color: "rgba(180,200,225,0.8)", fontWeight: 400, fontSize: "14px" }}>{placeholder || "Select"}</span>
         }
       </div>
       <div className="vol-sub">
-        {value ? displayWeekday(value) : ""}
+        {value ? displayWeekday(value, locale) : ""}
       </div>
       <input
         ref={inputRef}

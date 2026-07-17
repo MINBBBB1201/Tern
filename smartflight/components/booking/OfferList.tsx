@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { formatMoney, type Offer } from "../../lib/offerUtils";
 import OfferCard from "./OfferCard";
 
@@ -17,6 +18,7 @@ type OfferListProps = {
 
 export default function OfferList({ offers, from, to, cabinClass, cheapestDirect, cheapestConnecting, onSelectOffer, aviasalesUrl }: OfferListProps) {
   const [expandedOfferId, setExpandedOfferId] = useState<string | null>(null);
+  const t = useTranslations("Filters");
 
   if (offers.length === 0) return null;
 
@@ -27,12 +29,12 @@ export default function OfferList({ offers, from, to, cabinClass, cheapestDirect
         <div className="flex flex-wrap gap-2 text-xs">
           {cheapestDirect && (
             <span className="rounded-full bg-primary-subtle px-3 py-1 text-primary-hover font-medium">
-              Cheapest non-stop: {formatMoney(Number(cheapestDirect.price), cheapestDirect.currency)}
+              {t("cheapestNonStop", { price: formatMoney(Number(cheapestDirect.price), cheapestDirect.currency) })}
             </span>
           )}
           {cheapestConnecting && (
             <span className="rounded-full bg-success-subtle px-3 py-1 text-success-strong font-medium">
-              Cheapest with stops: {formatMoney(Number(cheapestConnecting.price), cheapestConnecting.currency)}
+              {t("cheapestWithStops", { price: formatMoney(Number(cheapestConnecting.price), cheapestConnecting.currency) })}
             </span>
           )}
         </div>
@@ -40,12 +42,7 @@ export default function OfferList({ offers, from, to, cabinClass, cheapestDirect
 
       {/* Commission disclosure — must precede the per-card booking links */}
       {aviasalesUrl && (
-        <p className="text-xs text-muted">
-          &ldquo;Book this route&rdquo; opens our booking site, book.flytern.site, with your
-          route, dates, and passengers pre-filled — you&apos;ll pick your exact flight there,
-          and prices may differ. Tern earns a commission on bookings made there, at no extra
-          cost to you.
-        </p>
+        <p className="text-xs text-muted">{t("bookRouteDisclosure")}</p>
       )}
 
       {offers.map((offer) => (

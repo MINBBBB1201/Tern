@@ -176,6 +176,7 @@ const FlightTicketCard = ({
   arrivalTime: string;
 }) => {
   const tilt = useHoverTilt<HTMLElement>(2);
+  const t = useTranslations("Home");
 
   return (
     <article
@@ -215,7 +216,7 @@ const FlightTicketCard = ({
               <PlaneRightIcon className="mx-1 h-3 w-3 text-primary shrink-0" />
               <div className="h-px flex-1 bg-gray-200" />
             </div>
-            <p className="text-xs text-muted">{stops === 0 ? "Non-stop" : `${stops} stop${stops > 1 ? "s" : ""}`}</p>
+            <p className="text-xs text-muted">{stops === 0 ? t("nonStop") : t("stopCount", { count: stops })}</p>
           </div>
           <div className="text-center">
             <p className="data-mono text-xl font-bold">{arrivalTime}</p>
@@ -234,12 +235,12 @@ const FlightTicketCard = ({
         {/* Price + CTA */}
         <div className="flex flex-col items-end gap-2 ml-auto">
           <p className="data-mono text-2xl font-black text-foreground">${price.toLocaleString()}</p>
-          <p className="text-xs text-muted">per person</p>
+          <p className="text-xs text-muted">{t("perPerson")}</p>
           <button
             type="button"
             className="btn-sheen rounded-full bg-primary px-4 py-1.5 text-xs font-semibold text-white hover:bg-primary/90 transition-colors"
           >
-            Book Now
+            {t("bookNow")}
           </button>
         </div>
       </div>
@@ -369,6 +370,7 @@ const DestinationCard = ({
   deal: { city: string; route: string; dateRange: string; price: number; image: string };
 }) => {
   const tilt = useHoverTilt<HTMLElement>(3);
+  const t = useTranslations("Home");
   const [active, setActive] = useState(false);
   const [shownPrice, setShownPrice] = useState(deal.price);
   const rafRef = useRef(0);
@@ -438,7 +440,7 @@ const DestinationCard = ({
         <p className="data-mono mt-1 text-xs text-white/80">{deal.dateRange}</p>
         <div className="mt-3 flex items-end justify-between">
           <div>
-            <p className="text-[11px] uppercase tracking-wide text-white/80">Economy From</p>
+            <p className="text-[11px] uppercase tracking-wide text-white/80">{t("economyFrom")}</p>
             <p className="data-mono text-2xl font-bold">USD ${shownPrice}</p>
           </div>
           <span className="data-mono text-sm font-medium text-white/90">{deal.route}</span>
@@ -448,25 +450,20 @@ const DestinationCard = ({
   );
 };
 
+/* Copy lives in messages/*.json (Home.offer{id}Title/Sub/Cta). */
 const bestOfferCards = [
   {
-    title: "Your next destination awaits",
-    subtitle: "Start with a search — live fares in seconds",
-    cta: "Explore",
+    id: 1,
     image:
       "https://images.unsplash.com/photo-1493558103817-58b2924bce98?auto=format&fit=crop&w=1200&q=80",
   },
   {
-    title: "Chase the season's fare drops",
-    subtitle: "Compare live prices across carriers",
-    cta: "See Deals",
+    id: 2,
     image:
       "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=1200&q=80",
   },
   {
-    title: "Get ready for the next adventure",
-    subtitle: "Set a price alert and catch the drop",
-    cta: "View Offer",
+    id: 3,
     image:
       "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=1200&q=80",
   },
@@ -479,28 +476,28 @@ const airlineDealPages = [
   {
     airline: "Korean Air",
     iata: "KE",
-    desc: "Fare specials and seasonal route promotions from Korea's flag carrier.",
+    descKey: "dealKE",
     domain: "koreanair.com",
     url: "https://www.koreanair.com/kr/en/book/deals",
   },
   {
     airline: "Turkish Airlines",
     iata: "TK",
-    desc: "Campaign fares across Europe and long-haul routes, updated by the airline.",
+    descKey: "dealTK",
     domain: "turkishairlines.com",
     url: "https://www.turkishairlines.com/en-int/flights/flight-ticket/",
   },
   {
     airline: "Asiana Airlines",
     iata: "OZ",
-    desc: "Current events and travel offers on Asiana's official site.",
+    descKey: "dealOZ",
     domain: "flyasiana.com",
     url: "https://flyasiana.com/C/KR/EN/contents/travel-information",
   },
   {
     airline: "Jeju Air",
     iata: "7C",
-    desc: "Special-price events for Japan and Southeast Asia routes.",
+    descKey: "deal7C",
     domain: "jejuair.net",
     url: "https://www.jejuair.net/en/specialprice/event.do",
   },
@@ -512,8 +509,7 @@ const popularAirlines = [
     name: "Turkish Airlines",
     iata: "TK",
     website: "https://www.turkishairlines.com",
-    description:
-      "A global full-service carrier with broad Europe-Middle East connections and premium long-haul options.",
+    descKey: "airlineDescTurkish",
     recommendedRoute: "ICN → IST",
   },
   {
@@ -521,8 +517,7 @@ const popularAirlines = [
     name: "Korean Air",
     iata: "KE",
     website: "https://www.koreanair.com",
-    description:
-      "Korea’s flagship airline, known for strong transpacific schedules, comfort, and reliable full-service operations.",
+    descKey: "airlineDescKorean",
     recommendedRoute: "ICN → LAX",
   },
   {
@@ -530,8 +525,7 @@ const popularAirlines = [
     name: "Asiana Airlines",
     iata: "OZ",
     website: "https://flyasiana.com",
-    description:
-      "A premium Korean carrier with quality in-flight service and solid Asia-Europe route coverage.",
+    descKey: "airlineDescAsiana",
     recommendedRoute: "ICN → CDG",
   },
   {
@@ -539,8 +533,7 @@ const popularAirlines = [
     name: "Jeju Air",
     iata: "7C",
     website: "https://www.jejuair.net",
-    description:
-      "A leading low-cost carrier in Korea focused on affordable fares and convenient short-haul travel.",
+    descKey: "airlineDescJeju",
     recommendedRoute: "ICN → NRT",
   },
   {
@@ -548,8 +541,7 @@ const popularAirlines = [
     name: "Air Premia",
     iata: "YP",
     website: "https://www.airpremia.com",
-    description:
-      "A hybrid-service airline delivering competitive fares with enhanced seat comfort on medium and long routes.",
+    descKey: "airlineDescPremia",
     recommendedRoute: "ICN → NRT",
   },
   {
@@ -557,8 +549,7 @@ const popularAirlines = [
     name: "Singapore Airlines",
     iata: "SQ",
     website: "https://www.singaporeair.com",
-    description:
-      "A world-renowned premium airline with excellent service standards and global network quality.",
+    descKey: "airlineDescSingapore",
     recommendedRoute: "ICN → SIN",
   },
 ];
@@ -568,6 +559,8 @@ export default function Home() {
   const tNav = useTranslations("Nav");
   const tHero = useTranslations("Hero");
   const tPicks = useTranslations("SmartPicks");
+  const tHome = useTranslations("Home");
+  const tAlert = useTranslations("PriceAlert");
 
   // Search params are owned by SearchBar; page tracks last submitted for downstream use
   const [lastSearch, setLastSearch] = useState<SearchParams>({
@@ -684,11 +677,11 @@ export default function Home() {
 
   const getCabinClassLabel = (cls: string) => {
     switch (cls) {
-      case 'economy': return 'Economy';
-      case 'premium_economy': return 'Premium';
-      case 'business': return 'Business';
-      case 'first': return 'First';
-      default: return 'Economy';
+      case 'economy': return tHome('cabinEconomy');
+      case 'premium_economy': return tHome('cabinPremium');
+      case 'business': return tHome('cabinBusiness');
+      case 'first': return tHome('cabinFirst');
+      default: return tHome('cabinEconomy');
     }
   };
 
@@ -842,9 +835,8 @@ export default function Home() {
             <path d="M2 15 L22 8 L12 12.5 L9.5 4.5 L7.5 5.5 L9 13.5 Z" fill="var(--dusk-700)" />
           </svg>
           <p className="text-[15px] leading-relaxed" style={{ color: 'var(--dusk-700)' }}>
-            <span className="data-mono text-[11px] font-semibold tracking-[0.18em] block mb-1" style={{ color: 'var(--signal-600)' }}>WHY &ldquo;TERN&rdquo;</span>
-            The Arctic Tern flies pole to pole every year — farther than any other animal alive — chasing an endless summer.
-            Tern helps you do the same, for less.
+            <span className="data-mono text-[11px] font-semibold tracking-[0.18em] block mb-1" style={{ color: 'var(--signal-600)' }}>{tHome("whyKicker")}</span>
+            {tHome("whyBody")}
           </p>
         </div>
       </section>
@@ -862,16 +854,16 @@ export default function Home() {
       >
         <div className="max-w-6xl mx-auto px-6">
           <div data-fx-head className="mb-8">
-            <span className="section-kicker">Inspiration</span>
-            <h2 className="text-3xl font-bold text-foreground">Explore the best offers for you</h2>
-            <p className="text-muted mt-2">Destination inspiration to start your next search.</p>
+            <span className="section-kicker">{tHome("kickerInspiration")}</span>
+            <h2 className="text-3xl font-bold text-foreground">{tHome("offersTitle")}</h2>
+            <p className="text-muted mt-2">{tHome("offersSub")}</p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-5">
             {bestOfferCards.map((offer) => (
               <article
                 data-fx-card
-                key={offer.title}
+                key={offer.id}
                 role="button"
                 tabIndex={0}
                 onClick={scrollToSearch}
@@ -884,10 +876,10 @@ export default function Home() {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[rgba(10,15,30,0.45)] via-transparent to-[rgba(10,15,30,0.12)]" />
                 <div className="glass-panel absolute inset-x-3 bottom-3 rounded-xl p-4">
-                  <h3 className="text-lg font-bold leading-snug text-foreground">{offer.title}</h3>
-                  <p className="mt-0.5 text-xs text-muted">{offer.subtitle}</p>
+                  <h3 className="text-lg font-bold leading-snug text-foreground">{tHome(`offer${offer.id}Title`)}</h3>
+                  <p className="mt-0.5 text-xs text-muted">{tHome(`offer${offer.id}Sub`)}</p>
                   <span className="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold" style={{ color: 'var(--signal-600)' }}>
-                    {offer.cta}
+                    {tHome(`offer${offer.id}Cta`)}
                     <span aria-hidden="true">→</span>
                   </span>
                 </div>
@@ -906,9 +898,9 @@ export default function Home() {
       >
         <div className="max-w-6xl mx-auto px-6">
           <div data-fx-head className="mb-8">
-            <span className="section-kicker">From the airlines</span>
-            <h2 className="text-3xl font-bold text-foreground">Airline Deals &amp; Promotions</h2>
-            <p className="text-muted mt-2">Live campaigns from the carriers themselves — every card links to the airline&rsquo;s official promotions page.</p>
+            <span className="section-kicker">{tHome("kickerDeals")}</span>
+            <h2 className="text-3xl font-bold text-foreground">{tHome("dealsTitle")}</h2>
+            <p className="text-muted mt-2">{tHome("dealsSub")}</p>
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -916,7 +908,7 @@ export default function Home() {
               <article data-fx-card key={deal.iata} className="glass-panel relative rounded-2xl p-4 transition-shadow hover:shadow-md">
                 <div className="flex items-start justify-between gap-3">
                   <span className="glass-chip rounded-full px-2.5 py-1 data-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-muted">
-                    Official
+                    {tHome("official")}
                   </span>
                   <div className="glass-chip flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl">
                     <img
@@ -933,7 +925,7 @@ export default function Home() {
                 </div>
 
                 <p className="mt-3 text-lg font-bold text-foreground">{deal.airline}</p>
-                <p className="text-xs text-muted mt-1">{deal.desc}</p>
+                <p className="text-xs text-muted mt-1">{tHome(deal.descKey)}</p>
 
                 <div className="mt-4 pt-3 border-t border-dashed border-[var(--glass-border)]">
                   <span className="glass-chip data-mono rounded-md px-2.5 py-1 text-xs font-semibold text-foreground">
@@ -947,7 +939,7 @@ export default function Home() {
                   rel="noreferrer"
                   className="btn-sheen mt-3 w-full py-2 rounded-full bg-primary text-white text-xs font-semibold hover:bg-primary/90 transition inline-flex items-center justify-center"
                 >
-                  View Official Deals
+                  {tHome("viewDeals")}
                 </a>
               </article>
             ))}
@@ -962,9 +954,9 @@ export default function Home() {
       >
         <div className="max-w-6xl mx-auto px-6">
           <div data-fx-head className="text-center mb-6">
-            <span className="section-kicker">Where next</span>
-            <h2 className="text-3xl font-bold text-foreground">Explore Top Destinations</h2>
-            <p className="text-muted mt-2">Get exclusive flight deals to your favorite cities</p>
+            <span className="section-kicker">{tHome("kickerDest")}</span>
+            <h2 className="text-3xl font-bold text-foreground">{tHome("destTitle")}</h2>
+            <p className="text-muted mt-2">{tHome("destSub")}</p>
           </div>
           {/* Ink route arc traced on by scroll — the section's 3D moment */}
           <RouteArcView />
@@ -985,9 +977,9 @@ export default function Home() {
       >
         <div className="max-w-6xl mx-auto px-6">
           <div data-fx-head className="text-center mb-10">
-            <span className="section-kicker">Carriers</span>
-            <h2 className="text-3xl font-bold text-foreground">Most Popular Airlines</h2>
-            <p className="text-muted mt-2">Choose a carrier to see the fastest schedule and airline information</p>
+            <span className="section-kicker">{tHome("kickerCarriers")}</span>
+            <h2 className="text-3xl font-bold text-foreground">{tHome("carriersTitle")}</h2>
+            <p className="text-muted mt-2">{tHome("carriersSub")}</p>
           </div>
 
           <div data-fx-card className="grid md:grid-cols-3 gap-4">
@@ -1040,7 +1032,7 @@ export default function Home() {
                 </span>
                 <div>
                   <h3 className="text-xl font-bold text-foreground">{selectedAirline.name}</h3>
-                  <p className="text-sm text-muted mt-1 max-w-2xl">{selectedAirline.description}</p>
+                  <p className="text-sm text-muted mt-1 max-w-2xl">{tHome(selectedAirline.descKey)}</p>
                 </div>
               </div>
 
@@ -1050,18 +1042,18 @@ export default function Home() {
                 rel="noreferrer"
                 className="btn-sheen inline-flex items-center justify-center px-4 py-2.5 rounded-full bg-primary text-white text-sm font-semibold hover:bg-primary/90 transition"
               >
-                Visit Official Website
+                {tHome("visitWebsite")}
               </a>
             </div>
 
             <div className="mt-5 grid md:grid-cols-2 gap-4">
               <div className="glass-chip rounded-xl p-4">
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted">Recommended Route</p>
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted">{tHome("recommendedRoute")}</p>
                 <p className="data-mono text-lg font-bold text-foreground mt-1">{selectedAirline.recommendedRoute}</p>
               </div>
 
               <div className="glass-chip rounded-xl p-4">
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted">Fastest Schedule</p>
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted">{tHome("fastestSchedule")}</p>
                 {fastestOfferForSelectedAirline ? (
                   <>
                     <p className="data-mono text-lg font-bold text-foreground mt-1">
@@ -1074,7 +1066,7 @@ export default function Home() {
                   </>
                 ) : (
                   <p className="text-sm text-muted mt-2">
-                    Search flights first to see the fastest real-time schedule for this airline.
+                    {tHome("fastestScheduleEmpty")}
                   </p>
                 )}
               </div>
@@ -1089,10 +1081,10 @@ export default function Home() {
         <div className="max-w-5xl mx-auto px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
-              { value: "500+", label: "Destinations" },
-              { value: "50M+", label: "Happy Travelers" },
-              { value: "200+", label: "Airlines" },
-              { value: "4.9", label: "User Rating" },
+              { value: "500+", label: tHome("statDestinations") },
+              { value: "50M+", label: tHome("statTravelers") },
+              { value: "200+", label: tHome("statAirlines") },
+              { value: "4.9", label: tHome("statRating") },
             ].map((stat) => (
               <div data-fx-card key={stat.label} className="glass-chip rounded-2xl px-4 py-5 text-center">
                 <p className="data-mono text-3xl md:text-4xl font-bold text-foreground">{stat.value}</p>
@@ -1108,9 +1100,9 @@ export default function Home() {
         <section className="glass-boost py-20" style={{ background: 'var(--paper-50)' }}>
           <div className="max-w-5xl mx-auto px-6">
             <div data-fx-head className="flex items-center justify-between mb-10">
-              <h2 className="text-3xl font-bold text-foreground">Choose Your Perfect Flight</h2>
+              <h2 className="text-3xl font-bold text-foreground">{tHome("flightsTitle")}</h2>
               <div className="flex items-center gap-3">
-                <span className="text-sm text-muted">Show Offers</span>
+                <span className="text-sm text-muted">{tHome("showOffers")}</span>
                 <button onClick={() => setShowOffers(!showOffers)} className={`relative w-12 h-6 rounded-full transition ${showOffers ? 'bg-primary' : 'bg-gray-300'}`}>
                   <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${showOffers ? 'translate-x-7' : 'translate-x-1'}`} />
                 </button>
@@ -1122,7 +1114,7 @@ export default function Home() {
                 <FlightTicketCard
                   airline={flight.airline}
                   airlineLogo={flight.airlineLogo}
-                  cabinClass={flight.cabinClass}
+                  cabinClass={flight.cabinClass === "Business" ? tHome("cabinBusiness") : tHome("cabinEconomy")}
                   from={flight.from}
                   to={flight.to}
                   fromCity={flight.fromCity}
@@ -1146,23 +1138,23 @@ export default function Home() {
           <div className="max-w-5xl mx-auto px-6">
             {results.length > 0 ? (
               <div className="space-y-6">
-                <h2 className="text-2xl font-bold text-foreground">{results.length} Flights Found</h2>
+                <h2 className="text-2xl font-bold text-foreground">{tHome("flightsFound", { count: results.length })}</h2>
 
                 {matchedAlert && (
                   <div className="p-4 rounded-xl bg-green-50 border border-green-200 text-green-700 text-sm font-medium text-center">
-                    Target price reached! {matchedAlert.from} to {matchedAlert.to} - Current lowest: ${Math.min(...results.map((o) => Number(o.price))).toLocaleString()} USD
+                    {tHome("alertReached", { from: matchedAlert.from, to: matchedAlert.to, price: `$${Math.min(...results.map((o) => Number(o.price))).toLocaleString()} USD` })}
                   </div>
                 )}
 
                 {(cheapestDirect || cheapestConnecting) && (
                   <div className="space-y-4">
-                    <h3 className="text-sm font-semibold text-muted uppercase tracking-wide">Direct vs Connecting</h3>
+                    <h3 className="text-sm font-semibold text-muted uppercase tracking-wide">{tHome("directVsConnecting")}</h3>
                     <div className="grid md:grid-cols-2 gap-4">
                       {cheapestDirect && (
                         <div className="bg-white rounded-xl p-5 border border-primary/30 shadow-sm">
                           <div className="flex items-center gap-2 mb-3">
                             <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center"><PlaneIcon /></div>
-                            <span className="text-sm font-semibold text-primary">Direct Flight</span>
+                            <span className="text-sm font-semibold text-primary">{tHome("directFlight")}</span>
                           </div>
                           <p className="text-3xl font-bold text-foreground">${Number(cheapestDirect.price).toLocaleString()}</p>
                           <p className="text-sm text-muted mt-1">{cheapestDirect.airline}</p>
@@ -1173,7 +1165,7 @@ export default function Home() {
                         <div className="bg-white rounded-xl p-5 border border-amber-300/50 shadow-sm">
                           <div className="flex items-center gap-2 mb-3">
                             <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center"><SwapIcon /></div>
-                            <span className="text-sm font-semibold text-amber-600">{cheapestConnecting.stops} Stop{cheapestConnecting.stops > 1 ? "s" : ""}</span>
+                            <span className="text-sm font-semibold text-amber-600">{tHome("connStopCount", { count: cheapestConnecting.stops })}</span>
                           </div>
                           <p className="text-3xl font-bold text-foreground">${Number(cheapestConnecting.price).toLocaleString()}</p>
                           <p className="text-sm text-muted mt-1">{cheapestConnecting.airline}</p>
@@ -1183,7 +1175,7 @@ export default function Home() {
                     </div>
                     {cheapestDirect && cheapestConnecting && (
                       <div className={`text-center py-3 rounded-xl text-sm font-semibold ${Number(cheapestDirect.price) <= Number(cheapestConnecting.price) ? "bg-primary/10 text-primary" : "bg-green-50 text-green-600"}`}>
-                        {Number(cheapestDirect.price) <= Number(cheapestConnecting.price) ? "Direct flight is cheaper!" : `Save $${(Number(cheapestDirect.price) - Number(cheapestConnecting.price)).toLocaleString()} with connecting flight!`}
+                        {Number(cheapestDirect.price) <= Number(cheapestConnecting.price) ? tHome("directCheaper") : tHome("saveWithConnecting", { amount: `$${(Number(cheapestDirect.price) - Number(cheapestConnecting.price)).toLocaleString()}` })}
                       </div>
                     )}
                   </div>
@@ -1192,7 +1184,7 @@ export default function Home() {
                 <div className="flex gap-1 bg-white rounded-xl p-1 border border-gray-200">
                   {(["price", "duration", "ai"] as const).map((tab) => (
                     <button key={tab} onClick={() => setSortTab(tab)} className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition ${sortTab === tab ? "bg-primary text-white" : "text-muted hover:text-foreground"}`}>
-                      {tab === "price" ? "Lowest Price" : tab === "duration" ? "Shortest" : "AI Recommended"}
+                      {tab === "price" ? tHome("sortLowestPrice") : tab === "duration" ? tHome("sortShortest") : tHome("sortAiPick")}
                     </button>
                   ))}
                 </div>
@@ -1215,12 +1207,12 @@ export default function Home() {
                 </div>
 
                 <button onClick={handlePriceTrend} disabled={chartLoading} className="w-full py-3 rounded-xl bg-white border border-gray-200 text-foreground text-sm font-medium hover:bg-gray-50 transition disabled:opacity-50">
-                  {chartLoading ? "Loading price trends..." : "View Price Trends"}
+                  {chartLoading ? tHome("loadingPriceTrends") : tHome("viewPriceTrends")}
                 </button>
 
                 {priceChartData.length > 0 && (
                   <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
-                    <h3 className="text-lg font-semibold text-foreground mb-4">Price Trends (±7 days)</h3>
+                    <h3 className="text-lg font-semibold text-foreground mb-4">{tHome("priceTrendsTitle")}</h3>
                     <ResponsiveContainer width="100%" height={300}>
                       <LineChart data={priceChartData}>
                         <XAxis dataKey="date" stroke="#64748b" style={{ fontSize: "12px" }} />
@@ -1235,21 +1227,21 @@ export default function Home() {
                 )}
 
                 <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
-                  <h3 className="text-lg font-semibold text-foreground mb-4">Set Price Alert</h3>
+                  <h3 className="text-lg font-semibold text-foreground mb-4">{tHome("setPriceAlert")}</h3>
                   <div className="flex gap-3">
-                    <input type="number" value={alertPrice} onChange={(e) => setAlertPrice(e.target.value)} placeholder="Target price (USD)" className="flex-1 p-3 rounded-xl bg-gray-50 text-foreground border border-gray-200 placeholder-gray-400 outline-none focus:border-primary transition" />
-                    <button onClick={addAlert} disabled={!alertPrice} className="btn-sheen px-6 py-3 rounded-xl bg-primary text-white font-semibold hover:bg-primary/90 transition disabled:opacity-50">Set Alert</button>
+                    <input type="number" value={alertPrice} onChange={(e) => setAlertPrice(e.target.value)} placeholder={tAlert("targetPricePlaceholder")} className="flex-1 p-3 rounded-xl bg-gray-50 text-foreground border border-gray-200 placeholder-gray-400 outline-none focus:border-primary transition" />
+                    <button onClick={addAlert} disabled={!alertPrice} className="btn-sheen px-6 py-3 rounded-xl bg-primary text-white font-semibold hover:bg-primary/90 transition disabled:opacity-50">{tAlert("setAlert")}</button>
                   </div>
                   {alerts.length > 0 && (
                     <div className="mt-4 space-y-2">
-                      <p className="text-xs text-muted uppercase tracking-wide">Active Alerts ({alerts.length})</p>
+                      <p className="text-xs text-muted uppercase tracking-wide">{tHome("activeAlerts", { count: alerts.length })}</p>
                       {alerts.map((alert) => (
                         <div key={alert.id} className="flex justify-between items-center bg-gray-50 p-3 rounded-xl border border-gray-200">
                           <div>
                             <p className="text-sm font-semibold text-foreground">{alert.from} → {alert.to}</p>
                             <p className="text-xs text-muted">${alert.targetPrice} USD · {alert.setDate}</p>
                           </div>
-                          <button onClick={() => deleteAlert(alert.id)} className="px-3 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 text-xs font-medium transition">Remove</button>
+                          <button onClick={() => deleteAlert(alert.id)} className="px-3 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 text-xs font-medium transition">{tHome("remove")}</button>
                         </div>
                       ))}
                     </div>
@@ -1258,7 +1250,7 @@ export default function Home() {
               </div>
             ) : !loading ? (
               <div className="text-center py-12">
-                <p className="text-muted">No flights found. Try different dates or destinations.</p>
+                <p className="text-muted">{tHome("noFlights")}</p>
               </div>
             ) : null}
           </div>
@@ -1279,7 +1271,7 @@ export default function Home() {
             <Link href="/" className="flex items-center gap-2" aria-label={tNav("home")}>
               <BrandLogo className="h-9 w-32 md:h-10 md:w-40 brightness-0 invert" />
             </Link>
-            <p className="text-sm" style={{ color: 'rgba(246,248,251,0.65)' }}>© 2026 Tern. All rights reserved.</p>
+            <p className="text-sm" style={{ color: 'rgba(246,248,251,0.65)' }}>{tHome("footerRights")}</p>
           </div>
         </div>
       </footer>

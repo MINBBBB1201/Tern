@@ -66,7 +66,7 @@ grids disconnected from the hero.
 - Done when: a ko-locale hero+search-bar capture shows Korean type that is
   not a system font, loading without CLS/FOUT.
 
-## B6. Translation gap scan — [ ]
+## B6. Translation gap scan — [x] (UI complete; data-content residual below)
 
 - Render every page in the ko locale and audit all remaining English
   strings (migrate hardcoded strings to i18n keys).
@@ -74,3 +74,20 @@ grids disconnected from the hero.
 - Done when: full-page ko captures show zero English besides intended
   proper nouns (airline names, IATA codes…). Record scan method and count
   in the commit message.
+
+### B6 residual (follow-up item — content localization project)
+
+All UI chrome is now i18n across en/ko/ja/zh. Deliberately out of scope
+for the B6 commit, because it is a content-translation project, not a
+string-migration fix:
+
+- `lib/airportGuides.ts` (1,029 lines) — per-airport guide bodies
+  (summaries, terminal notes, transit bullets, scam warnings).
+- `lib/transportService.ts` (861 lines) — per-city transport content.
+- Destination-card date ranges on the homepage render as English data
+  strings ("24 Dec 2025 - 07 Jan 2026") and are also stale — replace
+  with locale-formatted, dynamically computed ranges.
+
+Recommended shape: move guide content into per-locale data modules (or
+messages namespaces keyed by IATA), mirroring how LoyaltyCard content
+was localized earlier.

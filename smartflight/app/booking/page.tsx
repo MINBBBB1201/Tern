@@ -46,6 +46,7 @@ function BookingPageClient() {
   const searchParams = useSearchParams();
   const tNav = useTranslations("Nav");
   const tWhyShop = useTranslations("WhyShop");
+  const tFilters = useTranslations("Filters");
 
   const from = (searchParams.get("from") || "ICN").toUpperCase();
   const to = (searchParams.get("to") || "NRT").toUpperCase();
@@ -124,7 +125,7 @@ function BookingPageClient() {
           </Link>
           <div className="flex items-center gap-2 text-sm">
             <span className="hidden rounded-full bg-primary-subtle px-3 py-1.5 text-primary-hover md:inline-flex">
-              {tripType}
+              {tFilters(tripType === "oneway" ? "oneWay" : "roundTrip")}
             </span>
             <LocaleSwitcher />
             <AuthMenu />
@@ -158,9 +159,17 @@ function BookingPageClient() {
             <div className="glass-chip data-mono rounded-xl px-4 py-3 text-sm font-semibold">{fromCity} ({from})</div>
             <div className="glass-chip data-mono rounded-xl px-4 py-3 text-sm font-semibold">{toCity} ({to})</div>
             <div className="glass-chip data-mono rounded-xl px-4 py-3 text-sm text-muted">{departureDate}</div>
-            <div className="glass-chip data-mono rounded-xl px-4 py-3 text-sm text-muted">{returnDate || "One-way"}</div>
+            <div className="glass-chip data-mono rounded-xl px-4 py-3 text-sm text-muted">{returnDate || tFilters("oneWay")}</div>
             <div className="glass-chip data-mono rounded-xl px-4 py-3 text-sm text-muted">
-              {totalPassengers} pax · {cabinClass.replace("_", " ")}
+              {tFilters("paxCabin", {
+                count: totalPassengers,
+                cabin: tFilters(
+                  cabinClass === "premium_economy" ? "cabinPremiumEconomy"
+                    : cabinClass === "business" ? "cabinBusiness"
+                    : cabinClass === "first" ? "cabinFirst"
+                    : "cabinEconomy"
+                ),
+              })}
             </div>
           </div>
 
@@ -220,7 +229,7 @@ function BookingPageClient() {
 
         {error && !loading && (
           <div className="mt-8 rounded-2xl border border-red-200 bg-red-50 p-6 text-center text-sm text-red-700">
-            {error}
+            {tFilters("offersError")}
           </div>
         )}
 

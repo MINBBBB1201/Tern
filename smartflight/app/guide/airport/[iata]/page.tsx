@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { getAirportGuide } from "../../../../lib/airportGuides";
 import { buildAirportUberLink } from "../../../../lib/rideDeepLinks";
 import { getAirport } from "../../../../lib/airportData";
@@ -40,6 +41,7 @@ export default async function AirportGuidePage({ params }: Props) {
   const { iata } = await params;
   const guide = getAirportGuide(iata);
   const coords = getAirport(guide.iata);
+  const t = await getTranslations("AirportGuide");
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -73,10 +75,10 @@ export default async function AirportGuidePage({ params }: Props) {
       <header className="border-b border-[#e4ebf5] bg-white">
         <div className="mx-auto flex max-w-4xl flex-wrap items-center justify-between gap-3 px-5 py-4">
           <Link href="/" className="text-sm font-semibold text-primary hover:underline">
-            ← Home
+            {t("backHome")}
           </Link>
           <span className="rounded-full bg-[#eff5ff] px-3 py-1 text-xs font-semibold text-[#2563eb]">
-            Airport guide
+            {t("badge")}
           </span>
         </div>
       </header>
@@ -91,7 +93,7 @@ export default async function AirportGuidePage({ params }: Props) {
         <p className="mt-4 text-muted leading-relaxed">{guide.summary}</p>
 
         <section className="mt-10 rounded-2xl border border-[#e1eaf6] bg-white p-6 shadow-sm">
-          <h2 className="text-lg font-bold">Terminals & airlines</h2>
+          <h2 className="text-lg font-bold">{t("terminals")}</h2>
           <ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-muted">
             {guide.terminals.map((t) => (
               <li key={t}>{t}</li>
@@ -100,7 +102,7 @@ export default async function AirportGuidePage({ params }: Props) {
         </section>
 
         <section className="mt-6 rounded-2xl border border-[#e1eaf6] bg-white p-6 shadow-sm">
-          <h2 className="text-lg font-bold">Before you depart</h2>
+          <h2 className="text-lg font-bold">{t("beforeDepart")}</h2>
           <ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-muted">
             {guide.beforeYouFly.map((t) => (
               <li key={t}>{t}</li>
@@ -109,7 +111,7 @@ export default async function AirportGuidePage({ params }: Props) {
         </section>
 
         <section className="mt-6 rounded-2xl border border-[#e1eaf6] bg-white p-6 shadow-sm">
-          <h2 className="text-lg font-bold">After you land</h2>
+          <h2 className="text-lg font-bold">{t("afterLand")}</h2>
           <ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-muted">
             {guide.afterYouLand.map((t) => (
               <li key={t}>{t}</li>
@@ -118,7 +120,7 @@ export default async function AirportGuidePage({ params }: Props) {
         </section>
 
         <section id="accessibility" className="mt-6 rounded-2xl border border-[#e1eaf6] bg-white p-6 shadow-sm">
-          <h2 className="text-lg font-bold">Accessibility & special assistance</h2>
+          <h2 className="text-lg font-bold">{t("accessibilityTitle")}</h2>
           <p className="mt-2 text-sm text-muted leading-relaxed">{guide.accessibility.summary}</p>
           <ul className="mt-4 space-y-3">
             {guide.accessibility.services.map((s) => (
@@ -147,7 +149,7 @@ export default async function AirportGuidePage({ params }: Props) {
 
         {guide.floorGuide && guide.floorGuide.length > 0 && (
           <section className="mt-6 rounded-2xl border border-[#e1eaf6] bg-white p-6 shadow-sm">
-            <h2 className="text-lg font-bold">Floor guide</h2>
+            <h2 className="text-lg font-bold">{t("floorGuide")}</h2>
             <ul className="mt-3 space-y-2">
               {guide.floorGuide.map((f) => (
                 <li key={f.floor} className="flex gap-3 text-sm">
@@ -161,8 +163,8 @@ export default async function AirportGuidePage({ params }: Props) {
 
         {guide.transitTips && guide.transitTips.length > 0 && (
           <section className="mt-6 rounded-2xl border border-[#e1eaf6] bg-white p-6 shadow-sm">
-            <h2 className="text-lg font-bold">Connecting? Rest & refresh options</h2>
-            <p className="mt-1 text-xs text-muted">Facility availability, not current prices — those change often, so confirm at the desk.</p>
+            <h2 className="text-lg font-bold">{t("transitTitle")}</h2>
+            <p className="mt-1 text-xs text-muted">{t("transitNote")}</p>
             <ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-muted">
               {guide.transitTips.map((tip) => (
                 <li key={tip}>{tip}</li>
@@ -171,10 +173,8 @@ export default async function AirportGuidePage({ params }: Props) {
           </section>
         )}
 
-        <h2 className="mt-12 text-xl font-bold">Ground transport</h2>
-        <p className="mt-2 text-sm text-muted">
-          Taxi vs bus vs rail depends on group size, luggage, and traffic. Always verify prices at official desks or trusted apps.
-        </p>
+        <h2 className="mt-12 text-xl font-bold">{t("groundTitle")}</h2>
+        <p className="mt-2 text-sm text-muted">{t("groundNote")}</p>
 
         {(["taxi", "bus", "rail"] as const).map((mode) => {
           const block = guide.transit[mode];
@@ -193,7 +193,7 @@ export default async function AirportGuidePage({ params }: Props) {
               {block.avoidScams.length > 0 && (
                 <>
                   <p className="mt-4 text-xs font-semibold uppercase tracking-wide text-amber-700">
-                    Avoid common scams
+                    {t("avoidScams")}
                   </p>
                   <ul className="mt-2 list-disc space-y-2 pl-5 text-sm text-amber-900/90">
                     {block.avoidScams.map((b) => (
@@ -210,10 +210,10 @@ export default async function AirportGuidePage({ params }: Props) {
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1.5 rounded-full bg-black px-4 py-2 text-xs font-semibold text-white hover:bg-black/85"
                   >
-                    Get a ride with Uber ↗
+                    {t("uberCta")}
                   </a>
                   <p className="mt-1.5 text-[11px] text-muted">
-                    Opens Uber with pickup set at {guide.iata}. Availability, fares, and vehicle types vary by city—check the app for current options.
+                    {t("uberNote", { iata: guide.iata })}
                   </p>
                 </div>
               )}
@@ -236,9 +236,7 @@ export default async function AirportGuidePage({ params }: Props) {
           );
         })}
 
-        <p className="mt-10 text-xs text-muted">
-          Information is for planning only. Always confirm schedules and fares with the airport and operators before travel.
-        </p>
+        <p className="mt-10 text-xs text-muted">{t("disclaimer")}</p>
       </article>
     </main>
   );

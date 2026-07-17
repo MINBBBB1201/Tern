@@ -9,6 +9,7 @@ import {
   ResponsiveContainer,
   ReferenceDot,
 } from "recharts";
+import { useTranslations } from "next-intl";
 import type { PriceTrendPoint } from "../../hooks/usePriceTrend";
 
 type PriceTrendChartProps = {
@@ -19,12 +20,13 @@ type PriceTrendChartProps = {
 };
 
 export default function PriceTrendChart({ priceChartData, chartLoading, onLoadTrend, cheapestDatePoint }: PriceTrendChartProps) {
+  const t = useTranslations("PriceTrend");
   return (
     <div className="glass-panel mt-6 rounded-[20px] p-5">
       <div className="mb-4 flex items-center justify-between">
         <div>
-          <p className="text-sm font-semibold">Price trend (±5 days)</p>
-          <p className="text-xs text-muted">Compare fares around your travel date</p>
+          <p className="text-sm font-semibold">{t("title")}</p>
+          <p className="text-xs text-muted">{t("subtitle")}</p>
         </div>
         <button
           type="button"
@@ -32,7 +34,7 @@ export default function PriceTrendChart({ priceChartData, chartLoading, onLoadTr
           disabled={chartLoading}
           className="btn-sheen rounded-full bg-primary px-4 py-2 text-xs font-semibold text-white disabled:opacity-60 hover:bg-primary/90 transition-colors"
         >
-          {chartLoading ? "Loading…" : "Load trend"}
+          {chartLoading ? t("loading") : t("load")}
         </button>
       </div>
       {priceChartData.length > 0 && (

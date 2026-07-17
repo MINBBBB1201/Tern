@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import type { AirportGuide } from "../../lib/airportGuides";
 import {
@@ -21,6 +22,7 @@ type AirportGuideCardsProps = {
 };
 
 export default function AirportGuideCards({ departureGuide, arrivalGuide, from, to }: AirportGuideCardsProps) {
+  const t = useTranslations("Guide");
   const [destinations, setDestinations] = useState<Record<number, DestinationPoint | null>>({});
 
   if (!departureGuide && !arrivalGuide) return null;
@@ -61,15 +63,15 @@ export default function AirportGuideCards({ departureGuide, arrivalGuide, from, 
                   <div className="flex items-center gap-2.5">
                     <span className="text-2xl font-black tracking-tight text-white">Uber</span>
                     <span className="hidden text-xs text-white/60 sm:inline">
-                      {dropoff ? `${guide.iata} → destination` : `Get a ride from ${guide.iata}`}
+                      {dropoff ? t("rideTo", { iata: guide.iata }) : t("rideFrom", { iata: guide.iata })}
                     </span>
                   </div>
                   <span className="rounded-full bg-white px-3 py-1.5 text-xs font-bold text-black">
-                    Open ↗
+                    {t("open")}
                   </span>
                 </a>
                 <p className={`mt-1.5 text-[11px] text-muted ${lyftLink ? "mb-2" : "mb-3"}`}>
-                  Uber operates in most major cities worldwide, but not everywhere—if it&apos;s not available here, the app will let you know.
+                  {t("uberNote")}
                 </p>
               </>
             )}
@@ -84,11 +86,11 @@ export default function AirportGuideCards({ departureGuide, arrivalGuide, from, 
                 <div className="flex items-center gap-2.5">
                   <span className="text-2xl font-black tracking-tight text-white">Lyft</span>
                   <span className="hidden text-xs text-white/70 sm:inline">
-                    {dropoff ? `${guide.iata} → destination` : `Get a ride from ${guide.iata}`}
+                    {dropoff ? t("rideTo", { iata: guide.iata }) : t("rideFrom", { iata: guide.iata })}
                   </span>
                 </div>
                 <span className="rounded-full bg-white px-3 py-1.5 text-xs font-bold text-[#FF00BF]">
-                  Open ↗
+                  {t("open")}
                 </span>
               </a>
             )}
@@ -98,13 +100,13 @@ export default function AirportGuideCards({ departureGuide, arrivalGuide, from, 
                 href={`/guide/airport/${iata}`}
                 className="inline-flex items-center gap-1 rounded-full bg-[#eff5ff] px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary hover:text-white transition-colors"
               >
-                Airport guide →
+                {t("airportGuide")}
               </Link>
               <Link
                 href={`/guide/airport/${iata}#accessibility`}
                 className="inline-flex items-center gap-1 rounded-full border border-[#dbe5f3] px-3 py-1.5 text-xs font-medium text-muted hover:text-primary hover:border-primary transition-colors"
               >
-                ♿ Accessibility
+                {t("accessibility")}
               </Link>
             </div>
           </div>

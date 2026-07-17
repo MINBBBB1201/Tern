@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 
 export type DestinationPoint = {
   lat: number;
@@ -22,6 +23,7 @@ type Suggestion = {
 };
 
 export function DestinationSearch({ onSelect, countryCode }: DestinationSearchProps) {
+  const t = useTranslations("Guide");
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [open, setOpen] = useState(false);
@@ -76,12 +78,12 @@ export function DestinationSearch({ onSelect, countryCode }: DestinationSearchPr
   return (
     <div className="relative mb-3">
       <div className="flex items-center gap-2 rounded-xl border border-[#dbe5f3] bg-white px-3 py-2">
-        <span className="text-xs text-muted">To:</span>
+        <span className="text-xs text-muted">{t("toLabel")}</span>
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => suggestions.length > 0 && setOpen(true)}
-          placeholder="Hotel or address (optional)"
+          placeholder={t("hotelPlaceholder")}
           className="flex-1 text-xs outline-none placeholder:text-muted/70"
         />
         {loading && <span className="text-[10px] text-muted">…</span>}
