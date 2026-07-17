@@ -21,6 +21,7 @@ import { useHoverTilt } from "../hooks/useHoverTilt";
 import { usePriceAlerts } from "../hooks/usePriceAlerts";
 import type { Offer } from "../lib/offerUtils";
 import { airlineDealPages } from "../lib/airlineDeals";
+import { SiteFooter } from "../components/SiteFooter";
 
 type PricePoint = { date: string; price: number; fullDate: string; isSelected: boolean };
 
@@ -1241,23 +1242,8 @@ export default function Home() {
       )}
 
       {/* Footer — returns to the hero's night sky so the page ends where it
-          began; a plain white footer here would read as one more seam */}
-      <footer
-        className="py-12"
-        style={{
-          background: 'linear-gradient(180deg, var(--dusk-700) 0%, var(--ink-900) 100%)',
-          borderTop: '1px solid rgba(143,224,232,0.18)',
-        }}
-      >
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-            <Link href="/" className="flex items-center gap-2" aria-label={tNav("home")}>
-              <BrandLogo className="h-9 w-32 md:h-10 md:w-40 brightness-0 invert" />
-            </Link>
-            <p className="text-sm" style={{ color: 'rgba(246,248,251,0.65)' }}>{tHome("footerRights")}</p>
-          </div>
-        </div>
-      </footer>
+          began. Grouped links shared site-wide via SiteFooter (C7). */}
+      <SiteFooter />
     </main>
   );
 }

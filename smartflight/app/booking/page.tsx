@@ -23,6 +23,7 @@ import LoyaltyCardTips from "../../components/booking/LoyaltyCardTips";
 import CheckoutModal from "../../components/booking/CheckoutModal";
 import { LocaleSwitcher } from "../../components/LocaleSwitcher";
 import { AuthMenu } from "../../components/AuthMenu";
+import { SiteFooter } from "../../components/SiteFooter";
 import { formatMoney } from "../../lib/offerUtils";
 
 // Client-only scroll choreography — see components/ScrollFX.tsx
@@ -294,6 +295,7 @@ function BookingPageClient() {
         onClose={checkout.closeCheckout}
         aviasalesUrl={aviasalesUrl}
       />
+      <SiteFooter />
     </main>
   );
 }

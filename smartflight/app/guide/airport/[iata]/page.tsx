@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
+import { SiteFooter } from "../../../../components/SiteFooter";
 import { getAirportGuide } from "../../../../lib/airportGuides";
 import { buildAirportUberLink } from "../../../../lib/rideDeepLinks";
 import { getAirport } from "../../../../lib/airportData";
@@ -238,6 +239,7 @@ export default async function AirportGuidePage({ params }: Props) {
 
         <p className="mt-10 text-xs text-muted">{t("disclaimer")}</p>
       </article>
+      <SiteFooter />
     </main>
   );
 }

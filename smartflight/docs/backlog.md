@@ -8,7 +8,7 @@
 - C4. Site-wide button/link audit — [x]
 - C5. About / Why "Tern" page — [x]
 - C6. Support / Help page — [x]
-- C7. Footer restructure — [ ]
+- C7. Footer restructure — [x]
 
 Quality bar: new pages must read as the same site as the hero/search
 pages — an "AI-rushed subpage" feel is failure. Civil Twilight system
