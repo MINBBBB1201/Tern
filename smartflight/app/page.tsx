@@ -161,7 +161,8 @@ const FlightTicketCard = ({
   stops,
   price,
   departureTime,
-  arrivalTime
+  arrivalTime,
+  onBook,
 }: {
   airline: string;
   airlineLogo?: string;
@@ -175,6 +176,7 @@ const FlightTicketCard = ({
   price: number;
   departureTime: string;
   arrivalTime: string;
+  onBook: () => void;
 }) => {
   const tilt = useHoverTilt<HTMLElement>(2);
   const t = useTranslations("Home");
@@ -239,6 +241,7 @@ const FlightTicketCard = ({
           <p className="text-xs text-muted">{t("perPerson")}</p>
           <button
             type="button"
+            onClick={onBook}
             className="btn-sheen rounded-full bg-primary px-4 py-1.5 text-xs font-semibold text-white hover:bg-primary/90 transition-colors"
           >
             {t("bookNow")}
@@ -367,8 +370,10 @@ const destinationDeals = [
    stays calm so this single moment reads as tactile, not as a demo reel. */
 const DestinationCard = ({
   deal,
+  onOpen,
 }: {
   deal: { city: string; route: string; dateRange: string; price: number; image: string };
+  onOpen: () => void;
 }) => {
   const tilt = useHoverTilt<HTMLElement>(3);
   const t = useTranslations("Home");
@@ -408,7 +413,7 @@ const DestinationCard = ({
         deactivate();
         tilt.onMouseLeave(e);
       }}
-      onClick={activate}
+      onClick={onOpen}
       className="tilt-card relative h-80 overflow-hidden rounded-2xl shadow-lg cursor-pointer group hover:shadow-xl transition-all"
     >
       <div
@@ -931,11 +936,17 @@ export default function Home() {
           {/* Ink route arc traced on by scroll — the section's 3D moment */}
           <RouteArcView />
           <div className="grid md:grid-cols-3 gap-6">
-            {destinationDeals.map((deal) => (
-              <div data-fx-card key={deal.city}>
-                <DestinationCard deal={deal} />
-              </div>
-            ))}
+            {destinationDeals.map((deal) => {
+              const [routeFrom, routeTo] = deal.route.split(" → ");
+              return (
+                <div data-fx-card key={deal.city}>
+                  <DestinationCard
+                    deal={deal}
+                    onOpen={() => router.push(`/booking?from=${routeFrom}&to=${routeTo}`)}
+                  />
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -1084,6 +1095,7 @@ export default function Home() {
                 <FlightTicketCard
                   airline={flight.airline}
                   airlineLogo={flight.airlineLogo}
+                  onBook={() => router.push(`/booking?from=${flight.from}&to=${flight.to}`)}
                   cabinClass={flight.cabinClass === "Business" ? tHome("cabinBusiness") : tHome("cabinEconomy")}
                   from={flight.from}
                   to={flight.to}
@@ -1165,6 +1177,7 @@ export default function Home() {
                       key={offer.id}
                       airline={offer.airline ?? "Unknown Airline"}
                       airlineLogo={offer.airlineLogo ?? resolveAirlineLogoByName(offer.airline)}
+                      onBook={() => router.push(`/booking?from=${lastSearch.from}&to=${lastSearch.to}`)}
                       cabinClass={getCabinClassLabel(lastSearch.cabinClass)}
                       from={lastSearch.from} to={lastSearch.to} fromCity={lastSearch.fromCity} toCity={lastSearch.toCity}
                       departureTime={offer.departure?.slice(11, 16) ?? '--:--'}
