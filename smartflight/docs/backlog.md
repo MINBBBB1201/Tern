@@ -7,7 +7,7 @@
 - C3. Blog page — [x]
 - C4. Site-wide button/link audit — [x]
 - C5. About / Why "Tern" page — [x]
-- C6. Support / Help page — [ ]
+- C6. Support / Help page — [x]
 - C7. Footer restructure — [ ]
 
 Quality bar: new pages must read as the same site as the hero/search
