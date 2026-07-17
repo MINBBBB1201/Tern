@@ -648,6 +648,36 @@ body {
 }
 
 /* ─────────────────────────────────────────────
+   SECTION VOICE — every light section opens with
+   the same anatomy the hero established: a mono
+   uppercase kicker in signal blue, then the head.
+   One voice, hero to footer.
+   ───────────────────────────────────────────── */
+
+.section-kicker {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--signal-600);
+  margin-bottom: 10px;
+}
+
+/* Photo cards (destination/offer imagery): the edge-as-light ring from
+   the glass system around full-bleed photography, tokened shadow. The
+   photo child covers the padding box; the gradient shows in the 1px
+   border ring. */
+.photo-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid transparent;
+  background: var(--glass-edge-light) border-box;
+  box-shadow: 0 8px 30px rgba(10,15,30,0.12), 0 2px 8px rgba(10,15,30,0.06);
+}
+
+/* ─────────────────────────────────────────────
    HOVER TILT — the hero's object language echoed
    on cards: a few degrees of cursor-tracked
    perspective, not a WebGL scene per card.

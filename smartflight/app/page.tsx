@@ -588,6 +588,16 @@ export default function Home() {
   const [showResults, setShowResults] = useState(false);
   const [showOffers, setShowOffers] = useState(true);
   const [selectedAirlineKey, setSelectedAirlineKey] = useState("turkish");
+
+  // Inspiration cards are prompts, not links — clicking one brings the
+  // user back to the tool that acts on the prompt: the search bar.
+  const scrollToSearch = () => {
+    const prefersReduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    document.querySelector(".vol-shell")?.scrollIntoView({
+      behavior: prefersReduce ? "auto" : "smooth",
+      block: "center",
+    });
+  };
   // Nav sits over the dark hero at the top, over light sections once scrolled —
   // same glass material in both states, different fill.
   const [navOverHero, setNavOverHero] = useState(true);
@@ -824,7 +834,7 @@ export default function Home() {
         className="py-14"
         style={{
           background:
-            'linear-gradient(180deg, var(--horizon-500) 0%, color-mix(in srgb, var(--horizon-500) 40%, var(--paper-50)) 30%, color-mix(in srgb, var(--horizon-500) 12%, var(--paper-50)) 62%, var(--paper-50) 100%)',
+            'linear-gradient(180deg, var(--horizon-500) 0%, color-mix(in srgb, var(--horizon-500) 40%, var(--paper-50)) 30%, color-mix(in srgb, var(--horizon-500) 14%, var(--paper-50)) 62%, color-mix(in srgb, var(--horizon-500) 7%, var(--paper-50)) 100%)',
         }}
       >
         <div data-fx-head className="max-w-4xl mx-auto px-6 flex items-center justify-center gap-5 text-center md:text-left">
@@ -843,16 +853,31 @@ export default function Home() {
           "Explore Top Destinations" below: real destination photo, glass
           content bar. No "Sponsored" tag: nothing here is sponsored, and
           claiming so is a false disclosure. */}
-      <section className="py-14" style={{ background: 'var(--paper-50)' }}>
+      <section
+        className="py-14"
+        style={{
+          background:
+            'linear-gradient(180deg, color-mix(in srgb, var(--horizon-500) 7%, var(--paper-50)) 0%, var(--paper-50) 45%, var(--paper-50) 100%)',
+        }}
+      >
         <div className="max-w-6xl mx-auto px-6">
           <div data-fx-head className="mb-8">
+            <span className="section-kicker">Inspiration</span>
             <h2 className="text-3xl font-bold text-foreground">Explore the best offers for you</h2>
             <p className="text-muted mt-2">Destination inspiration to start your next search.</p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-5">
             {bestOfferCards.map((offer) => (
-              <article data-fx-card key={offer.title} className="relative h-56 rounded-2xl overflow-hidden shadow-lg group cursor-pointer">
+              <article
+                data-fx-card
+                key={offer.title}
+                role="button"
+                tabIndex={0}
+                onClick={scrollToSearch}
+                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); scrollToSearch(); } }}
+                className="photo-card h-56 rounded-2xl group cursor-pointer"
+              >
                 <div
                   className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
                   style={{ backgroundImage: `url(${offer.image})` }}
@@ -875,9 +900,13 @@ export default function Home() {
       {/* Airline Deals & Promotions — glass panels linking to the carriers'
           own deals pages. The domain is data (like flight numbers), so it
           gets the mono chip. */}
-      <section className="glass-boost py-12 bg-white border-y" style={{ borderColor: 'rgba(27,42,82,0.08)' }}>
+      <section
+        className="glass-boost py-12"
+        style={{ background: 'linear-gradient(180deg, var(--paper-50) 0%, #ffffff 40%, #ffffff 100%)' }}
+      >
         <div className="max-w-6xl mx-auto px-6">
           <div data-fx-head className="mb-8">
+            <span className="section-kicker">From the airlines</span>
             <h2 className="text-3xl font-bold text-foreground">Airline Deals &amp; Promotions</h2>
             <p className="text-muted mt-2">Live campaigns from the carriers themselves — every card links to the airline&rsquo;s official promotions page.</p>
           </div>
@@ -929,10 +958,11 @@ export default function Home() {
       {/* Explore Top Destinations — the one interactive moment on the page */}
       <section
         className="py-20"
-        style={{ background: 'linear-gradient(180deg, color-mix(in srgb, var(--contrail-300) 14%, #ffffff) 0%, #ffffff 100%)' }}
+        style={{ background: 'linear-gradient(180deg, #ffffff 0%, color-mix(in srgb, var(--contrail-300) 12%, #ffffff) 32%, #ffffff 100%)' }}
       >
         <div className="max-w-6xl mx-auto px-6">
           <div data-fx-head className="text-center mb-6">
+            <span className="section-kicker">Where next</span>
             <h2 className="text-3xl font-bold text-foreground">Explore Top Destinations</h2>
             <p className="text-muted mt-2">Get exclusive flight deals to your favorite cities</p>
           </div>
@@ -949,9 +979,13 @@ export default function Home() {
       </section>
 
       {/* Most Popular Airlines */}
-      <section className="glass-boost py-16" style={{ background: 'var(--paper-50)' }}>
+      <section
+        className="glass-boost py-16"
+        style={{ background: 'linear-gradient(180deg, #ffffff 0%, var(--paper-50) 32%, var(--paper-50) 100%)' }}
+      >
         <div className="max-w-6xl mx-auto px-6">
           <div data-fx-head className="text-center mb-10">
+            <span className="section-kicker">Carriers</span>
             <h2 className="text-3xl font-bold text-foreground">Most Popular Airlines</h2>
             <p className="text-muted mt-2">Choose a carrier to see the fastest schedule and airline information</p>
           </div>

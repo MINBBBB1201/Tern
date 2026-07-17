@@ -44,7 +44,7 @@ breaks from the hero's dark glass tone — generic.
 - Done when: frame captures of enter/exit confirm smoothness, and the modal
   looks like the same site as the hero.
 
-## B4. Light sections rework — [ ]
+## B4. Light sections rework — [x]
 
 Explore offers and Airline Deals (incl. the C1 redesign) are generic card
 grids disconnected from the hero.
