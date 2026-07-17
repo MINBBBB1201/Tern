@@ -20,6 +20,7 @@ import { AuthMenu } from "../components/AuthMenu";
 import { useHoverTilt } from "../hooks/useHoverTilt";
 import { usePriceAlerts } from "../hooks/usePriceAlerts";
 import type { Offer } from "../lib/offerUtils";
+import { airlineDealPages } from "../lib/airlineDeals";
 
 type PricePoint = { date: string; price: number; fullDate: string; isSelected: boolean };
 
@@ -469,39 +470,8 @@ const bestOfferCards = [
   },
 ];
 
-// Every fact on these cards must be verifiable on the linked page —
-// no invented codes, discounts, or expiry dates attributed to real
-// airlines. Cards only describe what the airline's own deals page is.
-const airlineDealPages = [
-  {
-    airline: "Korean Air",
-    iata: "KE",
-    descKey: "dealKE",
-    domain: "koreanair.com",
-    url: "https://www.koreanair.com/kr/en/book/deals",
-  },
-  {
-    airline: "Turkish Airlines",
-    iata: "TK",
-    descKey: "dealTK",
-    domain: "turkishairlines.com",
-    url: "https://www.turkishairlines.com/en-int/flights/flight-ticket/",
-  },
-  {
-    airline: "Asiana Airlines",
-    iata: "OZ",
-    descKey: "dealOZ",
-    domain: "flyasiana.com",
-    url: "https://flyasiana.com/C/KR/EN/contents/travel-information",
-  },
-  {
-    airline: "Jeju Air",
-    iata: "7C",
-    descKey: "deal7C",
-    domain: "jejuair.net",
-    url: "https://www.jejuair.net/en/specialprice/event.do",
-  },
-];
+// Airline deal cards are shared with /deals — see lib/airlineDeals.ts
+// (imported above), which also carries the C1 honesty contract.
 
 const popularAirlines = [
   {
@@ -699,8 +669,8 @@ export default function Home() {
           <div className="hidden md:flex items-center gap-8">
             <Link href="/" className={`text-sm font-medium hover:text-[var(--contrail-300)] transition ${navOverHero ? "text-white" : "text-foreground"}`}>{tNav("home")}</Link>
             <a href="/booking" className={`text-sm font-medium transition ${navOverHero ? "text-white/70 hover:text-[var(--contrail-300)]" : "text-muted hover:text-primary-hover"}`}>{tNav("booking")}</a>
-            <a href="#deals" className={`text-sm font-medium transition ${navOverHero ? "text-white/70 hover:text-[var(--contrail-300)]" : "text-muted hover:text-primary-hover"}`}>{tNav("deals")}</a>
-            <a href="#blog" className={`text-sm font-medium transition ${navOverHero ? "text-white/70 hover:text-[var(--contrail-300)]" : "text-muted hover:text-primary-hover"}`}>{tNav("blog")}</a>
+            <Link href="/deals" className={`text-sm font-medium transition ${navOverHero ? "text-white/70 hover:text-[var(--contrail-300)]" : "text-muted hover:text-primary-hover"}`}>{tNav("deals")}</Link>
+            <Link href="/blog" className={`text-sm font-medium transition ${navOverHero ? "text-white/70 hover:text-[var(--contrail-300)]" : "text-muted hover:text-primary-hover"}`}>{tNav("blog")}</Link>
           </div>
           <div className="flex items-center gap-4">
             <LocaleSwitcher dark={navOverHero} />

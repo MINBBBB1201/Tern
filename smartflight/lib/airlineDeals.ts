@@ -1,0 +1,44 @@
+/**
+ * Airline deal-page directory — shared by the homepage section and /deals.
+ * Every fact here must be verifiable on the linked page: no invented
+ * codes, discounts, or expiry dates attributed to real airlines (C1
+ * principle). Descriptions live in messages under Home.{descKey}.
+ * `route` is the airline's popular route as shown in the carriers
+ * section — reused on /deals as an honest search entry point.
+ */
+export const airlineDealPages = [
+  {
+    airline: "Korean Air",
+    iata: "KE",
+    descKey: "dealKE",
+    domain: "koreanair.com",
+    url: "https://www.koreanair.com/kr/en/book/deals",
+    route: { from: "ICN", to: "LAX" },
+  },
+  {
+    airline: "Turkish Airlines",
+    iata: "TK",
+    descKey: "dealTK",
+    domain: "turkishairlines.com",
+    url: "https://www.turkishairlines.com/en-int/flights/flight-ticket/",
+    route: { from: "ICN", to: "IST" },
+  },
+  {
+    airline: "Asiana Airlines",
+    iata: "OZ",
+    descKey: "dealOZ",
+    domain: "flyasiana.com",
+    url: "https://flyasiana.com/C/KR/EN/contents/travel-information",
+    route: { from: "ICN", to: "CDG" },
+  },
+  {
+    airline: "Jeju Air",
+    iata: "7C",
+    descKey: "deal7C",
+    domain: "jejuair.net",
+    url: "https://www.jejuair.net/en/specialprice/event.do",
+    route: { from: "ICN", to: "NRT" },
+  },
+] as const;
+
+export type AirlineDealPage = (typeof airlineDealPages)[number];
