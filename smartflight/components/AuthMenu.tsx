@@ -50,13 +50,27 @@ export function AuthMenu({ dark }: AuthMenuProps) {
   };
 
   if (user) {
+    // Email/password accounts often have no displayName or photo —
+    // fall back to the email local-part and an initial chip so the
+    // header always shows who is signed in.
+    const label = user.displayName || user.email?.split("@")[0] || "";
+    const initial = (label[0] ?? "?").toUpperCase();
     return (
       <div className="flex items-center gap-3">
-        {user.photoURL && (
-          <Image src={user.photoURL} alt={user.displayName ?? ""} width={32} height={32} className="rounded-full" />
+        {user.photoURL ? (
+          <Image src={user.photoURL} alt={label} width={32} height={32} className="rounded-full" />
+        ) : (
+          <span
+            aria-hidden="true"
+            className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold ${
+              dark ? "bg-white/15 text-white" : "bg-primary/10 text-primary"
+            }`}
+          >
+            {initial}
+          </span>
         )}
         <span className={`hidden sm:inline text-sm transition ${dark ? "text-white/70" : "text-muted"}`}>
-          {user.displayName}
+          {label}
         </span>
         <button
           onClick={handleSignOut}
