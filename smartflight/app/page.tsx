@@ -1057,20 +1057,22 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Stats Bar — these numbers are data, so they get the mono data type
-          and a quiet glass container instead of floating bare in space */}
+      {/* Capability band — every figure here is a verifiable product
+          fact (5 smart picks, live offers, the ±5-day trend window, 4
+          locales). Fabricated social-proof stats are banned; the
+          template's "50M+ travelers" row died here (D1). */}
       <section className="glass-boost py-16 bg-white border-y" style={{ borderColor: 'rgba(27,42,82,0.08)' }}>
         <div className="max-w-5xl mx-auto px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
-              { value: "500+", label: tHome("statDestinations") },
-              { value: "50M+", label: tHome("statTravelers") },
-              { value: "200+", label: tHome("statAirlines") },
-              { value: "4.9", label: tHome("statRating") },
-            ].map((stat) => (
-              <div data-fx-card key={stat.label} className="glass-chip rounded-2xl px-4 py-5 text-center">
-                <p className="data-mono text-3xl md:text-4xl font-bold text-foreground">{stat.value}</p>
-                <p className="text-sm text-muted mt-1">{stat.label}</p>
+              { value: "5", label: tHome("bandPicks") },
+              { value: "LIVE", label: tHome("bandLive") },
+              { value: "±5d", label: tHome("bandTrend") },
+              { value: "4", label: tHome("bandLocales") },
+            ].map((fact) => (
+              <div data-fx-card key={fact.label} className="glass-chip rounded-2xl px-4 py-5 text-center">
+                <p className="data-mono text-3xl md:text-4xl font-bold text-foreground">{fact.value}</p>
+                <p className="text-sm text-muted mt-1">{fact.label}</p>
               </div>
             ))}
           </div>

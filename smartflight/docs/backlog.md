@@ -1,4 +1,15 @@
-# Backlog — B/C series (2026-07-17 → 2026-07-18)
+# Backlog — B/C/D series (2026-07-17 → 2026-07-19)
+
+## D series status (bugfix + detail pass, 2026-07-19)
+
+- D1. Remove fabricated stats badges (+ trace how they reappeared) — [x]
+- D2. Uber ride deep-link diagnosis (approval-gated → honest state; bug → fix) — [ ]
+- D3. Auth session wired into UI + logout flow — [ ]
+- D4. Tern far-side cap loss, root-cause redo (verify ≥4 angles) — [ ]
+- D5. Tern→ticket morph refinement (premium, restrained) — [ ]
+- D6. Email/password sign-in re-diagnosis (provider, authDomain, raw error) — [ ]
+- D7. Glass material redo: thin, clear, real — iterate ≥2 on zoomed captures — [ ]
+- D8. Free detail pass across the whole site (desktop+mobile) — [ ]
 
 ## C series status
 
