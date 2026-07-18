@@ -173,6 +173,7 @@
     "maxPrice": "上限価格",
     "oneWay": "片道",
     "roundTrip": "往復",
+    "loadingPage": "予約ページを読み込み中…",
     "offersError": "リアルタイムの航空券情報を読み込めませんでした。",
     "paxCabin": "{count}名 · {cabin}",
     "cabinEconomy": "エコノミー",

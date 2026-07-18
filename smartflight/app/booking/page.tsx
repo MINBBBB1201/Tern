@@ -300,19 +300,24 @@ function BookingPageClient() {
   );
 }
 
+function BookingPageFallback() {
+  const t = useTranslations("Filters");
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-[var(--paper-50)]">
+      <div className="flex items-center gap-3 text-muted">
+        <svg className="h-5 w-5 animate-spin" viewBox="0 0 24 24" fill="none">
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+        </svg>
+        {t("loadingPage")}
+      </div>
+    </div>
+  );
+}
+
 export default function BookingPage() {
   return (
-    <Suspense fallback={
-      <div className="flex min-h-screen items-center justify-center bg-[var(--paper-50)]">
-        <div className="flex items-center gap-3 text-muted">
-          <svg className="h-5 w-5 animate-spin" viewBox="0 0 24 24" fill="none">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
-          </svg>
-          Loading booking page…
-        </div>
-      </div>
-    }>
+    <Suspense fallback={<BookingPageFallback />}>
       <BookingPageClient />
     </Suspense>
   );

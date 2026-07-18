@@ -173,6 +173,7 @@
     "maxPrice": "최대 가격",
     "oneWay": "편도",
     "roundTrip": "왕복",
+    "loadingPage": "예약 페이지 불러오는 중…",
     "offersError": "실시간 항공권 정보를 불러오지 못했습니다.",
     "paxCabin": "{count}명 · {cabin}",
     "cabinEconomy": "이코노미",

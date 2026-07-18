@@ -173,6 +173,7 @@
     "maxPrice": "Max price",
     "oneWay": "One-way",
     "roundTrip": "Round trip",
+    "loadingPage": "Loading booking page…",
     "offersError": "Failed to load real-time flight offers.",
     "paxCabin": "{count} pax · {cabin}",
     "cabinEconomy": "Economy",

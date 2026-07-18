@@ -173,6 +173,7 @@
     "maxPrice": "最高价格",
     "oneWay": "单程",
     "roundTrip": "往返",
+    "loadingPage": "正在加载预订页面…",
     "offersError": "无法加载实时航班报价。",
     "paxCabin": "{count}人 · {cabin}",
     "cabinEconomy": "经济舱",
