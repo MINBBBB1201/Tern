@@ -3,7 +3,7 @@
 ## D series status (bugfix + detail pass, 2026-07-19)
 
 - D1. Remove fabricated stats badges (+ trace how they reappeared) — [x]
-- D2. Uber ride deep-link diagnosis (approval-gated → honest state; bug → fix) — [ ]
+- D2. Uber ride deep-link diagnosis (approval-gated → honest state; bug → fix) — [x] (code bug: pickup addressLine1 geocoder override; fixed, not approval-related)
 - D3. Auth session wired into UI + logout flow — [ ]
 - D4. Tern far-side cap loss, root-cause redo (verify ≥4 angles) — [ ]
 - D5. Tern→ticket morph refinement (premium, restrained) — [ ]

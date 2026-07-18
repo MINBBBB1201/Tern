@@ -48,17 +48,26 @@ type RidePoint = {
   nickname?: string;
 };
 
-const toUberLocation = (point: RidePoint) =>
+/* Live-tested 2026-07-19: any addressLine1 on the PICKUP object makes
+   Uber's geocoder re-search that text and OVERRIDE the coordinates —
+   "ICN Airport" resolved to a soup restaurant ("국밥") nowhere near the
+   airport. Coordinates-only pickup keeps the pin at the right lat/lon
+   (Uber reverse-geocodes a nearby address label itself). The dropoff
+   object keeps addressLine1: that path was tuned separately (see
+   DestinationSearch — short names only). The `/ul/?action=setPickup`
+   scheme was retested the same day and still discards coordinates
+   entirely, redirecting to a generic city page. */
+const toUberLocation = (point: RidePoint, { includeAddress }: { includeAddress: boolean }) =>
   JSON.stringify({
     latitude: point.lat,
     longitude: point.lon,
-    ...(point.nickname ? { addressLine1: point.nickname } : {}),
+    ...(includeAddress && point.nickname ? { addressLine1: point.nickname } : {}),
   });
 
 export function buildUberDeepLink(pickup: RidePoint, dropoff?: RidePoint): string {
   const params = new URLSearchParams();
-  params.set("pickup", toUberLocation(pickup));
-  if (dropoff) params.set("drop[0]", toUberLocation(dropoff));
+  params.set("pickup", toUberLocation(pickup, { includeAddress: false }));
+  if (dropoff) params.set("drop[0]", toUberLocation(dropoff, { includeAddress: true }));
   if (UBER_CLIENT_ID) params.set("client_id", UBER_CLIENT_ID);
 
   // m.uber.com deep link: works whether or not the Uber app is installed —
