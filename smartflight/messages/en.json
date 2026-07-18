@@ -217,6 +217,13 @@
     "uberNote": "Opens Uber with pickup set at {iata}. Availability, fares, and vehicle types vary by city—check the app for current options.",
     "disclaimer": "Information is for planning only. Always confirm schedules and fares with the airport and operators before travel."
   },
+  "NotFound": {
+    "kicker": "404 — Off course",
+    "title": "You've flown off the route",
+    "body": "The page you're looking for doesn't exist — maybe it migrated. Let's get you back on a route that does.",
+    "ctaHome": "Back to the search",
+    "ctaSupport": "Help & FAQ"
+  },
   "Footer": {
     "tagline": "Chase the horizon, for less.",
     "company": "Company",

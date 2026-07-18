@@ -15,6 +15,18 @@ pages — an "AI-rushed subpage" feel is failure. Civil Twilight system
 throughout; honest content only (no fake commercial claims, no lorem
 ipsum).
 
+## Next up (recorded 2026-07-19, not yet started)
+
+- **/deals live-price signal**: attach a real cached "lowest fare seen
+  in recent searches" figure per carrier card (from our own search
+  cache — never fabricated), promoting the page from static directory
+  to living tool.
+- **Airport-guide content localization** (B6 residual, priority raised
+  now that /blog also surfaces this content): move
+  lib/airportGuides.ts + lib/transportService.ts bodies into
+  per-locale data modules keyed by IATA, mirroring the LoyaltyCard
+  localization pattern.
+
 ### C2. Deals page
 /deals as a real route reusing the C1 "Airline Deals & Promotions"
 card pattern. Honest per-airline promo info (no invented coupons or
