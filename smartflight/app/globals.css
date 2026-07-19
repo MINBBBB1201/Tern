@@ -142,29 +142,32 @@
   --contrail-glow: 0 0 8px rgba(143,224,232,0.9), 0 0 20px rgba(143,224,232,0.45);
 
   /* ── Glass system — the core material, defined once.
-     Target: the pane you look through from an airplane window — deep
-     blur, edges that read as caught light (not drawn lines), a faint
-     internal reflection, and a whisper of a second layer. ── */
-  --glass-fill-dark:   rgba(255,255,255,0.06);
-  --glass-fill-light:  rgba(255,255,255,0.55);
-  --glass-fill-strong: rgba(255,255,255,0.78); /* modal-over-dim instances that would fail AA at 0.55 */
+     Target: thin, clear glass you look THROUGH — what's behind stays
+     legible, not fogged. A light blur, a crisp lit rim, a single soft
+     specular streak near the top edge, and only a whisper of internal
+     wash. (D7 rework of B2, which over-frosted with 24px blur + 160%
+     saturate + a broad milky reflection.) ── */
+  --glass-fill-dark:   rgba(255,255,255,0.05);
+  --glass-fill-light:  rgba(255,255,255,0.5);
+  --glass-fill-strong: rgba(255,255,255,0.76); /* modal-over-dim instances that would fail AA lower */
   --glass-border:      rgba(143,224,232,0.28); /* single-edge uses (nav bottom, dividers, small controls) */
-  --glass-highlight:   rgba(255,255,255,0.35);
-  --glass-blur:        24px;
-  --glass-saturate:    160%;
+  --glass-highlight:   rgba(255,255,255,0.42);
+  --glass-blur:        12px;
+  --glass-saturate:    118%;
 
   /* Edge-as-light: gradients painted into the 1px border ring via the
-     padding-box/border-box pairing — the boundary becomes a highlight
-     that catches light at the top-left and glints again bottom-right. */
-  --glass-edge-light: linear-gradient(155deg, rgba(255,255,255,0.85) 0%, rgba(143,224,232,0.32) 32%, rgba(143,224,232,0.10) 64%, rgba(255,255,255,0.42) 100%);
-  --glass-edge-dark:  linear-gradient(155deg, rgba(255,255,255,0.38) 0%, rgba(143,224,232,0.24) 32%, rgba(143,224,232,0.07) 64%, rgba(255,255,255,0.20) 100%);
+     padding-box/border-box pairing — a clean lit rim that catches light
+     at the top-left and glints again bottom-right, like a real glass
+     edge rather than a drawn line. */
+  --glass-edge-light: linear-gradient(155deg, rgba(255,255,255,0.9) 0%, rgba(143,224,232,0.34) 30%, rgba(143,224,232,0.08) 66%, rgba(255,255,255,0.4) 100%);
+  --glass-edge-dark:  linear-gradient(155deg, rgba(255,255,255,0.42) 0%, rgba(143,224,232,0.22) 30%, rgba(143,224,232,0.06) 66%, rgba(255,255,255,0.16) 100%);
 
-  /* Internal reflection: the faint diagonal light wash a real pane
-     carries. Layered over the fill, never over text contrast (white
-     wash on light fills raises contrast for dark text; the dark
-     variant stays ≤0.08 alpha). */
-  --glass-reflect:      linear-gradient(165deg, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0.04) 42%, rgba(143,224,232,0.05) 100%);
-  --glass-reflect-dark: linear-gradient(165deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.015) 45%, rgba(143,224,232,0.04) 100%);
+  /* Specular streak: one soft band of light near the top edge — the
+     highlight a curved pane throws — instead of a full-surface wash.
+     Fades to nothing by ~30%, so the glass stays clear below it and
+     text contrast is untouched. */
+  --glass-reflect:      linear-gradient(177deg, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0.06) 15%, rgba(255,255,255,0) 33%);
+  --glass-reflect-dark: linear-gradient(177deg, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0.03) 17%, rgba(255,255,255,0) 35%);
 }
 
 /* ─────────────────────────────────────────────
@@ -1144,16 +1147,23 @@ body {
 
 /* ── Outer shell: glass card floating on the twilight hero ── */
 .vol-shell {
+  /* Lighter dusk fill than B2's 0.6 flat slab: the globe reads faintly
+     through the glass now. Text sits over the dark-globe region and
+     stays legible; the specular streak + lit rim do the "glass" work. */
   background:
     var(--glass-reflect-dark) padding-box,
-    linear-gradient(180deg, rgba(27,42,82,0.6) 0%, rgba(10,15,30,0.6) 100%) padding-box,
+    linear-gradient(180deg, rgba(27,42,82,0.44) 0%, rgba(10,15,30,0.5) 100%) padding-box,
     var(--glass-edge-dark) border-box;
   border: 1px solid transparent;
   border-radius: 24px;
   backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  /* Glass thickness cues: a bright lit lip at the very top, a faint dark
+     inner edge at the bottom (the far face of the pane seen through it),
+     plus the contrail rim glow. */
   box-shadow:
     0 20px 60px rgba(0,0,0,0.35),
-    inset 0 1px 0 var(--glass-highlight),
+    inset 0 1px 0 rgba(255,255,255,0.5),
+    inset 0 -1px 1px rgba(0,0,0,0.28),
     inset 0 0 0 1px rgba(255,255,255,0.04),
     0 0 0 1px rgba(143,224,232,0.06);
   position: relative;
