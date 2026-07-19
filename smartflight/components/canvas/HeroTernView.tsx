@@ -492,6 +492,12 @@ function buildScene() {
       // and the cap vanishes while the DoubleSide body stays visible.
       side: THREE.DoubleSide,
       depthWrite: false,
+      // Defensive contrast: a faint cool emissive so the near-ink cap keeps
+      // an edge-lit read against the darkest ink-900 sky rather than
+      // threatening to merge into it. Not the core far-side fix (that is
+      // DoubleSide, from A3) — hardening confirmed by A/B capture.
+      emissive: new THREE.Color(0x16223c),
+      emissiveIntensity: 0.55,
     });
     const billMat = new THREE.MeshPhysicalMaterial({
       color: 0xf2934d, // --horizon-500: the deep-red bill, dusk-lit
@@ -529,8 +535,20 @@ function buildScene() {
     const billGeo = buildBillGeo();
     const tailGeo = buildTailGeo();
     tern.add(new THREE.Mesh(bodyGeo, bodyMat));
-    tern.add(new THREE.Mesh(capGeo, capMat));
-    tern.add(new THREE.Mesh(billGeo, billMat));
+    // Every bird material is transparent with depthWrite off, so paint
+    // order decides what survives. Three sorts transparent meshes
+    // back-to-front by object depth: seen from behind (the far-side
+    // orbit pose) the cap sorts farther than the body, so the pale
+    // DoubleSide body glass painted after it washed the cap out —
+    // A3's DoubleSide fixed the culling half; this fixes the ordering
+    // half. Explicit renderOrder keeps head details on top of the body
+    // at every viewing angle.
+    const capMesh = new THREE.Mesh(capGeo, capMat);
+    capMesh.renderOrder = 2;
+    tern.add(capMesh);
+    const billMesh = new THREE.Mesh(billGeo, billMat);
+    billMesh.renderOrder = 3;
+    tern.add(billMesh);
     const tailMesh = new THREE.Mesh(tailGeo, bodyMat);
     tern.add(tailMesh);
     tern.add(new THREE.LineSegments(new THREE.EdgesGeometry(tailGeo, 20), edgeMat));
