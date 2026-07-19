@@ -253,6 +253,7 @@
     "title": "Guides & Notes",
     "intro": "Practical guides built from the data inside Tern — airports, ground transport, and points.",
     "backToList": "← All notes",
+    "readMore": "Read note",
     "openGuide": "Open the full airport guide →",
     "tagAirport": "Airport",
     "tagPoints": "Points",

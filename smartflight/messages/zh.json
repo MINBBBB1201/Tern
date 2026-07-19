@@ -253,6 +253,7 @@
     "title": "指南与笔记",
     "intro": "用 Tern 内部数据写成的实用指南 — 机场、地面交通与积分。",
     "backToList": "← 全部笔记",
+    "readMore": "阅读笔记",
     "openGuide": "查看完整机场指南 →",
     "tagAirport": "机场",
     "tagPoints": "积分",

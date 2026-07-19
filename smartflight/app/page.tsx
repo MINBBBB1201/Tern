@@ -856,7 +856,7 @@ export default function Home() {
                   <p className="mt-0.5 text-xs text-muted">{tHome(`offer${offer.id}Sub`)}</p>
                   <span className="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold" style={{ color: 'var(--signal-600)' }}>
                     {tHome(`offer${offer.id}Cta`)}
-                    <span aria-hidden="true">→</span>
+                    <span aria-hidden="true" className="transition-transform duration-200 group-hover:translate-x-1">→</span>
                   </span>
                 </div>
               </article>

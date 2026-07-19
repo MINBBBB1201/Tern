@@ -253,6 +253,7 @@
     "title": "가이드 & 노트",
     "intro": "Tern 안의 데이터로 만든 실용 가이드 — 공항, 지상 교통, 그리고 포인트.",
     "backToList": "← 전체 노트",
+    "readMore": "노트 읽기",
     "openGuide": "공항 가이드 전체 보기 →",
     "tagAirport": "공항",
     "tagPoints": "포인트",

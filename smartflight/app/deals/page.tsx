@@ -18,7 +18,7 @@ export default function DealsPage() {
         <div className="max-w-6xl mx-auto px-6">
           <div className="grid gap-5 sm:grid-cols-2">
             {airlineDealPages.map((deal) => (
-              <article key={deal.iata} className="glass-panel rounded-2xl p-6 transition-shadow hover:shadow-md">
+              <article key={deal.iata} className="glass-panel rounded-2xl p-6 transition-[transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:shadow-md">
                 <div className="flex items-start justify-between gap-3">
                   <span className="glass-chip rounded-full px-2.5 py-1 data-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-muted">
                     {tHome("official")}
