@@ -636,14 +636,64 @@ function buildScene() {
     pass.add(face);
     pass.visible = false;
 
+  // Corner sparks — four points of light that seat into the pass's
+  // rounded corners as it assembles, top-left → bottom-right, each a
+  // brief contrail flare. The premium read of "the ticket clicks into
+  // place", not a burst: only four marks, staggered, gone in a beat.
+  // Local corner offsets, inset onto the corner radius. Order defines
+  // the stagger (TL, TR, BL, BR).
+  const CORNER_INSET = 0.14;
+  const cornerOffsets = [
+    [-PASS_W / 2 + CORNER_INSET, PASS_H / 2 - CORNER_INSET],
+    [PASS_W / 2 - CORNER_INSET, PASS_H / 2 - CORNER_INSET],
+    [-PASS_W / 2 + CORNER_INSET, -PASS_H / 2 + CORNER_INSET],
+    [PASS_W / 2 - CORNER_INSET, -PASS_H / 2 + CORNER_INSET],
+  ];
+  const sparkPos = new Float32Array(4 * 3);
+  const sparkCol = new Float32Array(4 * 3);
+  const sparkGeo = new THREE.BufferGeometry();
+  sparkGeo.setAttribute("position", new THREE.BufferAttribute(sparkPos, 3));
+  sparkGeo.setAttribute("color", new THREE.BufferAttribute(sparkCol, 3));
+  // Soft radial sprite so the sparks read as glints, not the default
+  // square point. White→transparent gradient; additive blending turns
+  // the transparent falloff into a smooth glow, vertexColors tints it.
+  const sparkSprite = (() => {
+    const c = document.createElement("canvas");
+    c.width = c.height = 64;
+    const ctx = c.getContext("2d")!;
+    const grd = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+    grd.addColorStop(0, "rgba(255,255,255,1)");
+    grd.addColorStop(0.35, "rgba(255,255,255,0.6)");
+    grd.addColorStop(1, "rgba(255,255,255,0)");
+    ctx.fillStyle = grd;
+    ctx.fillRect(0, 0, 64, 64);
+    const tex = new THREE.CanvasTexture(c);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    return tex;
+  })();
+  const sparkMat = new THREE.PointsMaterial({
+    size: 0.34,
+    map: sparkSprite,
+    sizeAttenuation: true,
+    vertexColors: true,
+    blending: THREE.AdditiveBlending,
+    transparent: true,
+    opacity: 0,
+    depthWrite: false,
+  });
+  const sparks = new THREE.Points(sparkGeo, sparkMat);
+  sparks.frustumCulled = false;
+  sparks.visible = false;
+
   const root = new THREE.Group();
-  root.add(tern, trail, pass);
+  root.add(tern, trail, pass, sparks);
 
   return {
     root, tern, wingGroups, wristGroups, wingGeos,
     bodyGeo, capGeo, billGeo, tailGeo,
     trail, trailGeo, trailPos, trailCol, trailMat,
     pass, slabGeo, slabMat, passEdgeMat, faceGeo, faceMat, faceTex, faceCanvas,
+    sparks, sparkGeo, sparkMat, sparkSprite, sparkPos, sparkCol, cornerOffsets,
     bodyMat, capMat, billMat, wingMat, edgeMat, setBirdFade,
   };
 }
@@ -682,8 +732,10 @@ function TernSequence() {
       built.trailGeo.dispose();
       built.slabGeo.dispose();
       built.faceGeo.dispose();
-      [built.bodyMat, built.capMat, built.billMat, built.wingMat, built.edgeMat, built.trailMat, built.slabMat, built.passEdgeMat, built.faceMat].forEach((m) => m.dispose());
+      built.sparkGeo.dispose();
+      [built.bodyMat, built.capMat, built.billMat, built.wingMat, built.edgeMat, built.trailMat, built.slabMat, built.passEdgeMat, built.faceMat, built.sparkMat].forEach((m) => m.dispose());
       built.faceTex.dispose();
+      built.sparkSprite.dispose();
       built.root.traverse((obj) => {
         if (obj instanceof THREE.LineSegments) obj.geometry.dispose();
       });
@@ -733,6 +785,8 @@ function TernSequence() {
       built.slabMat.opacity = 0;
       built.passEdgeMat.opacity = 0;
       built.faceMat.opacity = 0;
+      built.sparks.visible = false;
+      built.sparkMat.opacity = 0;
     };
     // Freeze the clock at its current point (call after letting the
     // sequence run so the trail has real history), or unfreeze with -1.
@@ -824,6 +878,7 @@ function TernSequence() {
     const {
       tern, wingGroups, wristGroups, trail, trailGeo, trailPos, trailCol, trailMat,
       pass, slabMat, passEdgeMat, faceMat, setBirdFade,
+      sparks, sparkMat, sparkPos, sparkCol, cornerOffsets,
     } = built;
 
     const now = performance.now();
@@ -1074,6 +1129,31 @@ function TernSequence() {
         slabMat.opacity = 0.15 * g * passDim;
         passEdgeMat.opacity = 0.8 * g * passDim;
         faceMat.opacity = Math.pow(g, 1.4) * passDim;
+
+        // Corner sparks — light seating into each corner as the pass
+        // lands. Staggered TL→BR (0.05q apart); each darts inward from
+        // just outside its corner and flares once (sin envelope). The
+        // whole set is gone by q≈1, so it never competes with the
+        // settled pass. passDim also fades it out on scroll.
+        let anyFlare = false;
+        for (let i = 0; i < 4; i++) {
+          const local = (q - (0.74 + i * 0.05)) / 0.16;
+          const flare = local > 0 && local < 1 ? Math.sin(local * Math.PI) : 0;
+          if (flare > 0.001) anyFlare = true;
+          // 1.35× out early → 1.0× seated by mid-flare.
+          const reach = 1 + 0.35 * (1 - clamp01(local * 1.7));
+          sparkPos[i * 3] = settleWorld.x + cornerOffsets[i][0] * reach;
+          sparkPos[i * 3 + 1] = settleWorld.y + cornerOffsets[i][1] * reach;
+          sparkPos[i * 3 + 2] = settleWorld.z + 0.05;
+          const b = flare * 1.2;
+          sparkCol[i * 3] = 0.62 * b;
+          sparkCol[i * 3 + 1] = 0.92 * b;
+          sparkCol[i * 3 + 2] = 0.96 * b;
+        }
+        built.sparkGeo.attributes.position.needsUpdate = true;
+        built.sparkGeo.attributes.color.needsUpdate = true;
+        sparks.visible = anyFlare;
+        sparkMat.opacity = anyFlare ? passDim * flightFade : 0;
       }
     } else {
       // Phase C — settled: slow float + gentle rotation, faint text pulse,
@@ -1081,6 +1161,7 @@ function TernSequence() {
       // rises a touch faster than the page and dims, passing motion to the
       // scroll-driven sections below.
       if (trail.visible) trail.visible = false;
+      if (sparks.visible) { sparks.visible = false; sparkMat.opacity = 0; }
       pass.visible = true;
 
       const ti = (elapsed - FLIGHT_MS - HANDOFF_MS) / 1000;
