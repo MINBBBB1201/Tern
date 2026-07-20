@@ -65,6 +65,7 @@ const AMBIENT_SCALE = 0.2;
 const CONTRAIL = new THREE.Color("#8FE0E8");
 const PASS_W = 1.9;
 const PASS_H = 0.85;
+const PASS_R = 0.09; // boarding-pass slab corner radius — glint targets derive from it
 const TRAIL_N = 120;
 const TERN_SCALE = 0.6;
 
@@ -605,7 +606,7 @@ function buildScene() {
 
     // Boarding pass — crystallized light from the tern's path
     const pass = new THREE.Group();
-    const slabGeo = new THREE.ExtrudeGeometry(roundedRectShape(PASS_W, PASS_H, 0.09), {
+    const slabGeo = new THREE.ExtrudeGeometry(roundedRectShape(PASS_W, PASS_H, PASS_R), {
       depth: 0.045,
       bevelEnabled: false,
     });
@@ -640,9 +641,13 @@ function buildScene() {
   // rounded corners as it assembles, top-left → bottom-right, each a
   // brief contrail flare. The premium read of "the ticket clicks into
   // place", not a burst: only four marks, staggered, gone in a beat.
-  // Local corner offsets, inset onto the corner radius. Order defines
-  // the stagger (TL, TR, BL, BR).
-  const CORNER_INSET = 0.14;
+  // Seat point = the rounded corner's own 45° vertex, so a glint lands
+  // exactly on the frame corner instead of floating inside it. The arc
+  // center sits at (±(W/2−R), ±(H/2−R)); its outermost diagonal point is
+  // R·(1−1/√2) further in from the raw half-extent. (E1: the old flat 0.14
+  // inset — larger than R itself — seated the glints well inside the frame.)
+  // Order defines the stagger (TL, TR, BL, BR).
+  const CORNER_INSET = PASS_R * (1 - Math.SQRT1_2);
   const cornerOffsets = [
     [-PASS_W / 2 + CORNER_INSET, PASS_H / 2 - CORNER_INSET],
     [PASS_W / 2 - CORNER_INSET, PASS_H / 2 - CORNER_INSET],
@@ -836,6 +841,7 @@ function TernSequence() {
     ae1: THREE.Vector3; ae2: THREE.Vector3;
     b1: THREE.Vector3; b2: THREE.Vector3; breakP0: THREE.Vector3; breakF0: THREE.Vector3;
     basisM: THREE.Matrix4; qTarget: THREE.Quaternion; qBank: THREE.Quaternion;
+    sparkLocal: THREE.Vector3;
   } | null>(null);
   if (tmpRef.current === null) {
     tmpRef.current = {
@@ -865,12 +871,14 @@ function TernSequence() {
       basisM: new THREE.Matrix4(),
       qTarget: new THREE.Quaternion(),
       qBank: new THREE.Quaternion(),
+      sparkLocal: new THREE.Vector3(),
     };
   }
   const {
     posA, posB, settleWorld, tailLocal, raycaster, zPlane, ndc,
     tangent, toSettle, radial, globeCenter, sideAxis, upAxis,
     entryStart, entryCtrl, fe1, fe2, ae1, ae2, b1, b2, breakP0, breakF0, basisM, qTarget, qBank,
+    sparkLocal,
   } = tmpRef.current;
 
   useFrame(() => {
@@ -1131,20 +1139,32 @@ function TernSequence() {
         faceMat.opacity = Math.pow(g, 1.4) * passDim;
 
         // Corner sparks — light seating into each corner as the pass
-        // lands. Staggered TL→BR (0.05q apart); each darts inward from
-        // just outside its corner and flares once (sin envelope). The
-        // whole set is gone by q≈1, so it never competes with the
-        // settled pass. passDim also fades it out on scroll.
+        // lands. Staggered TL→BR; each darts in from just outside its
+        // corner along the diagonal and flares once (sin envelope), the
+        // outward reach decaying to exactly 0 at seat so the glint lands
+        // precisely on the frame corner. Because the pass is still growing
+        // and rotating while it assembles, each glint rides the pass's live
+        // transform (scale → rotation → position) instead of a detached
+        // flat plane, so it tracks the real moving corner every frame. All
+        // four seat by q≈0.99 — gone before the settled pass in Phase C.
+        // passDim/flightFade fade the whole set out on scroll.
         let anyFlare = false;
+        const OVERSHOOT = 0.16; // local-space dart distance, before pass scale
         for (let i = 0; i < 4; i++) {
-          const local = (q - (0.74 + i * 0.05)) / 0.16;
+          const local = (q - (0.70 + i * 0.045)) / 0.15;
           const flare = local > 0 && local < 1 ? Math.sin(local * Math.PI) : 0;
           if (flare > 0.001) anyFlare = true;
-          // 1.35× out early → 1.0× seated by mid-flare.
-          const reach = 1 + 0.35 * (1 - clamp01(local * 1.7));
-          sparkPos[i * 3] = settleWorld.x + cornerOffsets[i][0] * reach;
-          sparkPos[i * 3 + 1] = settleWorld.y + cornerOffsets[i][1] * reach;
-          sparkPos[i * 3 + 2] = settleWorld.z + 0.05;
+          const cx = cornerOffsets[i][0];
+          const cy = cornerOffsets[i][1];
+          const out = OVERSHOOT * (1 - clamp01(local * 1.6));
+          sparkLocal
+            .set(cx + Math.sign(cx) * out, cy + Math.sign(cy) * out, 0.05)
+            .multiply(pass.scale)
+            .applyEuler(pass.rotation)
+            .add(pass.position);
+          sparkPos[i * 3] = sparkLocal.x;
+          sparkPos[i * 3 + 1] = sparkLocal.y;
+          sparkPos[i * 3 + 2] = sparkLocal.z;
           const b = flare * 1.2;
           sparkCol[i * 3] = 0.62 * b;
           sparkCol[i * 3 + 1] = 0.92 * b;

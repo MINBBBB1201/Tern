@@ -2,7 +2,7 @@
 
 ## E series status (morph precision + IA + polish, 2026-07-20)
 
-- E1. Bird→ticket morph corner-snap precision — [ ]
+- E1. Bird→ticket morph corner-snap precision — [x] (two faults: glint inset 0.14 > corner radius 0.09 seated them inside the frame; and they were pinned to a flat un-transformed plane while the pass grew/rotated. Fix: seat point = rounded-corner 45° vertex `R·(1−1/√2)`, and each glint now rides the pass's live scale→rotation→position. Kept manual interpolation over react-spring — imperative useFrame scene, deterministic replay/freeze hooks, and physics-spring overshoot would *hurt* frame-exact seating; no bundle add. Numeric: seated glint↔frame-corner distance 0.00000 across 3 replays; clean-build captures before/during/complete)
 - E2. Site information architecture (footer 4 groups, Terms/Privacy, real contact email) — [ ]
 - E3. Visual polish (optional, brand-first) — [ ]
 
