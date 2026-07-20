@@ -54,7 +54,7 @@ export function SiteFooter() {
       }}
     >
       <div className="max-w-6xl mx-auto px-6">
-        <div className="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr_1fr_1fr]">
+        <div className="grid gap-10 md:grid-cols-[1.4fr_3fr]">
           <div>
             <Link href="/" className="inline-block" aria-label="Tern">
               <span className="relative block h-9 w-32 overflow-hidden md:h-10 md:w-40">
@@ -72,6 +72,9 @@ export function SiteFooter() {
             </p>
           </div>
 
+          {/* Four link groups: a tidy 2×2 on small screens (instead of one
+              long stack), opening to a 4-wide row beside the brand at md+. */}
+          <div className="grid grid-cols-2 gap-x-8 gap-y-9 md:grid-cols-4">
           {groups.map((group) => (
             <nav key={group.heading} aria-label={group.heading}>
               <p className="data-mono text-[11px] font-semibold uppercase tracking-[0.16em]" style={{ color: "rgba(143,224,232,0.7)" }}>
@@ -92,6 +95,7 @@ export function SiteFooter() {
               </ul>
             </nav>
           ))}
+          </div>
         </div>
 
         <div className="mt-10 border-t pt-6" style={{ borderColor: "rgba(143,224,232,0.14)" }}>
