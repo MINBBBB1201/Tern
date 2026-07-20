@@ -1,4 +1,35 @@
-# Backlog — B/C/D series (2026-07-17 → 2026-07-19)
+# Backlog — B/C/D/E series (2026-07-17 → 2026-07-20)
+
+## E series status (morph precision + IA + polish, 2026-07-20)
+
+- E1. Bird→ticket morph corner-snap precision — [ ]
+- E2. Site information architecture (footer 4 groups, Terms/Privacy, real contact email) — [ ]
+- E3. Visual polish (optional, brand-first) — [ ]
+
+### E1. Bird→ticket morph corner-snap precision
+The D5 corner glints seat *inside* the ticket frame, not on its corners.
+Recalculate so the four glints snap exactly to the rounded-rect corner
+vertices, and ride the pass's live transform so they track the real
+(growing/rotating) corners during assembly rather than a detached flat
+plane. Compare the current manual per-frame interpolation against
+react-spring and choose with rationale (bundle impact noted if adopted).
+Done when: before/during/complete captures show the glints exactly on the
+frame corners, stable across repeated __ternReplay.
+
+### E2. Site information architecture
+Footer regrouped into Company / Support / Legal / Explore, reusing
+existing pages (not inventing Careers/Investors/etc.). Real receivable
+contact email on Support/Contact (verify support@flytern.site actually
+receives; report honestly if not). New Terms of Use + Privacy Policy
+pages with honest content reflecting the real business (solo developer,
+Duffel-API flight comparison, affiliate links) — not a boilerplate
+copy-paste. Done when: footer + each new/regrouped page verified in all
+four locales (en/ko/ja/zh), links working.
+
+### E3. Visual polish (optional, brand-first)
+Background texture only within the Civil Twilight ink/dusk palette; icons
+from the existing set (lucide). Not mandatory — skip and record the
+reason if it does not fit the brand.
 
 ## D series status (bugfix + detail pass, 2026-07-19)
 
