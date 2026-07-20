@@ -567,15 +567,32 @@ export default function Home() {
       block: "center",
     });
   };
-  // Nav sits over the dark hero at the top, over light sections once scrolled —
-  // same glass material in both states, different fill.
-  const [navOverHero, setNavOverHero] = useState(true);
+  // The nav wears its dark glass over both night regions — the twilight hero
+  // at the top and the night tail at the bottom (Most Popular Airlines →
+  // footer) — and its light glass over the day sections between. One bar,
+  // two fills; the 0.3s background transition carries it across each seam.
+  const [navDark, setNavDark] = useState(true);
 
   useEffect(() => {
-    const onScroll = () => setNavOverHero(window.scrollY < window.innerHeight - 80);
+    const onScroll = () => {
+      const y = window.scrollY;
+      const overHero = y < window.innerHeight - 80;
+      // Everything from the first .night-tail section down is dark, so one
+      // threshold covers the whole tail. Flip once past the section's
+      // light→dusk bridge (its top band) rather than at its very top.
+      const tail = document.querySelector<HTMLElement>(".night-tail");
+      const overTail = tail
+        ? y + 64 >= tail.offsetTop + Math.min(160, tail.offsetHeight * 0.25)
+        : false;
+      setNavDark(overHero || overTail);
+    };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    window.addEventListener("resize", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
   }, []);
 
 
@@ -667,20 +684,20 @@ export default function Home() {
       <ScrollFX />
       {/* Navigation — one glass bar, two states: dark fill over the twilight
           hero at the top, light fill once it sits over light content */}
-      <nav className={`fixed top-0 left-0 right-0 z-50 ${navOverHero ? "glass-nav-dark" : "glass-nav"}`}>
+      <nav className={`fixed top-0 left-0 right-0 z-50 ${navDark ? "glass-nav-dark" : "glass-nav"}`}>
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2" aria-label={tNav("home")}>
-            <BrandLogo className={`h-10 w-36 md:h-11 md:w-44 transition ${navOverHero ? "brightness-0 invert" : ""}`} />
+            <BrandLogo className={`h-10 w-36 md:h-11 md:w-44 transition ${navDark ? "brightness-0 invert" : ""}`} />
           </Link>
           <div className="hidden md:flex items-center gap-8">
-            <Link href="/" className={`text-sm font-medium hover:text-[var(--contrail-300)] transition ${navOverHero ? "text-white" : "text-foreground"}`}>{tNav("home")}</Link>
-            <a href="/booking" className={`text-sm font-medium transition ${navOverHero ? "text-white/70 hover:text-[var(--contrail-300)]" : "text-muted hover:text-primary-hover"}`}>{tNav("booking")}</a>
-            <Link href="/deals" className={`text-sm font-medium transition ${navOverHero ? "text-white/70 hover:text-[var(--contrail-300)]" : "text-muted hover:text-primary-hover"}`}>{tNav("deals")}</Link>
-            <Link href="/blog" className={`text-sm font-medium transition ${navOverHero ? "text-white/70 hover:text-[var(--contrail-300)]" : "text-muted hover:text-primary-hover"}`}>{tNav("blog")}</Link>
+            <Link href="/" className={`text-sm font-medium hover:text-[var(--contrail-300)] transition ${navDark ? "text-white" : "text-foreground"}`}>{tNav("home")}</Link>
+            <a href="/booking" className={`text-sm font-medium transition ${navDark ? "text-white/70 hover:text-[var(--contrail-300)]" : "text-muted hover:text-primary-hover"}`}>{tNav("booking")}</a>
+            <Link href="/deals" className={`text-sm font-medium transition ${navDark ? "text-white/70 hover:text-[var(--contrail-300)]" : "text-muted hover:text-primary-hover"}`}>{tNav("deals")}</Link>
+            <Link href="/blog" className={`text-sm font-medium transition ${navDark ? "text-white/70 hover:text-[var(--contrail-300)]" : "text-muted hover:text-primary-hover"}`}>{tNav("blog")}</Link>
           </div>
           <div className="flex items-center gap-4">
-            <LocaleSwitcher dark={navOverHero} />
-            <AuthMenu dark={navOverHero} />
+            <LocaleSwitcher dark={navDark} />
+            <AuthMenu dark={navDark} />
           </div>
         </div>
       </nav>
@@ -952,10 +969,12 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Most Popular Airlines */}
+      {/* Most Popular Airlines — the page turns back to night here: the
+          "day" sections above settle through a warm horizon whisper into
+          dusk, then ink, carrying the night tail down into the footer. */}
       <section
-        className="glass-boost py-16"
-        style={{ background: 'linear-gradient(180deg, #ffffff 0%, var(--paper-50) 32%, var(--paper-50) 100%)' }}
+        className="night-tail py-16"
+        style={{ background: 'linear-gradient(180deg, #ffffff 0%, color-mix(in srgb, var(--horizon-500) 14%, #ffffff) 7%, var(--dusk-700) 42%, var(--ink-900) 100%)' }}
       >
         <div className="max-w-6xl mx-auto px-6">
           <div data-fx-head className="text-center mb-10">
@@ -1061,7 +1080,7 @@ export default function Home() {
           fact (5 smart picks, live offers, the ±5-day trend window, 4
           locales). Fabricated social-proof stats are banned; the
           template's "50M+ travelers" row died here (D1). */}
-      <section className="glass-boost py-16 bg-white border-y" style={{ borderColor: 'rgba(27,42,82,0.08)' }}>
+      <section className="night-tail py-16 border-y" style={{ background: 'var(--ink-900)', borderColor: 'rgba(143,224,232,0.10)' }}>
         <div className="max-w-5xl mx-auto px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
@@ -1081,7 +1100,7 @@ export default function Home() {
 
       {/* Popular Flights Section */}
       {!showResults && (
-        <section className="glass-boost py-20" style={{ background: 'var(--paper-50)' }}>
+        <section className="night-tail py-20" style={{ background: 'linear-gradient(180deg, var(--ink-900) 0%, var(--dusk-700) 100%)' }}>
           <div className="max-w-5xl mx-auto px-6">
             <div data-fx-head className="flex items-center justify-between mb-10">
               <h2 className="text-3xl font-bold text-foreground">{tHome("flightsTitle")}</h2>

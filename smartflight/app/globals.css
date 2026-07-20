@@ -591,6 +591,83 @@ body {
     inset 0 8px 14px -10px rgba(143, 224, 232, 0.30);
 }
 
+/* ─────────────────────────────────────────────
+   NIGHT TAIL — the page's second dusk→night band
+   (Most Popular Airlines, capability band, Popular
+   Flights) descending back into the footer's night
+   sky. The middle "day" sections stay light; this
+   scope flips only its own glass + text to the dark
+   Civil Twilight recipe, reusing the hero/footer
+   tokens so it reads as one system, not a bolted-on
+   dark block. Unlayered, so it wins over the Tailwind
+   text/bg utilities nested inside it (same reason the
+   base glass classes are unlayered). Shared components
+   (FlightTicketCard) go dark only inside this scope —
+   the same card stays light in the search-results
+   section, which is not a .night-tail.
+   ───────────────────────────────────────────── */
+.night-tail {
+  color: var(--paper-50);
+}
+
+/* Text utilities in here assume a light bg — remap to the footer's
+   night-sky ramp: paper at full weight, dimmed for muted, contrail kicker. */
+.night-tail .text-foreground { color: var(--paper-50); }
+.night-tail .text-muted { color: rgba(246, 248, 251, 0.60); }
+.night-tail .text-primary-hover { color: var(--contrail-300); }
+.night-tail .section-kicker { color: var(--contrail-300); }
+/* Flight-path hairline in FlightTicketCard reads as a faint contrail on dark. */
+.night-tail .bg-gray-200 { background-color: rgba(143, 224, 232, 0.22); }
+
+/* Glass flips to its dark sibling recipe in place, so airline picker rows,
+   the detail panel, stat chips and flight cards all pick it up with no
+   per-element class churn. */
+.night-tail .glass-panel {
+  background:
+    var(--glass-reflect-dark) padding-box,
+    linear-gradient(var(--glass-fill-dark), var(--glass-fill-dark)) padding-box,
+    var(--glass-edge-dark) border-box;
+  box-shadow:
+    inset 0 1px 0 var(--glass-highlight),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.04),
+    0 8px 30px rgba(10, 15, 30, 0.35);
+}
+.night-tail .glass-panel-scan {
+  background:
+    var(--glass-reflect-dark) padding-box,
+    linear-gradient(rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.06)) padding-box,
+    var(--glass-edge-dark) border-box;
+  box-shadow:
+    inset 0 1px 0 var(--glass-highlight),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.04),
+    0 4px 16px rgba(10, 15, 30, 0.30);
+}
+.night-tail .glass-chip {
+  background:
+    var(--glass-reflect-dark) padding-box,
+    linear-gradient(rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.06)) padding-box,
+    var(--glass-edge-dark) border-box;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+/* Airline brand marks must keep a light backing so dark logos stay legible
+   on the night tail — only the non-logo chips take the dark fill. The
+   brand-mark-never-restyled rule, upheld across both themes. */
+.night-tail .glass-chip:has(img) {
+  background:
+    var(--glass-reflect) padding-box,
+    linear-gradient(rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.92)) padding-box,
+    var(--glass-edge-light) border-box;
+  box-shadow: inset 0 1px 0 var(--glass-highlight);
+}
+
+/* Selected airline row: contrail accent over the dark fill. */
+.night-tail .glass-row.is-active {
+  border-color: var(--contrail-300);
+  background: rgba(143, 224, 232, 0.10);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.10), 0 4px 16px rgba(10, 15, 30, 0.35);
+}
+
 @media (prefers-reduced-transparency: reduce) {
   /* The background shorthand reset also wipes the border-box edge
      gradient, so each opaque fallback restores a visible flat border. */
@@ -615,6 +692,18 @@ body {
     background: #141F3D;
     backdrop-filter: none;
     border-color: var(--glass-border);
+  }
+  /* Night-tail glass must fall back dark, not to the light --paper-50 above
+     (its text is remapped light — a light panel here would be invisible). */
+  .night-tail .glass-panel,
+  .night-tail .glass-panel-scan,
+  .night-tail .glass-chip {
+    background: #141F3D;
+    backdrop-filter: none;
+    border-color: var(--glass-border);
+  }
+  .night-tail .glass-chip:has(img) {
+    background: #ffffff;
   }
 }
 
