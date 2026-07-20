@@ -23,7 +23,17 @@ export function SiteFooter() {
     },
     {
       heading: t("support"),
-      links: [{ label: t("helpFaq"), href: "/support" }],
+      links: [
+        { label: t("helpFaq"), href: "/support" },
+        { label: t("contact"), href: "/support#contact" },
+      ],
+    },
+    {
+      heading: t("legal"),
+      links: [
+        { label: t("terms"), href: "/terms" },
+        { label: t("privacy"), href: "/privacy" },
+      ],
     },
     {
       heading: t("explore"),
@@ -44,7 +54,7 @@ export function SiteFooter() {
       }}
     >
       <div className="max-w-6xl mx-auto px-6">
-        <div className="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
+        <div className="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr_1fr_1fr]">
           <div>
             <Link href="/" className="inline-block" aria-label="Tern">
               <span className="relative block h-9 w-32 overflow-hidden md:h-10 md:w-40">

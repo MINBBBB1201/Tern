@@ -32,7 +32,7 @@ export default function SupportPage() {
             ))}
           </div>
 
-          <div className="glass-modal-dark mt-10 rounded-2xl p-7 text-[#F6F8FB]">
+          <div id="contact" className="glass-modal-dark mt-10 scroll-mt-24 rounded-2xl p-7 text-[#F6F8FB]">
             <p className="data-mono text-[11px] font-semibold uppercase tracking-[0.14em]" style={{ color: "rgba(143,224,232,0.8)" }}>
               {t("contactTitle")}
             </p>

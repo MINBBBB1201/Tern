@@ -3,7 +3,7 @@
 ## E series status (morph precision + IA + polish, 2026-07-20)
 
 - E1. Bird→ticket morph corner-snap precision — [x] (two faults: glint inset 0.14 > corner radius 0.09 seated them inside the frame; and they were pinned to a flat un-transformed plane while the pass grew/rotated. Fix: seat point = rounded-corner 45° vertex `R·(1−1/√2)`, and each glint now rides the pass's live scale→rotation→position. Kept manual interpolation over react-spring — imperative useFrame scene, deterministic replay/freeze hooks, and physics-spring overshoot would *hurt* frame-exact seating; no bundle add. Numeric: seated glint↔frame-corner distance 0.00000 across 3 replays; clean-build captures before/during/complete)
-- E2. Site information architecture (footer 4 groups, Terms/Privacy, real contact email) — [ ]
+- E2. Site information architecture (footer 4 groups, Terms/Privacy, real contact email) — [x] (footer regrouped Company/Support/Legal/Explore, reusing existing pages + new /terms /privacy; no invented Careers/Investors. New LegalPage renders both legal pages from TermsPage/PrivacyPage namespaces across en/ko/ja/zh. Content is honest to the real business — solo dev, Duffel-API search, Duffel Links test-mode handoff, Travelpayouts/Aviasales affiliate, no analytics/ad trackers, price alerts local-only. Contact email: support@flytern.site — flytern.site HAS Namecheap forwarding MX configured (domain is mail-enabled), and this address was already the committed contact; the specific alias's deliverability can't be DNS-verified externally, so flagged for owner to confirm. Verified all four locales + #contact anchor)
 - E3. Visual polish (optional, brand-first) — [ ]
 
 ### E1. Bird→ticket morph corner-snap precision

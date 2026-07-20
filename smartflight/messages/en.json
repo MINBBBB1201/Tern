@@ -234,7 +234,11 @@
     "explore": "Explore",
     "deals": "Deals",
     "blog": "Guides & Notes",
-    "booking": "Flight search"
+    "booking": "Flight search",
+    "legal": "Legal",
+    "terms": "Terms of Use",
+    "privacy": "Privacy Policy",
+    "contact": "Contact"
   },
   "DealsPage": {
     "kicker": "Official deals",
@@ -397,5 +401,47 @@
     "layoverAt": "at {airport}",
     "approxChargedIn": "≈, charged in {price}",
     "getRideAtArrival": "Get a ride at {airport}"
+  },
+  "TermsPage": {
+    "kicker": "Legal",
+    "title": "Terms of Use",
+    "intro": "The plain-language terms for using Tern — no dark patterns, no fine print that contradicts what the product actually does.",
+    "effective": "Effective 20 July 2026",
+    "contactLead": "Questions about these terms? Email",
+    "s1h": "Who we are",
+    "s1p": "Tern (flytern.site) is an independent flight-search and comparison tool, built and run by a solo developer. It is not a travel agency or an airline, and it does not sell or issue tickets itself.",
+    "s2h": "What Tern does",
+    "s2p": "Tern searches live fares through the Duffel API and highlights the cheapest, fastest, earliest, lowest-delay-risk, and best-value-with-points options. Prices and availability come from third parties and change constantly, so every result is indicative — always confirm the final price and conditions on the provider's own site before you pay.",
+    "s3h": "Booking and payment",
+    "s3p": "Tern does not take payment or issue tickets. When you continue to book, you are handed off to a third party who becomes your counterparty: Duffel Links (Duffel is the merchant of record and ticketing runs under its accreditation; this checkout currently runs in test mode, so no real tickets are issued), our partner booking site at book.flytern.site (Aviasales inventory via Travelpayouts), or an airline's own site. Your booking contract is with that provider, and their terms and refund or change rules apply.",
+    "s4h": "Affiliate links and how we make money",
+    "s4p": "Some outbound links are affiliate links: if you book after following one, Tern may earn a commission at no extra cost to you. This never changes how results are ranked — search results are ordered only by the sort you choose (price, duration, or fewest stops), and Tern shows no fabricated discounts, coupons, or 'sponsored' badges.",
+    "s5h": "Acceptable use",
+    "s5p": "Please use Tern for personal, non-automated flight research. Don't scrape, overload, resell, or reverse-engineer the service, and don't use it to break any law or a provider's terms. Because this is an actively developed personal project, features may change or be removed.",
+    "s6h": "No warranty and limits",
+    "s6p": "Tern is provided 'as is', with no guarantee that fares, schedules, or other data are accurate, complete, or available at any given moment. To the extent the law allows, Tern and its developer are not liable for losses arising from third-party providers, data errors, or service interruptions. Nothing here limits rights you have that cannot be waived.",
+    "s7h": "Changes and contact",
+    "s7p": "These terms may be updated as the product evolves; the effective date above shows the latest version."
+  },
+  "PrivacyPage": {
+    "kicker": "Legal",
+    "title": "Privacy Policy",
+    "intro": "What Tern collects, what it doesn't, and who else is involved — in the same plain language as the rest of the site.",
+    "effective": "Effective 20 July 2026",
+    "contactLead": "Questions, or want your data removed? Email",
+    "s1h": "Who's responsible",
+    "s1p": "Tern (flytern.site) is run by a solo developer, who is responsible for the data described here.",
+    "s2h": "What Tern collects",
+    "s2p": "Account: if you sign in, authentication is handled by Firebase Authentication (Google), which stores your email address and, for Google sign-in, basic profile details.\nSearches: the origin, destination, dates, and passenger counts you enter are sent to Tern's search API and on to Duffel to fetch fares; airport, weather, currency, and location lookups go to the providers that power those features.\nPreferences: your chosen language is kept in a cookie, and any price alerts you create are stored only in your own browser — they never reach Tern's servers.",
+    "s3h": "What Tern does not do",
+    "s3p": "Tern runs no third-party analytics, advertising, or cross-site tracking, sets no advertising cookies, and does not sell or rent your data. You won't get marketing email — the only mail is a reply if you write in first.",
+    "s4h": "Who else is involved",
+    "s4p": "A few processors handle specific jobs: Firebase/Google (sign-in), Duffel (fares and hosted checkout), Travelpayouts/Aviasales (the partner booking site), and the weather, currency, and geocoding providers behind those features. Support email to flytern.site is delivered through Namecheap's email forwarding. Any payment is taken by the booking provider at checkout — Tern never sees or stores card details.",
+    "s5h": "Cookies and local storage",
+    "s5p": "Tern uses only what it needs: a cookie to remember your language, your sign-in session if you log in, and your browser's local storage to hold price alerts on your device. There are no advertising or analytics cookies to consent to.",
+    "s6h": "Your choices",
+    "s6p": "You can sign out at any time, clear saved price alerts by clearing them in your browser, and ask for your account and email to be deleted by writing to support. Because searches are passed straight to providers to return results, they aren't kept as a personal profile on Tern's side.",
+    "s7h": "Retention and changes",
+    "s7p": "Personal data is kept only as long as it's needed for the purpose it was given — account data until you ask us to delete it. This policy may change as the product does; the effective date above marks the current version."
   }
 }
