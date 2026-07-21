@@ -31,6 +31,7 @@ type PricePoint = { date: string; price: number; fullDate: string; isSelected: b
 const HeroTernView = dynamic(() => import("../components/canvas/HeroTernView"), { ssr: false });
 const RouteArcView = dynamic(() => import("../components/canvas/RouteArcView"), { ssr: false });
 const ScrollFX = dynamic(() => import("../components/ScrollFX"), { ssr: false });
+const ScrollTrail = dynamic(() => import("../components/ScrollTrail"), { ssr: false });
 
 const PlaneIcon = () => (
   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -672,6 +673,8 @@ export default function Home() {
     >
       {/* Scroll choreography: reveals for [data-fx-*] elements below */}
       <ScrollFX />
+      {/* G2: ambient flight-path thread drawn in as the page scrolls */}
+      <ScrollTrail />
       {/* Navigation — dark glass over the whole dark-spectrum page */}
       <nav className="fixed top-0 left-0 right-0 z-50 glass-nav-dark">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">

@@ -854,6 +854,44 @@ body {
 }
 
 /* ─────────────────────────────────────────────
+   SCROLL TRAIL (G2) — a single faint contrail routed
+   through the page gutters, drawn in on scroll by
+   ScrollTrail.tsx. Desktop + no-preference only: mobile
+   gutters are too narrow and a scroll-scrubbed repaint
+   isn't worth the battery; reduced-motion gets nothing.
+   Fixed, non-interactive, low opacity — an ambient
+   thread behind the content, never over its reading.
+   ───────────────────────────────────────────── */
+.scroll-trail {
+  display: none;
+}
+
+@media (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
+  .scroll-trail {
+    display: block;
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+  }
+}
+
+.scroll-trail path {
+  fill: none;
+  stroke: var(--contrail-300);
+  stroke-width: 1.4;
+  vector-effect: non-scaling-stroke;
+  opacity: 0.12;
+  filter: drop-shadow(0 0 3px rgba(143, 224, 232, 0.4));
+  /* Hidden until ScrollTrail.tsx measures the real path length — a large
+     fixed dash prevents a flash of the full line before hydration. */
+  stroke-dasharray: 2000;
+  stroke-dashoffset: 2000;
+}
+
+/* ─────────────────────────────────────────────
    STATIC BOARDING PASS — settled state of the hero
    signature object, used as-is on low-power/mobile
    and under prefers-reduced-motion (WebGL skipped).
