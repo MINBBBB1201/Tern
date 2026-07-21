@@ -1052,6 +1052,14 @@ body {
    both-edge vertical fade so star density swells mid-section and dies
    at the seams — the visible density shifts as the section scrolls
    through the viewport, with zero JS. */
+/* G4 note: scroll-position star density is already carried by the
+   both-edge fade mask below — density swells as the section reaches the
+   middle of the viewport and dies at the seams as it scrolls through,
+   purely spatially (no animation, no JS). A CSS view()-timeline opacity
+   "breathe" was trialled on top and reverted: the headless capture
+   harness pins the ViewTimeline progress at 50%, so its live scroll-scrub
+   could not be verified, and shipping an unverifiable visual change over
+   an effect the mask already delivers wasn't worth it. */
 .hero-stars.night-stars {
   opacity: 0.38;
   -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 30%, #000 70%, transparent 100%);
