@@ -1004,6 +1004,18 @@ body {
   to   { background-position: -72px 66px, -18px 258px, -60px 160px; }
 }
 
+/* F1 — the hero's star texture reused (not a new texture) on the deep
+   ink sections of the tone track, so the darkest zones never read as a
+   flat black block. Much quieter than the hero: low opacity, and a
+   both-edge vertical fade so star density swells mid-section and dies
+   at the seams — the visible density shifts as the section scrolls
+   through the viewport, with zero JS. */
+.hero-stars.night-stars {
+  opacity: 0.38;
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 30%, #000 70%, transparent 100%);
+  mask-image: linear-gradient(180deg, transparent 0%, #000 30%, #000 70%, transparent 100%);
+}
+
 
 /* ─────────────────────────────────────────────
    HERO SMARTPICKS STRIP — the product's real

@@ -1,4 +1,25 @@
-# Backlog — B/C/D/E series (2026-07-17 → 2026-07-20)
+# Backlog — B/C/D/E/F series (2026-07-17 → 2026-07-21)
+
+## F series status (background tone continuity, 2026-07-21)
+
+- F1. Homepage background: one continuous dark gradient track — [x] (single full-page-height linear-gradient on <main> = scroll-linked color interpolation with zero JS and zero new deps; .night-tail scope moved to <main> so every section's text/glass flipped at once; light section fills + the muddy horizon×white color-mixes deleted; why-strip now dissolves horizon→dusk; RouteArcView ink→contrail (would have vanished on dusk); hero-stars reused at 0.38 opacity behind a both-edge fade mask on the two deepest sections so nothing reads flat black; nav two-state toggle removed (dark everywhere); offers photo-card CTAs signal→contrail + heavier photo foot after the dark-glass bar washed the blue out. Verified 6 desktop scroll cuts + mobile static branch: no flat black block, no light haze seam, arc/logos/type all legible)
+
+### F1. Homepage background tone continuity
+Diagnosis: "Choose Your Perfect Flight" reads flat black (no ink/dusk
+tonal movement), and the deals→destinations→airlines transition floats on
+a muddy pink-grey haze (horizon-500 × white color-mixes). The earlier
+"middle sections dark" option was explicitly deselected at the time
+(tail-only was chosen); this item supersedes that — the whole page moves
+inside the dark spectrum only: ink→dusk→ink, no light "day" band.
+Approach: scroll-linked color comes from a single full-page-height
+linear-gradient on <main> (color interpolates with scroll position by
+construction — no scroll listeners, no new deps); the .night-tail dark
+scope moves to <main> so every section's text/glass flips at once;
+RouteArcView's ink-on-paper arc flips to contrail-on-dusk or it would
+vanish; flat-black zones get the existing hero-stars texture at low
+opacity behind a vertical fade mask (density/opacity varies as the
+section scrolls — reuse, not a new texture). Done when: 5–6 full-scroll
+captures show no flat black block and no light haze seam.
 
 ## E series status (morph precision + IA + polish, 2026-07-20)
 

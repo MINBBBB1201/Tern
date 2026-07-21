@@ -567,33 +567,9 @@ export default function Home() {
       block: "center",
     });
   };
-  // The nav wears its dark glass over both night regions — the twilight hero
-  // at the top and the night tail at the bottom (Most Popular Airlines →
-  // footer) — and its light glass over the day sections between. One bar,
-  // two fills; the 0.3s background transition carries it across each seam.
-  const [navDark, setNavDark] = useState(true);
-
-  useEffect(() => {
-    const onScroll = () => {
-      const y = window.scrollY;
-      const overHero = y < window.innerHeight - 80;
-      // Everything from the first .night-tail section down is dark, so one
-      // threshold covers the whole tail. Flip once past the section's
-      // light→dusk bridge (its top band) rather than at its very top.
-      const tail = document.querySelector<HTMLElement>(".night-tail");
-      const overTail = tail
-        ? y + 64 >= tail.offsetTop + Math.min(160, tail.offsetHeight * 0.25)
-        : false;
-      setNavDark(overHero || overTail);
-    };
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-    };
-  }, []);
+  // F1: the whole homepage now lives inside the dark spectrum (ink→dusk→
+  // ink), so the nav wears its dark glass everywhere — the two-state
+  // light/dark toggle died with the light "day" band.
 
 
 
@@ -679,25 +655,38 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-background text-foreground">
+    <main
+      className="night-tail min-h-screen"
+      style={{
+        /* F1 — the page's one continuous tone track. A single gradient
+           spanning the full document height IS the scroll-linked color
+           interpolation: as you scroll, the visible band moves through
+           ink→dusk→deep-dusk→ink→dusk with no seams and no JS. Stops are
+           fractions of total page height (content drift across locales
+           only slides them within the same dark family, so it is
+           invisible). The hero paints its own twilight sky over the top
+           band; the footer's dusk→ink block continues from the 100% stop. */
+        background:
+          'linear-gradient(180deg, var(--ink-900) 0%, var(--ink-900) 16%, var(--dusk-700) 26%, #16234A 40%, var(--dusk-700) 52%, #111C3A 66%, var(--ink-900) 78%, #141F3D 92%, var(--dusk-700) 100%)',
+      }}
+    >
       {/* Scroll choreography: reveals for [data-fx-*] elements below */}
       <ScrollFX />
-      {/* Navigation — one glass bar, two states: dark fill over the twilight
-          hero at the top, light fill once it sits over light content */}
-      <nav className={`fixed top-0 left-0 right-0 z-50 ${navDark ? "glass-nav-dark" : "glass-nav"}`}>
+      {/* Navigation — dark glass over the whole dark-spectrum page */}
+      <nav className="fixed top-0 left-0 right-0 z-50 glass-nav-dark">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2" aria-label={tNav("home")}>
-            <BrandLogo className={`h-10 w-36 md:h-11 md:w-44 transition ${navDark ? "brightness-0 invert" : ""}`} />
+            <BrandLogo className="h-10 w-36 md:h-11 md:w-44 transition brightness-0 invert" />
           </Link>
           <div className="hidden md:flex items-center gap-8">
-            <Link href="/" className={`text-sm font-medium hover:text-[var(--contrail-300)] transition ${navDark ? "text-white" : "text-foreground"}`}>{tNav("home")}</Link>
-            <a href="/booking" className={`text-sm font-medium transition ${navDark ? "text-white/70 hover:text-[var(--contrail-300)]" : "text-muted hover:text-primary-hover"}`}>{tNav("booking")}</a>
-            <Link href="/deals" className={`text-sm font-medium transition ${navDark ? "text-white/70 hover:text-[var(--contrail-300)]" : "text-muted hover:text-primary-hover"}`}>{tNav("deals")}</Link>
-            <Link href="/blog" className={`text-sm font-medium transition ${navDark ? "text-white/70 hover:text-[var(--contrail-300)]" : "text-muted hover:text-primary-hover"}`}>{tNav("blog")}</Link>
+            <Link href="/" className="text-sm font-medium hover:text-[var(--contrail-300)] transition text-white">{tNav("home")}</Link>
+            <a href="/booking" className="text-sm font-medium transition text-white/70 hover:text-[var(--contrail-300)]">{tNav("booking")}</a>
+            <Link href="/deals" className="text-sm font-medium transition text-white/70 hover:text-[var(--contrail-300)]">{tNav("deals")}</Link>
+            <Link href="/blog" className="text-sm font-medium transition text-white/70 hover:text-[var(--contrail-300)]">{tNav("blog")}</Link>
           </div>
           <div className="flex items-center gap-4">
-            <LocaleSwitcher dark={navDark} />
-            <AuthMenu dark={navDark} />
+            <LocaleSwitcher dark />
+            <AuthMenu dark />
           </div>
         </div>
       </nav>
@@ -813,22 +802,23 @@ export default function Home() {
 
 
       {/* Why "Tern" — the name, stated plainly, not implied by an animation.
-          The hero ends on the warm --horizon-500 band; this strip continues
-          that horizon and lets it settle into daylight paper, so the page
-          transitions from night to day instead of cutting to flat white. */}
+          The hero ends on the warm --horizon-500 band; this strip lets that
+          horizon sink back into dusk (F1: the old horizon×paper color-mixes
+          read as a muddy pink haze — the light "day" band is gone, so the
+          warmth now dissolves into the page's dusk track instead). */}
       <section
         className="py-14"
         style={{
           background:
-            'linear-gradient(180deg, var(--horizon-500) 0%, color-mix(in srgb, var(--horizon-500) 40%, var(--paper-50)) 30%, color-mix(in srgb, var(--horizon-500) 14%, var(--paper-50)) 62%, color-mix(in srgb, var(--horizon-500) 7%, var(--paper-50)) 100%)',
+            'linear-gradient(180deg, var(--horizon-500) 0%, color-mix(in srgb, var(--horizon-500) 38%, var(--dusk-700)) 22%, color-mix(in srgb, var(--horizon-500) 10%, var(--dusk-700)) 52%, transparent 100%)',
         }}
       >
         <div data-fx-head className="max-w-4xl mx-auto px-6 flex items-center justify-center gap-5 text-center md:text-left">
           <svg width="34" height="34" viewBox="0 0 24 24" fill="none" aria-hidden="true" className="hidden md:block shrink-0">
-            <path d="M2 15 L22 8 L12 12.5 L9.5 4.5 L7.5 5.5 L9 13.5 Z" fill="var(--dusk-700)" />
+            <path d="M2 15 L22 8 L12 12.5 L9.5 4.5 L7.5 5.5 L9 13.5 Z" fill="var(--contrail-300)" />
           </svg>
-          <p className="text-[15px] leading-relaxed" style={{ color: 'var(--dusk-700)' }}>
-            <span className="data-mono text-[11px] font-semibold tracking-[0.18em] block mb-1" style={{ color: 'var(--signal-600)' }}>{tHome("whyKicker")}</span>
+          <p className="text-[15px] leading-relaxed" style={{ color: 'var(--paper-50)' }}>
+            <span className="data-mono text-[11px] font-semibold tracking-[0.18em] block mb-1" style={{ color: 'var(--contrail-300)' }}>{tHome("whyKicker")}</span>
             {tHome("whyBody")}
           </p>
         </div>
@@ -838,13 +828,7 @@ export default function Home() {
           "Explore Top Destinations" below: real destination photo, glass
           content bar. No "Sponsored" tag: nothing here is sponsored, and
           claiming so is a false disclosure. */}
-      <section
-        className="py-14"
-        style={{
-          background:
-            'linear-gradient(180deg, color-mix(in srgb, var(--horizon-500) 7%, var(--paper-50)) 0%, var(--paper-50) 45%, var(--paper-50) 100%)',
-        }}
-      >
+      <section className="py-14">
         <div className="max-w-6xl mx-auto px-6">
           <div data-fx-head className="mb-8">
             <span className="section-kicker">{tHome("kickerInspiration")}</span>
@@ -867,11 +851,15 @@ export default function Home() {
                   className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
                   style={{ backgroundImage: `url(${offer.image})` }}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[rgba(10,15,30,0.45)] via-transparent to-[rgba(10,15,30,0.12)]" />
+                {/* F1: heavier foot — the content bar is dark glass now, so the
+                    photo behind it needs more ink for the white type to sit on */}
+                <div className="absolute inset-0 bg-gradient-to-t from-[rgba(10,15,30,0.66)] via-transparent to-[rgba(10,15,30,0.12)]" />
                 <div className="glass-panel absolute inset-x-3 bottom-3 rounded-xl p-4">
                   <h3 className="text-lg font-bold leading-snug text-foreground">{tHome(`offer${offer.id}Title`)}</h3>
                   <p className="mt-0.5 text-xs text-muted">{tHome(`offer${offer.id}Sub`)}</p>
-                  <span className="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold" style={{ color: 'var(--signal-600)' }}>
+                  {/* F1: contrail, not signal blue — the dark-glass bar lets the
+                      bright photo through, and blue washed out against it */}
+                  <span className="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold" style={{ color: 'var(--contrail-300)', textShadow: '0 1px 8px rgba(10,15,30,0.55)' }}>
                     {tHome(`offer${offer.id}Cta`)}
                     <span aria-hidden="true" className="transition-transform duration-200 group-hover:translate-x-1">→</span>
                   </span>
@@ -885,10 +873,7 @@ export default function Home() {
       {/* Airline Deals & Promotions — glass panels linking to the carriers'
           own deals pages. The domain is data (like flight numbers), so it
           gets the mono chip. */}
-      <section
-        className="glass-boost py-12"
-        style={{ background: 'linear-gradient(180deg, var(--paper-50) 0%, #ffffff 40%, #ffffff 100%)' }}
-      >
+      <section className="py-12">
         <div className="max-w-6xl mx-auto px-6">
           <div data-fx-head className="mb-8">
             <span className="section-kicker">{tHome("kickerDeals")}</span>
@@ -941,10 +926,7 @@ export default function Home() {
       </section>
 
       {/* Explore Top Destinations — the one interactive moment on the page */}
-      <section
-        className="py-20"
-        style={{ background: 'linear-gradient(180deg, #ffffff 0%, color-mix(in srgb, var(--contrail-300) 12%, #ffffff) 32%, #ffffff 100%)' }}
-      >
+      <section className="py-20">
         <div className="max-w-6xl mx-auto px-6">
           <div data-fx-head className="text-center mb-6">
             <span className="section-kicker">{tHome("kickerDest")}</span>
@@ -969,14 +951,13 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Most Popular Airlines — the page turns back to night here: the
-          "day" sections above settle through a warm horizon whisper into
-          dusk, then ink, carrying the night tail down into the footer. */}
-      <section
-        className="night-tail py-16"
-        style={{ background: 'linear-gradient(180deg, #ffffff 0%, color-mix(in srgb, var(--horizon-500) 14%, #ffffff) 7%, var(--dusk-700) 42%, var(--ink-900) 100%)' }}
-      >
-        <div className="max-w-6xl mx-auto px-6">
+      {/* Most Popular Airlines — deepening from dusk toward ink on the
+          page's continuous tone track. The old white→horizon bridge died
+          with the light band (F1). Stars at low opacity behind a vertical
+          fade mask keep the deep zone from reading flat. */}
+      <section className="relative overflow-hidden py-16">
+        <div className="hero-stars night-stars" aria-hidden="true" />
+        <div className="relative z-10 max-w-6xl mx-auto px-6">
           <div data-fx-head className="text-center mb-10">
             <span className="section-kicker">{tHome("kickerCarriers")}</span>
             <h2 className="text-3xl font-bold text-foreground">{tHome("carriersTitle")}</h2>
@@ -1080,7 +1061,7 @@ export default function Home() {
           fact (5 smart picks, live offers, the ±5-day trend window, 4
           locales). Fabricated social-proof stats are banned; the
           template's "50M+ travelers" row died here (D1). */}
-      <section className="night-tail py-16 border-y" style={{ background: 'var(--ink-900)', borderColor: 'rgba(143,224,232,0.10)' }}>
+      <section className="py-16 border-y" style={{ borderColor: 'rgba(143,224,232,0.10)' }}>
         <div className="max-w-5xl mx-auto px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
@@ -1100,8 +1081,9 @@ export default function Home() {
 
       {/* Popular Flights Section */}
       {!showResults && (
-        <section className="night-tail py-20" style={{ background: 'linear-gradient(180deg, var(--ink-900) 0%, var(--dusk-700) 100%)' }}>
-          <div className="max-w-5xl mx-auto px-6">
+        <section className="relative overflow-hidden py-20">
+          <div className="hero-stars night-stars" aria-hidden="true" />
+          <div className="relative z-10 max-w-5xl mx-auto px-6">
             <div data-fx-head className="flex items-center justify-between mb-10">
               <h2 className="text-3xl font-bold text-foreground">{tHome("flightsTitle")}</h2>
               <div className="flex items-center gap-3">

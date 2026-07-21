@@ -14,16 +14,18 @@ gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 /**
  * "Explore Top Destinations" connected 3D element: a great-circle route
- * arc drawn in ink (--dusk-700) over the daylight paper, traced on by
- * scroll; a small glass tern glyph flies the arc as the section scrolls
- * through the viewport (ScrollTrigger scrub → progress ref → useFrame).
+ * arc traced on by scroll; a small tern glyph flies the arc as the
+ * section scrolls through the viewport (ScrollTrigger scrub → progress
+ * ref → useFrame).
  *
- * Ink on paper, not additive glow: additive materials disappear over
- * white and speckle over cards (verified in Stage 2) — this section sits
- * on daylight, so it uses the same ink language as the WHY TERN glyph.
+ * F1: the section now sits on the page's dusk tone track, so the arc
+ * speaks contrail (the hero's night language) instead of the original
+ * ink-on-paper — ink at #1B2A52 over dusk-700 would simply vanish.
+ * Plain (non-additive) materials still, so it reads as a drawn line,
+ * not a glow competing with the hero.
  */
 
-const INK = new THREE.Color("#1B2A52");
+const CONTRAIL = new THREE.Color("#8FE0E8"); // --contrail-300 on the dusk track
 const SIGNAL = new THREE.Color("#2F6FED");
 const ARC_SEGMENTS = 128;
 
@@ -36,7 +38,7 @@ function buildArc() {
   const points = curve.getPoints(ARC_SEGMENTS);
   const arcGeo = new THREE.BufferGeometry().setFromPoints(points);
   const arcMat = new THREE.LineDashedMaterial({
-    color: INK,
+    color: CONTRAIL,
     transparent: true,
     opacity: 0.45,
     dashSize: 0.16,
@@ -48,7 +50,7 @@ function buildArc() {
 
   // Endpoint dots: origin (ink) and destination (signal blue)
   const dotGeo = new THREE.CircleGeometry(0.07, 24);
-  const originMat = new THREE.MeshBasicMaterial({ color: INK, transparent: true, opacity: 0.55 });
+  const originMat = new THREE.MeshBasicMaterial({ color: CONTRAIL, transparent: true, opacity: 0.55 });
   const destMat = new THREE.MeshBasicMaterial({ color: SIGNAL, transparent: true, opacity: 0 });
   const origin = new THREE.Mesh(dotGeo, originMat);
   origin.position.copy(points[0]);
@@ -65,7 +67,7 @@ function buildArc() {
   glyphShape.lineTo(-0.08, 0.09);
   glyphShape.closePath();
   const glyphGeo = new THREE.ShapeGeometry(glyphShape);
-  const glyphMat = new THREE.MeshBasicMaterial({ color: INK, transparent: true, opacity: 0.85, side: THREE.DoubleSide });
+  const glyphMat = new THREE.MeshBasicMaterial({ color: CONTRAIL, transparent: true, opacity: 0.85, side: THREE.DoubleSide });
   const glyph = new THREE.Mesh(glyphGeo, glyphMat);
   glyph.scale.setScalar(2.2);
 
