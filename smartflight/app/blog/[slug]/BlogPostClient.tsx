@@ -30,7 +30,7 @@ export default function BlogPostClient({ slug }: { slug: string }) {
 
   return (
     <SubpageShell kicker={t(post.tagKey)} title={t(post.titleKey)} intro={t(post.introKey)}>
-      <article className="glass-boost py-14">
+      <article className="py-14">
         <div className="max-w-3xl mx-auto px-6 space-y-5">
           {post.kind === "airport" && <AirportPostBody iata={post.iata} />}
 
@@ -54,7 +54,7 @@ export default function BlogPostClient({ slug }: { slug: string }) {
             <div className="space-y-4">
               {(["Cheapest", "Fastest", "Earliest", "AI", "Delay"] as const).map((k) => (
                 <Card key={k}>
-                  <p className="data-mono text-[11px] font-semibold uppercase tracking-[0.14em]" style={{ color: "var(--signal-600)" }}>
+                  <p className="data-mono text-[11px] font-semibold uppercase tracking-[0.14em]" style={{ color: "var(--contrail-300)" }}>
                     {t(`rank${k}`)}
                   </p>
                   <p className="mt-2 text-sm leading-relaxed text-muted">{t(`rank${k}Body`)}</p>

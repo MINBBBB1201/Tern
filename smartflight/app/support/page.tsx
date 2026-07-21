@@ -11,7 +11,7 @@ export default function SupportPage() {
 
   return (
     <SubpageShell kicker={t("kicker")} title={t("title")} intro={t("intro")}>
-      <section className="glass-boost py-14">
+      <section className="py-14">
         <div className="max-w-3xl mx-auto px-6">
           <div className="space-y-3">
             {faqs.map((id) => (

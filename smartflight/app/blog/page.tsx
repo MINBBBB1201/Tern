@@ -10,7 +10,7 @@ export default function BlogIndexPage() {
 
   return (
     <SubpageShell kicker={t("kicker")} title={t("title")} intro={t("intro")}>
-      <section className="glass-boost py-14">
+      <section className="py-14">
         <div className="max-w-4xl mx-auto px-6">
           <div className="space-y-4">
             {blogPosts.map((post) => (
@@ -24,7 +24,7 @@ export default function BlogIndexPage() {
                 </span>
                 <h2 className="mt-3 text-xl font-bold text-foreground leading-snug">{t(post.titleKey)}</h2>
                 <p className="mt-1.5 text-sm text-muted">{t(post.excerptKey)}</p>
-                <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold" style={{ color: "var(--signal-600)" }}>
+                <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold" style={{ color: "var(--contrail-300)" }}>
                   {t("readMore")}
                   <span aria-hidden="true" className="transition-transform duration-200 group-hover:translate-x-1">→</span>
                 </span>

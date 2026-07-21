@@ -11,17 +11,17 @@ export default function AboutPage() {
 
   return (
     <SubpageShell kicker={t("kicker")} title={t("title")} intro={t("intro")}>
-      <section className="glass-boost py-14">
+      <section className="py-14">
         <div className="max-w-3xl mx-auto px-6 space-y-5">
           <section className="glass-panel rounded-2xl p-7">
-            <p className="data-mono text-[11px] font-semibold uppercase tracking-[0.14em]" style={{ color: "var(--signal-600)" }}>
+            <p className="data-mono text-[11px] font-semibold uppercase tracking-[0.14em]" style={{ color: "var(--contrail-300)" }}>
               {t("whatTitle")}
             </p>
             <p className="mt-3 text-[15px] leading-relaxed text-muted">{t("whatBody")}</p>
           </section>
 
           <section className="glass-panel rounded-2xl p-7">
-            <p className="data-mono text-[11px] font-semibold uppercase tracking-[0.14em]" style={{ color: "var(--signal-600)" }}>
+            <p className="data-mono text-[11px] font-semibold uppercase tracking-[0.14em]" style={{ color: "var(--contrail-300)" }}>
               {t("diffTitle")}
             </p>
             <ul className="mt-3 space-y-3 text-[15px] leading-relaxed text-muted">

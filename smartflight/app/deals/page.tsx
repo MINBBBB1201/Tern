@@ -14,7 +14,7 @@ export default function DealsPage() {
 
   return (
     <SubpageShell kicker={t("kicker")} title={t("title")} intro={t("intro")}>
-      <section className="glass-boost py-14">
+      <section className="py-14">
         <div className="max-w-6xl mx-auto px-6">
           <div className="grid gap-5 sm:grid-cols-2">
             {airlineDealPages.map((deal) => (
@@ -71,7 +71,7 @@ export default function DealsPage() {
 
           {/* Honesty note — how this page works, stated on the page itself. */}
           <div className="glass-panel mt-10 rounded-2xl p-6">
-            <p className="data-mono text-[11px] font-semibold uppercase tracking-[0.14em]" style={{ color: "var(--signal-600)" }}>
+            <p className="data-mono text-[11px] font-semibold uppercase tracking-[0.14em]" style={{ color: "var(--contrail-300)" }}>
               {t("howTitle")}
             </p>
             <ul className="mt-3 space-y-2 text-sm text-muted">

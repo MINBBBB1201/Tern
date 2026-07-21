@@ -16,7 +16,7 @@ export function LegalPage({ namespace, sections }: { namespace: string; sections
 
   return (
     <SubpageShell kicker={t("kicker")} title={t("title")} intro={t("intro")}>
-      <section className="glass-boost py-14">
+      <section className="py-14">
         <div className="max-w-3xl mx-auto px-6">
           <p className="data-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-muted">
             {t("effective")}

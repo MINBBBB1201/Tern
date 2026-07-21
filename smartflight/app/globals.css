@@ -614,6 +614,10 @@ body {
    night-sky ramp: paper at full weight, dimmed for muted, contrail kicker. */
 .night-tail .text-foreground { color: var(--paper-50); }
 .night-tail .text-muted { color: rgba(246, 248, 251, 0.60); }
+/* Hover variants are their own Tailwind classes, so the base remap above
+   misses them — without this a hover:text-foreground link darkens into
+   the night bg instead of brightening (blog "back to list", F2). */
+.night-tail .hover\:text-foreground:hover { color: var(--paper-50); }
 .night-tail .text-primary-hover { color: var(--contrail-300); }
 .night-tail .section-kicker { color: var(--contrail-300); }
 /* Flight-path hairline in FlightTicketCard reads as a faint contrail on dark. */
