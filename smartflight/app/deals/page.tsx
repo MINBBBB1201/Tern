@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { SubpageShell } from "../../components/SubpageShell";
 import { airlineDealPages } from "../../lib/airlineDeals";
+import { useHoverTilt } from "../../hooks/useHoverTilt";
 
 /* /deals — the C1 card pattern promoted to a full route. Same honesty
    contract: every fact is verifiable on the linked airline page; the
@@ -11,6 +12,8 @@ import { airlineDealPages } from "../../lib/airlineDeals";
 export default function DealsPage() {
   const t = useTranslations("DealsPage");
   const tHome = useTranslations("Home");
+  // G3: cursor-tilt reused across the deal cards (keys off currentTarget).
+  const tilt = useHoverTilt<HTMLElement>(2.5);
 
   return (
     <SubpageShell kicker={t("kicker")} title={t("title")} intro={t("intro")}>
@@ -18,7 +21,12 @@ export default function DealsPage() {
         <div className="max-w-6xl mx-auto px-6">
           <div className="grid gap-5 sm:grid-cols-2">
             {airlineDealPages.map((deal) => (
-              <article key={deal.iata} className="glass-panel rounded-2xl p-6 transition-[transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:shadow-md">
+              <article
+                key={deal.iata}
+                onMouseMove={tilt.onMouseMove}
+                onMouseLeave={tilt.onMouseLeave}
+                className="tilt-card glass-panel rounded-2xl p-6 hover:shadow-[0_18px_40px_rgba(10,15,30,0.45)]"
+              >
                 <div className="flex items-start justify-between gap-3">
                   <span className="glass-chip rounded-full px-2.5 py-1 data-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-muted">
                     {tHome("official")}

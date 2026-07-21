@@ -538,6 +538,11 @@ export default function Home() {
   const tPicks = useTranslations("SmartPicks");
   const tHome = useTranslations("Home");
   const tAlert = useTranslations("PriceAlert");
+  // G3: one cursor-tilt instance reused across the inline card grids
+  // (the hook keys off e.currentTarget, so a single instance drives many
+  // cards). Airline-deal cards tilt a touch more than the wide picker rows.
+  const cardTilt = useHoverTilt<HTMLElement>(2.5);
+  const rowTilt = useHoverTilt<HTMLButtonElement>(1.3);
 
   // Search params are owned by SearchBar; page tracks last submitted for downstream use
   const [lastSearch, setLastSearch] = useState<SearchParams>({
@@ -886,7 +891,12 @@ export default function Home() {
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {airlineDealPages.map((deal) => (
-              <article data-fx-card key={deal.iata} className="glass-panel relative rounded-2xl p-4 transition-shadow hover:shadow-md">
+              <div data-fx-card key={deal.iata}>
+              <article
+                onMouseMove={cardTilt.onMouseMove}
+                onMouseLeave={cardTilt.onMouseLeave}
+                className="tilt-card glass-panel relative rounded-2xl p-4 hover:shadow-[0_18px_40px_rgba(10,15,30,0.45)]"
+              >
                 <div className="flex items-start justify-between gap-3">
                   <span className="glass-chip rounded-full px-2.5 py-1 data-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-muted">
                     {tHome("official")}
@@ -923,6 +933,7 @@ export default function Home() {
                   {tHome("viewDeals")}
                 </a>
               </article>
+              </div>
             ))}
           </div>
         </div>
@@ -975,7 +986,9 @@ export default function Home() {
                   key={airline.key}
                   type="button"
                   onClick={() => setSelectedAirlineKey(airline.key)}
-                  className={`glass-panel glass-row w-full rounded-2xl px-4 py-3 flex items-center justify-between ${isActive ? "is-active" : ""}`}
+                  onMouseMove={rowTilt.onMouseMove}
+                  onMouseLeave={rowTilt.onMouseLeave}
+                  className={`tilt-card glass-panel glass-row w-full rounded-2xl px-4 py-3 flex items-center justify-between ${isActive ? "is-active" : ""}`}
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     {/* Real airline brand marks — never restyled, only their
