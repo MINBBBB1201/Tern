@@ -1,4 +1,34 @@
-# Backlog — B/C/D/E/F series (2026-07-17 → 2026-07-21)
+# Backlog — B/C/D/E/F/G series (2026-07-17 → 2026-07-22)
+
+## G series status (scroll motion, existing Three.js/CSS assets, 2026-07-22)
+
+Direction: no AI-generated 3D (Higgsfield cost + it fights the custom
+HeroGlobe/HeroTernView identity we already own) — instead make the
+existing Three.js/CSS assets react to scroll. GSAP core + ScrollTrigger
+only (both free since GSAP 3.13; no paid plugins). Captures saved under
+docs/screenshots/g*.png.
+
+- G1. Hero globe scroll recede — [x] (was already fading+drifting on
+  scroll; deepened it: +1.6 units z-pushback into depth and 12%→18%
+  shrink, and aligned the fade range to the bird's flightFade (0.05–0.5)
+  so globe and tern recede in step. g1-globe-rest.png / g1-globe-recede.png)
+- G2. Section motion + page-wide route line — [x] (card fade+rise already
+  shipped via ScrollFX data-fx-*; kept, intensity fine. NEW: ScrollTrail —
+  the hero's flight-path motif as one faint contrail routed through the
+  page gutters, drawn in by scroll (strokeDashoffset scrubbed via
+  ScrollTrigger). Desktop + no-preference only; mobile never paints it.
+  g2-trail-top/mid/bottom.png)
+- G3. Card hover tilt + shadow depth — [x] (useHoverTilt extended to the
+  homepage Airline-Deals cards, the airline picker rows, and the /deals
+  cards; ≤2.5° perspective + deeper hover shadow. g3-card-rest/tilt.png,
+  transform verified perspective(900px) rotateX 1.51 rotateY 1.59)
+- G4. Star density scroll reactivity (optional) — [~] (largely already met
+  by the F1 both-edge star mask, which swells/dims density spatially as a
+  section scrolls through. A CSS view()-timeline opacity breathe was
+  trialled on top and REVERTED: the headless capture harness pins
+  ViewTimeline progress at 50%, so its live scroll-scrub could not be
+  verified — not shipping an unverifiable visual over an effect the mask
+  already delivers.)
 
 ## F series status (background tone continuity, 2026-07-21)
 

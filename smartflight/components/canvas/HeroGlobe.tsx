@@ -402,10 +402,13 @@ export default function HeroGlobe() {
     const cam = state.camera as THREE.PerspectiveCamera;
     const { center, radius } = globePlacement(cam.isPerspectiveCamera ? cam.aspect : state.size.width / Math.max(state.size.height, 1));
     outer.position.copy(center);
-    // Background parallax on scroll: the globe lags the page (drifts
-    // down in hero space), so its sphere doesn't hit the viewport-top
-    // clip line while still clearly visible.
+    // Scroll recede (G1): the globe lags the page — drifting down in hero
+    // space so its sphere never hits the viewport-top clip line — and
+    // pulls back into depth, so scrolling reads as the world receding
+    // behind the content, not just fading. Restrained: a third of a radius
+    // of drift, ~1.6 units of z-pushback over the whole hero exit.
     outer.position.y -= globeShared.scrollOut * radius * 0.35;
+    outer.position.z -= globeShared.scrollOut * 1.6;
 
     // Gentle scale-in on first appearance so the globe doesn't pop.
     const now0 = performance.now();
@@ -413,16 +416,20 @@ export default function HeroGlobe() {
     const born = Math.min((now0 - bornAt.current) / 1200, 1);
     const bornEase = 1 - Math.pow(1 - born, 3);
 
-    // Scroll-out (item 4): written per-frame by TernSequence from the
-    // hero's bounding rect — fade + slight shrink, no visibility snap.
-    const fade = 1 - THREE.MathUtils.smoothstep(globeShared.scrollOut, 0.03, 0.38);
+    // Scroll-out: written per-frame by TernSequence from the hero's
+    // bounding rect. Fade range aligned with the bird's flightFade
+    // (smoothstep 0.05–0.5 in HeroTernView) so globe and tern recede in
+    // step instead of the globe vanishing first — the recede stays
+    // visible longer before it dims out.
+    const fade = 1 - THREE.MathUtils.smoothstep(globeShared.scrollOut, 0.05, 0.5);
     globeMaterial.uniforms.uFade.value = fade;
     haloMaterial.uniforms.uFade.value = fade;
     routeMaterial.opacity = 0.95 * fade;
     endpointMaterial.opacity = fade;
     outer.visible = fade > 0.005;
 
-    outer.scale.setScalar(radius * (0.6 + 0.4 * bornEase) * (1 - 0.12 * globeShared.scrollOut));
+    // Shrink deepens the depth pushback above (0.18 vs the old 0.12).
+    outer.scale.setScalar(radius * (0.6 + 0.4 * bornEase) * (1 - 0.18 * globeShared.scrollOut));
 
     // Decorative spin only — terminator math lives in the earth frame.
     spin.rotation.y += delta * SPIN_RATE;
