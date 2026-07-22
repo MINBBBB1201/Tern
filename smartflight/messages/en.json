@@ -291,7 +291,7 @@
     "rankAI": "AI pick",
     "rankAIBody": "A weighted balance of price, duration, and arrival. It is a compromise by design — check what it traded away.",
     "rankDelay": "Lowest delay risk",
-    "rankDelayBody": "An estimate from historical delay patterns for the route and carrier. A signal, not a guarantee — weather wins every time."
+    "rankDelayBody": "A relative estimate from the itinerary's shape — stops, red-eye departure times, and tight connections. A signal for choosing between similar flights, not live delay data, and never a guarantee — weather wins every time."
   },
   "AboutPage": {
     "kicker": "About",
@@ -302,7 +302,7 @@
     "diffTitle": "What we refuse to do",
     "diff1": "No invented urgency. No fake countdowns, no \"3 seats left\" we can't verify.",
     "diff2": "No invented deals. Promotions link to the airline's own pages; if we can't verify a claim, we don't show it.",
-    "diff3": "Honest risk signals. Delay-risk numbers are estimates from historical patterns and are labeled as such.",
+    "diff3": "Honest risk signals. The delay-risk score is a relative estimate from the itinerary's shape — stops, timing, and connections — labeled as an estimate, never dressed up as live delay data.",
     "nameTitle": "The name",
     "nameBody1": "The Arctic Tern flies from pole to pole every year — the longest migration of any animal we know of. It spends its life chasing summer along the most efficient route it can find.",
     "nameBody2": "That is the entire product idea: find the best route, honestly, and go. The boarding pass in our hero carries a tern for the same reason.",
@@ -319,7 +319,7 @@
     "faq3q": "How do refunds and changes work?",
     "faq3a": "Bookings complete on the airline's site or our checkout partner's page, and that fare's own rules govern refunds and changes. Check the fare conditions before paying — Tern compares flights but never holds your ticket.",
     "faq4q": "What does the delay-risk number mean?",
-    "faq4a": "It's an estimate built from historical delay patterns for that route and carrier. Treat it as a signal for choosing between similar flights, not a prediction about your specific day.",
+    "faq4a": "It's a relative estimate built from the itinerary's shape — the number of stops, red-eye departure times, and tight connections. Use it to compare similar flights, not as a prediction for your specific day. It isn't live or historical delay data.",
     "faq5q": "Why is the final price sometimes different?",
     "faq5a": "Airlines reprice fares continuously, and the booking page always shows the authoritative amount. Currency conversions on Tern are for display and may differ slightly from your card's rate.",
     "faq6q": "How do price alerts work?",
@@ -401,7 +401,8 @@
     "layover": "layover",
     "layoverAt": "at {airport}",
     "approxChargedIn": "≈, charged in {price}",
-    "getRideAtArrival": "Get a ride at {airport}"
+    "getRideAtArrival": "Get a ride at {airport}",
+    "riskInfo": "Estimated from the itinerary's shape — stops, red-eye departure times, and tight connections. A relative signal, not live delay data."
   },
   "TermsPage": {
     "kicker": "Legal",

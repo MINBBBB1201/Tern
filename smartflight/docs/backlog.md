@@ -38,8 +38,20 @@ any fabricated stat/trend means skipping that item with a specific reason.
   show real movement). Capture h2-price-trend.png. Residual: /booking is
   still light-themed (not SubpageShell) while the rest of the site is dark —
   an F4 candidate, out of H2 scope.)
-- H3. Delay-risk viz — REAL DATA ONLY; verify source, else document the
-  current "Lowest delay risk" sort and skip — [ ]
+- H3. Delay-risk viz — REAL DATA ONLY — [x] (NO new viz added, per the rule.
+  Finding: real delay statistics are NOT available — Duffel /api/search
+  returns no historical/live delay data and no other source is wired. The
+  existing "Risk X/98" badge is a HEURISTIC (lib/offerUtils computeDelayRisk
+  Score: base 8 + stops×15 + red-eye-departure +12 + tight-layover
+  penalties, cap 98; comment already says "not live FAA data"); the "Lowest
+  delay risk" sort (delay_low) orders ascending by it. Instead of baseless
+  viz, made the EXISTING signal honest: the About/Support/Blog copy claimed
+  it was "an estimate from historical delay patterns for the route and
+  carrier" — false, since the score uses neither history nor route/carrier —
+  corrected across en/ko/ja/zh to an accurate "relative estimate from the
+  itinerary's shape (stops, timing, connections)", and added a cursor-help
+  tooltip on the badge saying the same. Captures h3-about-honest-copy.png;
+  badge title verified in DOM.)
 - H4. Transparency "how we make money" section (About/Support), consistent
   with Terms/Privacy, user-first tone — [ ]
 

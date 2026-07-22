@@ -92,7 +92,10 @@ function OfferCardImpl({ offer, isExpanded, onToggleExpand, onSelect, from, to, 
         <div className="hidden md:block text-right min-w-[120px]">
           <p className="text-sm font-semibold">{offer.airline || "Partner Airline"}</p>
           <p className="text-xs text-muted capitalize">{(offer.cabinClass || cabinClass).replace("_", " ")}</p>
-          <span className={`glass-chip data-mono mt-0.5 inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold ${riskColor}`}>
+          <span
+            title={t("riskInfo")}
+            className={`glass-chip data-mono mt-0.5 inline-flex cursor-help items-center rounded-full px-2 py-0.5 text-[11px] font-semibold ${riskColor}`}
+          >
             {t("risk", { score: delayRisk })}
           </span>
         </div>
