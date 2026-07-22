@@ -25,8 +25,19 @@ any fabricated stat/trend means skipping that item with a specific reason.
   brand colour on hover. Same treatment on the homepage section, plus a new
   "See all deals →" link to /deals. Real 4 airlines/links kept, no invented
   categories. Captures h1-deals-rest / h1-deals-hover / h1-home-deals-seeall)
-- H2. Price-trend graph — REAL DATA ONLY; verify ±5d data exists, else
-  skip with reason — [ ]
+- H2. Price-trend graph — REAL DATA ONLY — [x] (ALREADY IMPLEMENTED and
+  verified working: hooks/usePriceTrend queries the real Duffel /api/search
+  for each of ±5 days around the searched date and plots the per-day min
+  fare (components/booking/PriceTrendChart, recharts) on the /booking
+  results page — matches the hero's "±5d" stat exactly. Data availability
+  CONFIRMED: /api/search returns real Duffel offers ($119.80 Jeju ICN→NRT,
+  real times/aircraft), and isBookableAirline filters out duffel/dummy/test/
+  sample. IMPORTANT & honest: in Duffel TEST mode the API returns the same
+  fare for every date, so the trend line is FLAT — real data, not faked; we
+  deliberately do NOT fabricate day-to-day variation (a live token would
+  show real movement). Capture h2-price-trend.png. Residual: /booking is
+  still light-themed (not SubpageShell) while the rest of the site is dark —
+  an F4 candidate, out of H2 scope.)
 - H3. Delay-risk viz — REAL DATA ONLY; verify source, else document the
   current "Lowest delay risk" sort and skip — [ ]
 - H4. Transparency "how we make money" section (About/Support), consistent
