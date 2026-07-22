@@ -81,7 +81,7 @@ type SmartPickCardProps = {
 };
 
 function SmartPickCard({ card, onPick }: SmartPickCardProps) {
-  const tilt = useHoverTilt<HTMLButtonElement>(3);
+  const tilt = useHoverTilt<HTMLButtonElement>(5);
 
   return (
     <button

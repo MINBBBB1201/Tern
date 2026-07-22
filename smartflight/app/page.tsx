@@ -180,7 +180,7 @@ const FlightTicketCard = ({
   arrivalTime: string;
   onBook: () => void;
 }) => {
-  const tilt = useHoverTilt<HTMLElement>(2);
+  const tilt = useHoverTilt<HTMLElement>(5);
   const t = useTranslations("Home");
 
   return (
@@ -377,7 +377,7 @@ const DestinationCard = ({
   deal: { city: string; route: string; dateRange: string; price: number; image: string };
   onOpen: () => void;
 }) => {
-  const tilt = useHoverTilt<HTMLElement>(3);
+  const tilt = useHoverTilt<HTMLElement>(5);
   const t = useTranslations("Home");
   const [active, setActive] = useState(false);
   const [shownPrice, setShownPrice] = useState(deal.price);
@@ -541,8 +541,8 @@ export default function Home() {
   // G3: one cursor-tilt instance reused across the inline card grids
   // (the hook keys off e.currentTarget, so a single instance drives many
   // cards). Airline-deal cards tilt a touch more than the wide picker rows.
-  const cardTilt = useHoverTilt<HTMLElement>(2.5);
-  const rowTilt = useHoverTilt<HTMLButtonElement>(1.3);
+  const cardTilt = useHoverTilt<HTMLElement>(5);
+  const rowTilt = useHoverTilt<HTMLButtonElement>(4);
 
   // Search params are owned by SearchBar; page tracks last submitted for downstream use
   const [lastSearch, setLastSearch] = useState<SearchParams>({
@@ -978,12 +978,15 @@ export default function Home() {
             <p className="text-muted mt-2">{tHome("carriersSub")}</p>
           </div>
 
-          <div data-fx-card className="grid md:grid-cols-3 gap-4">
+          {/* G5: data-fx-card on each cell (not the grid) so the six cards
+              stagger in one-by-one on scroll entry; the tilt lives on the
+              inner button so the entrance and hover transforms never fight. */}
+          <div className="grid md:grid-cols-3 gap-4">
             {popularAirlines.map((airline) => {
               const isActive = selectedAirlineKey === airline.key;
               return (
+                <div data-fx-card key={airline.key}>
                 <button
-                  key={airline.key}
                   type="button"
                   onClick={() => setSelectedAirlineKey(airline.key)}
                   onMouseMove={rowTilt.onMouseMove}
@@ -1009,6 +1012,7 @@ export default function Home() {
                   </div>
                   <span className="text-muted">→</span>
                 </button>
+                </div>
               );
             })}
           </div>

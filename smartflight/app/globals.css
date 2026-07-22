@@ -816,10 +816,20 @@ body {
   will-change: transform;
 }
 
+/* G5: a deep drop shadow while the card is lifted, so the tilt reads as
+   real depth. One rule for every .tilt-card — unlayered, so it wins over
+   the per-card Tailwind hover:shadow utilities. */
+.tilt-card:hover {
+  box-shadow: 0 24px 50px -12px rgba(10, 15, 30, 0.6), 0 8px 20px rgba(10, 15, 30, 0.35);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .tilt-card {
     transition: none;
     transform: none !important;
+  }
+  .tilt-card:hover {
+    box-shadow: none;
   }
 }
 
@@ -881,10 +891,10 @@ body {
 .scroll-trail path {
   fill: none;
   stroke: var(--contrail-300);
-  stroke-width: 1.4;
+  stroke-width: 1.5;
   vector-effect: non-scaling-stroke;
-  opacity: 0.12;
-  filter: drop-shadow(0 0 3px rgba(143, 224, 232, 0.4));
+  opacity: 0.22;
+  filter: drop-shadow(0 0 4px rgba(143, 224, 232, 0.5));
   /* Hidden until ScrollTrail.tsx measures the real path length — a large
      fixed dash prevents a flash of the full line before hydration. */
   stroke-dasharray: 2000;

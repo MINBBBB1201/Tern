@@ -31,17 +31,24 @@ export default function ScrollTrail() {
     // path and the scrub only exists where the trail is actually shown.
     mm.add("(min-width: 1024px) and (prefers-reduced-motion: no-preference)", () => {
       const len = path.getTotalLength();
-      gsap.set(path, { strokeDasharray: len, strokeDashoffset: len });
-      const tween = gsap.to(path, {
-        strokeDashoffset: 0,
-        ease: "none",
-        scrollTrigger: {
-          trigger: document.documentElement,
-          start: "top top",
-          end: "bottom bottom",
-          scrub: 0.6,
-        },
-      });
+      gsap.set(path, { strokeDasharray: len });
+      // G5: start ~22% already drawn so the trail is present on the first
+      // screen without scrolling (not invisible until you scroll), then
+      // completes to full as the page scrolls.
+      const tween = gsap.fromTo(
+        path,
+        { strokeDashoffset: len * 0.62 },
+        {
+          strokeDashoffset: 0,
+          ease: "none",
+          scrollTrigger: {
+            trigger: document.documentElement,
+            start: "top top",
+            end: "bottom bottom",
+            scrub: 0.6,
+          },
+        }
+      );
       return () => {
         tween.scrollTrigger?.kill();
         tween.kill();
@@ -53,7 +60,7 @@ export default function ScrollTrail() {
     <svg className="scroll-trail" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
       <path
         ref={pathRef}
-        d="M 7 -6 C 12 16, 5 33, 9 51 C 13 69, 88 65, 92 83 C 95 95, 90 106, 88 114"
+        d="M 4 -6 C 8 16, 3 33, 6 51 C 9 69, 88 65, 92 83 C 95 95, 90 106, 88 114"
       />
     </svg>
   );

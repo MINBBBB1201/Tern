@@ -53,7 +53,7 @@ const GLOBE_R_FRAC = 0.3;
 const CAM_Z = 6; // hero View camera z (HeroTernView PerspectiveCamera)
 const FOV_DEG = 45;
 
-const SPIN_RATE = 0.07; // rad/s — one revolution ≈ 90 s
+const SPIN_RATE = 0.09; // rad/s — one revolution ≈ 70 s (G5: a touch livelier idle)
 const SUN_UPDATE_MS = 1000;
 const ROUTE_SEGMENTS = 64;
 

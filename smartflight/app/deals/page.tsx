@@ -13,7 +13,7 @@ export default function DealsPage() {
   const t = useTranslations("DealsPage");
   const tHome = useTranslations("Home");
   // G3: cursor-tilt reused across the deal cards (keys off currentTarget).
-  const tilt = useHoverTilt<HTMLElement>(2.5);
+  const tilt = useHoverTilt<HTMLElement>(5);
 
   return (
     <SubpageShell kicker={t("kicker")} title={t("title")} intro={t("intro")}>

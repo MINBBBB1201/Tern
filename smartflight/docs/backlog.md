@@ -1,4 +1,29 @@
-# Backlog — B/C/D/E/F/G series (2026-07-17 → 2026-07-22)
+# Backlog — B/C/D/E/F/G/H series (2026-07-17 → 2026-07-22)
+
+## G5 + H series status (visible motion + differentiation, 2026-07-22)
+
+Lesson driving G5: restraint that becomes an *invisible* effect is a
+failure. Pass bar for every item here: two side-by-side captures must show
+an obvious, eyes-only difference (G3's rotateX 1.5° that read identical in
+captures is treated as a fail and re-tuned). H group is real-data-only —
+any fabricated stat/trend means skipping that item with a specific reason.
+
+- G5. Raise existing motion to visible — [x] (trail 0.12→0.22 + 22% pre-drawn
+  at scroll 0 + routed left of the globe so it's present on the first screen,
+  clearly visible on content sections; card tilt 2–3°→4–5° PLUS scale(1.03)
+  lift + a deep .tilt-card:hover shadow so the hovered card obviously rises
+  in a still frame (the G3 fail mode fixed); globe idle spin 0.07→0.09;
+  Most Popular Airlines data-fx-card moved from the grid to each cell so the
+  six cards stagger in one-by-one. Captures g5-trail-firstscreen / g5-tilt-
+  rest vs g5-tilt-active / g5-stagger-mid vs g5-stagger-settled)
+- H1. Airline Deals → signature page (nav-surfaced, per-airline brand
+  accent, no invented categories) — [ ]
+- H2. Price-trend graph — REAL DATA ONLY; verify ±5d data exists, else
+  skip with reason — [ ]
+- H3. Delay-risk viz — REAL DATA ONLY; verify source, else document the
+  current "Lowest delay risk" sort and skip — [ ]
+- H4. Transparency "how we make money" section (About/Support), consistent
+  with Terms/Privacy, user-first tone — [ ]
 
 ## G series status (scroll motion, existing Three.js/CSS assets, 2026-07-22)
 

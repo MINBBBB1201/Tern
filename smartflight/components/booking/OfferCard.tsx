@@ -35,7 +35,7 @@ function OfferCardImpl({ offer, isExpanded, onToggleExpand, onSelect, from, to, 
   const aircraftImg = getAircraftImage(offer.aircraftIata);
   const aircraftName = getAircraftName(offer.aircraftIata);
   const programs = buildBookingPrograms(offer);
-  const tilt = useHoverTilt<HTMLElement>(2);
+  const tilt = useHoverTilt<HTMLElement>(4);
   const arrivalUberLink = buildAirportUberLink(offer.destinationAirport || to);
 
   return (
