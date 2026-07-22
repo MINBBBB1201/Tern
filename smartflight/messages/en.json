@@ -306,7 +306,13 @@
     "nameTitle": "The name",
     "nameBody1": "The Arctic Tern flies from pole to pole every year — the longest migration of any animal we know of. It spends its life chasing summer along the most efficient route it can find.",
     "nameBody2": "That is the entire product idea: find the best route, honestly, and go. The boarding pass in our hero carries a tern for the same reason.",
-    "ctaSearch": "Start a search"
+    "ctaSearch": "Start a search",
+    "moneyTitle": "How we make money",
+    "moneyIntro": "Tern is free to use — here's how it stays that way, stated plainly instead of buried.",
+    "money1": "Free to use. No ads, and we never sell your data.",
+    "money2": "When you book through a partner — the Duffel-powered checkout or the Aviasales booking site — Tern may earn a small commission, at no extra cost to you.",
+    "money3": "Your ranking is never for sale. Results are ordered only by the sort you pick, and we don't invent discounts or “sponsored” tags.",
+    "moneyFoot": "The full detail is in our Terms and Privacy Policy."
   },
   "SupportPage": {
     "kicker": "Support",

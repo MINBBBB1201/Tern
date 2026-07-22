@@ -8,6 +8,7 @@ import { SubpageShell } from "../../components/SubpageShell";
    name comes from. The tern glyph is the same mark the WHY strip uses. */
 export default function AboutPage() {
   const t = useTranslations("AboutPage");
+  const tf = useTranslations("Footer"); // reuse the localized Terms/Privacy labels
 
   return (
     <SubpageShell kicker={t("kicker")} title={t("title")} intro={t("intro")}>
@@ -38,6 +39,32 @@ export default function AboutPage() {
                 {t("diff3")}
               </li>
             </ul>
+          </section>
+
+          {/* How we make money (H4) — the affiliate model stated up front,
+              consistent with the Terms/Privacy, user-first, no new claims. */}
+          <section id="money" className="glass-panel rounded-2xl p-7">
+            <p className="data-mono text-[11px] font-semibold uppercase tracking-[0.14em]" style={{ color: "var(--contrail-300)" }}>
+              {t("moneyTitle")}
+            </p>
+            <p className="mt-3 text-[15px] leading-relaxed text-muted">{t("moneyIntro")}</p>
+            <ul className="mt-4 space-y-3 text-[15px] leading-relaxed text-muted">
+              {(["money1", "money2", "money3"] as const).map((k) => (
+                <li key={k} className="flex gap-3">
+                  <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: "var(--contrail-300)" }} aria-hidden="true" />
+                  {t(k)}
+                </li>
+              ))}
+            </ul>
+            <p className="mt-5 text-sm text-muted">{t("moneyFoot")}</p>
+            <div className="mt-2 flex flex-wrap gap-4 text-sm">
+              <Link href="/terms" className="font-semibold text-[var(--contrail-300)] transition hover:underline">
+                {tf("terms")} →
+              </Link>
+              <Link href="/privacy" className="font-semibold text-[var(--contrail-300)] transition hover:underline">
+                {tf("privacy")} →
+              </Link>
+            </div>
           </section>
 
           {/* The name — dark glass, because this is the hero's story. */}

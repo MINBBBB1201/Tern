@@ -53,7 +53,14 @@ any fabricated stat/trend means skipping that item with a specific reason.
   tooltip on the badge saying the same. Captures h3-about-honest-copy.png;
   badge title verified in DOM.)
 - H4. Transparency "how we make money" section (About/Support), consistent
-  with Terms/Privacy, user-first tone — [ ]
+  with Terms/Privacy, user-first tone — [x] (new #money section on /about,
+  in the dark Civil Twilight glass: "Tern is free to use — here's how it
+  stays that way, stated plainly instead of buried", then three bullets —
+  free/no ads/no data sale; a small commission when you book via a partner
+  (Duffel checkout / Aviasales site) at no extra cost; ranking never for
+  sale, no invented discounts or "sponsored" tags — with links to Terms &
+  Privacy. Restates the Terms s3/s4 affiliate model in user-first language,
+  no new legal claims. en/ko/ja/zh. Capture h4-how-we-make-money.png)
 
 ## G series status (scroll motion, existing Three.js/CSS assets, 2026-07-22)
 
