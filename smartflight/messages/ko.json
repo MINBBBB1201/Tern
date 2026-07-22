@@ -143,7 +143,8 @@
     "noFlights": "항공편이 없습니다. 다른 날짜나 목적지로 시도해보세요.",
     "whyKicker": "왜 “TERN”인가",
     "whyBody": "북극제비갈매기(Arctic Tern)는 해마다 극과 극 사이를 납니다 — 살아있는 그 어떤 동물보다 먼 거리를, 끝나지 않는 여름을 쫓아서. Tern은 더 적은 비용으로 당신이 같은 여정을 잇도록 돕습니다.",
-    "footerRights": "© 2026 Tern. 모든 권리 보유."
+    "footerRights": "© 2026 Tern. 모든 권리 보유.",
+    "dealsSeeAll": "전체 딜 보기"
   },
   "Filters": {
     "airlines": "항공사",

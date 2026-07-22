@@ -143,7 +143,8 @@
     "noFlights": "フライトが見つかりません。別の日付や目的地でお試しください。",
     "whyKicker": "なぜ「TERN」なのか",
     "whyBody": "キョクアジサシ（Arctic Tern）は毎年、極から極へと飛びます — 生きているどの動物よりも遠くへ、終わらない夏を追いかけて。Ternはより少ないコストで、あなたが同じ旅を続けられるように。",
-    "footerRights": "© 2026 Tern. All rights reserved."
+    "footerRights": "© 2026 Tern. All rights reserved.",
+    "dealsSeeAll": "すべてのお得情報"
   },
   "Filters": {
     "airlines": "航空会社",

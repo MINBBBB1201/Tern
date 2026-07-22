@@ -883,10 +883,19 @@ export default function Home() {
           gets the mono chip. */}
       <section className="py-12">
         <div className="max-w-6xl mx-auto px-6">
-          <div data-fx-head className="mb-8">
-            <span className="section-kicker">{tHome("kickerDeals")}</span>
-            <h2 className="text-3xl font-bold text-foreground">{tHome("dealsTitle")}</h2>
-            <p className="text-muted mt-2">{tHome("dealsSub")}</p>
+          <div data-fx-head className="mb-8 flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <span className="section-kicker">{tHome("kickerDeals")}</span>
+              <h2 className="text-3xl font-bold text-foreground">{tHome("dealsTitle")}</h2>
+              <p className="text-muted mt-2">{tHome("dealsSub")}</p>
+            </div>
+            <Link
+              href="/deals"
+              className="group inline-flex shrink-0 items-center gap-1.5 rounded-full border border-[var(--glass-border)] px-4 py-2 text-sm font-semibold text-foreground transition hover:border-[var(--contrail-300)] hover:text-[var(--contrail-300)]"
+            >
+              {tHome("dealsSeeAll")}
+              <span aria-hidden="true" className="transition-transform duration-200 group-hover:translate-x-1">→</span>
+            </Link>
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -895,13 +904,14 @@ export default function Home() {
               <article
                 onMouseMove={cardTilt.onMouseMove}
                 onMouseLeave={cardTilt.onMouseLeave}
-                className="tilt-card glass-panel relative rounded-2xl p-4 hover:shadow-[0_18px_40px_rgba(10,15,30,0.45)]"
+                style={{ ["--brand" as string]: deal.brand }}
+                className="deal-card tilt-card glass-panel group relative rounded-2xl p-4"
               >
                 <div className="flex items-start justify-between gap-3">
-                  <span className="glass-chip rounded-full px-2.5 py-1 data-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-muted">
+                  <span className="deal-official glass-chip rounded-full px-2.5 py-1 data-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-muted">
                     {tHome("official")}
                   </span>
-                  <div className="glass-chip flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl">
+                  <div className="deal-card-logo glass-chip flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl">
                     <img
                       src={`https://images.kiwi.com/airlines/64/${deal.iata}.png`}
                       alt={deal.airline}

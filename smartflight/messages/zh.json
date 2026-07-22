@@ -143,7 +143,8 @@
     "noFlights": "未找到航班。请尝试其他日期或目的地。",
     "whyKicker": "为什么叫 “TERN”",
     "whyBody": "北极燕鸥（Arctic Tern）每年往返于两极之间 — 比世上任何动物飞得都远，只为追逐不落幕的夏天。Tern 帮你用更少的花费完成同样的旅程。",
-    "footerRights": "© 2026 Tern. 保留所有权利。"
+    "footerRights": "© 2026 Tern. 保留所有权利。",
+    "dealsSeeAll": "查看全部优惠"
   },
   "Filters": {
     "airlines": "航空公司",

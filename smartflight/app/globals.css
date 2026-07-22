@@ -864,6 +864,68 @@ body {
 }
 
 /* ─────────────────────────────────────────────
+   AIRLINE DEAL CARD (H1) — the Civil Twilight glass
+   card given a per-carrier signature: a brand-coloured
+   top hairline and a hover glow behind the logo, plus
+   an OFFICIAL badge that lights up on hover. --brand is
+   set inline per airline (lib/airlineDeals). Kept a
+   micro-accent so the ink/dusk system still owns the
+   card; the airline marks themselves are never restyled.
+   ───────────────────────────────────────────── */
+.deal-card {
+  position: relative;
+  --brand: var(--contrail-300); /* fallback */
+}
+
+/* Brand hairline along the top edge, following the card's rounded corner. */
+.deal-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 12%;
+  right: 12%;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, transparent, var(--brand), transparent);
+  opacity: 0.55;
+  transition: opacity 0.22s ease, left 0.22s ease, right 0.22s ease;
+  pointer-events: none;
+}
+.deal-card:hover::before {
+  opacity: 1;
+  left: 4%;
+  right: 4%;
+}
+
+/* Logo tile picks up a soft brand glow on hover — the one spot the
+   carrier's colour touches the card body. */
+.deal-card-logo {
+  transition: box-shadow 0.25s ease;
+}
+.deal-card:hover .deal-card-logo {
+  box-shadow: 0 0 22px -2px color-mix(in srgb, var(--brand) 62%, transparent);
+}
+
+/* OFFICIAL badge: quiet by default, brand-lit on hover so "this links to
+   the airline's own page" reads as the card's promise. */
+.deal-official {
+  transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+.deal-card:hover .deal-official {
+  color: var(--paper-50);
+  border-color: color-mix(in srgb, var(--brand) 55%, transparent) !important;
+  background: color-mix(in srgb, var(--brand) 20%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .deal-card::before,
+  .deal-card-logo,
+  .deal-official {
+    transition: none;
+  }
+}
+
+/* ─────────────────────────────────────────────
    SCROLL TRAIL (G2) — a single faint contrail routed
    through the page gutters, drawn in on scroll by
    ScrollTrail.tsx. Desktop + no-preference only: mobile

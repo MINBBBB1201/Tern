@@ -25,13 +25,14 @@ export default function DealsPage() {
                 key={deal.iata}
                 onMouseMove={tilt.onMouseMove}
                 onMouseLeave={tilt.onMouseLeave}
-                className="tilt-card glass-panel rounded-2xl p-6 hover:shadow-[0_18px_40px_rgba(10,15,30,0.45)]"
+                style={{ ["--brand" as string]: deal.brand }}
+                className="deal-card tilt-card glass-panel group rounded-2xl p-6"
               >
                 <div className="flex items-start justify-between gap-3">
-                  <span className="glass-chip rounded-full px-2.5 py-1 data-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-muted">
+                  <span className="deal-official glass-chip rounded-full px-2.5 py-1 data-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-muted">
                     {tHome("official")}
                   </span>
-                  <div className="glass-chip flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl">
+                  <div className="deal-card-logo glass-chip flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl">
                     <img
                       src={`https://images.kiwi.com/airlines/64/${deal.iata}.png`}
                       alt={deal.airline}

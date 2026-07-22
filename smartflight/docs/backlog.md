@@ -17,7 +17,14 @@ any fabricated stat/trend means skipping that item with a specific reason.
   six cards stagger in one-by-one. Captures g5-trail-firstscreen / g5-tilt-
   rest vs g5-tilt-active / g5-stagger-mid vs g5-stagger-settled)
 - H1. Airline Deals → signature page (nav-surfaced, per-airline brand
-  accent, no invented categories) — [ ]
+  accent, no invented categories) — [x] (/deals already existed + nav-linked;
+  redesigned the cards into a Tern signature: per-carrier brand micro-accent
+  — a top hairline in the airline's own colour (KE blue / TK red / OZ warm-
+  red / 7C orange, added to lib/airlineDeals) that brightens on hover, a
+  brand glow behind the logo, and an OFFICIAL badge that lights up in the
+  brand colour on hover. Same treatment on the homepage section, plus a new
+  "See all deals →" link to /deals. Real 4 airlines/links kept, no invented
+  categories. Captures h1-deals-rest / h1-deals-hover / h1-home-deals-seeall)
 - H2. Price-trend graph — REAL DATA ONLY; verify ±5d data exists, else
   skip with reason — [ ]
 - H3. Delay-risk viz — REAL DATA ONLY; verify source, else document the
