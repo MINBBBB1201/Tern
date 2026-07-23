@@ -25,6 +25,16 @@ any fabricated stat/trend means skipping that item with a specific reason.
   never crosses the globe/search/any content. Verified trailfix-hero /
   trailfix-deals-clean / trailfix-destinations-clean — no trail below the
   hero; the dashed arc in Destinations is the intentional RouteArcView.)
+- G5-fix2. Two reported line artifacts — [x] (1) "Airline Deals left vertical
+  line" = the ScrollTrail, already cured by G5-fix (hero-scoped); re-verified
+  clean on current HEAD (arcfix-deals-confirm) — the report was a pre-fix/
+  stale screenshot. (2) "dashed line + plane below Explore Top Destinations" =
+  RouteArcView (a separate, intentional component — not a duplicate of the
+  hero line, but after F1's dark re-theme its contrail arc read as a stray
+  hero route line over the section). REMOVED the <RouteArcView> mount +
+  import from the destinations section; the cards carry it. Before/after:
+  trailfix-destinations-clean (arc present) → arcfix-destinations-after (gone).
+  ScrollTrail confirmed absolute-in-hero, bottom:-812 at that scroll.)
 - H1. Airline Deals → signature page (nav-surfaced, per-airline brand
   accent, no invented categories) — [x] (/deals already existed + nav-linked;
   redesigned the cards into a Tern signature: per-carrier brand micro-accent

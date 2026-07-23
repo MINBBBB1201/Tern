@@ -29,7 +29,6 @@ type PricePoint = { date: string; price: number; fullDate: string; isSelected: b
 // headline and search form are usable before this finishes loading.
 // Renders as a drei <View> into the site-wide canvas (see GlobalCanvas).
 const HeroTernView = dynamic(() => import("../components/canvas/HeroTernView"), { ssr: false });
-const RouteArcView = dynamic(() => import("../components/canvas/RouteArcView"), { ssr: false });
 const ScrollFX = dynamic(() => import("../components/ScrollFX"), { ssr: false });
 const ScrollTrail = dynamic(() => import("../components/ScrollTrail"), { ssr: false });
 
@@ -958,8 +957,11 @@ export default function Home() {
             <h2 className="text-3xl font-bold text-foreground">{tHome("destTitle")}</h2>
             <p className="text-muted mt-2">{tHome("destSub")}</p>
           </div>
-          {/* Ink route arc traced on by scroll — the section's 3D moment */}
-          <RouteArcView />
+          {/* RouteArcView (scroll-traced arc) removed: after the F1 dark
+              re-theme its contrail line read as a stray "hero route line"
+              floating over this section rather than the subtle ink-on-paper
+              trace it was designed as. The destination cards carry the
+              section on their own. */}
           <div className="grid md:grid-cols-3 gap-6">
             {destinationDeals.map((deal) => {
               const [routeFrom, routeTo] = deal.route.split(" → ");
