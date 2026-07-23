@@ -926,13 +926,16 @@ body {
 }
 
 /* ─────────────────────────────────────────────
-   SCROLL TRAIL (G2) — a single faint contrail routed
-   through the page gutters, drawn in on scroll by
-   ScrollTrail.tsx. Desktop + no-preference only: mobile
-   gutters are too narrow and a scroll-scrubbed repaint
-   isn't worth the battery; reduced-motion gets nothing.
-   Fixed, non-interactive, low opacity — an ambient
-   thread behind the content, never over its reading.
+   SCROLL TRAIL (G2, hero-scoped after the G5 leak fix) —
+   a single faint contrail down the hero's far-left
+   gutter, drawn in on scroll by ScrollTrail.tsx. It is
+   ABSOLUTE inside .hero-twilight (which is overflow:hidden),
+   so it is clipped to the hero and scrolls away with it —
+   never bleeding onto the sections below. Desktop +
+   no-preference only: mobile gutters are too narrow and a
+   scroll-scrubbed repaint isn't worth the battery;
+   reduced-motion gets nothing. z-index 1: above the hero
+   sky/stars, below the hero content (z-index 10).
    ───────────────────────────────────────────── */
 .scroll-trail {
   display: none;
@@ -941,11 +944,11 @@ body {
 @media (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
   .scroll-trail {
     display: block;
-    position: fixed;
+    position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
-    z-index: 0;
+    z-index: 1;
     pointer-events: none;
   }
 }

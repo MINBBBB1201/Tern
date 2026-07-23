@@ -678,8 +678,6 @@ export default function Home() {
     >
       {/* Scroll choreography: reveals for [data-fx-*] elements below */}
       <ScrollFX />
-      {/* G2: ambient flight-path thread drawn in as the page scrolls */}
-      <ScrollTrail />
       {/* Navigation — dark glass over the whole dark-spectrum page */}
       <nav className="fixed top-0 left-0 right-0 z-50 glass-nav-dark">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
@@ -712,6 +710,9 @@ export default function Home() {
       >
         {/* Ambient stars — distant, drifting almost imperceptibly */}
         <div className="hero-stars" aria-hidden="true" />
+
+        {/* G2: flight-path contrail, scoped to (and clipped by) the hero */}
+        <ScrollTrail />
 
         {/* Signature sequence: glass tern → boarding pass */}
         <HeroTernView />

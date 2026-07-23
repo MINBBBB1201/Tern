@@ -7,46 +7,39 @@ import { useGSAP } from "@gsap/react";
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 /**
- * G2: the hero's route-line motif, extended across the whole page. A single
- * faint contrail traced through the page gutters, drawn in as the reader
- * scrolls (strokeDashoffset scrubbed to scroll progress) — the same
- * "circle the world → become your ticket" flight-path language, stretched
- * into an ambient background thread instead of a second 3D scene.
+ * G2/G5-fix: the hero's flight-path motif as one faint contrail — now
+ * scoped to the HERO. It lives inside the .hero-twilight section
+ * (absolute, clipped by the hero's overflow:hidden), so it scrolls away
+ * with the hero and never bleeds onto the sections below. Routed entirely
+ * down the hero's far-left gutter (x 2–9), so it never crosses the globe,
+ * the search bar, or any content. Drawn in on the hero's own scroll-out.
  *
- * Restraint: fixed to the viewport, routed mostly through the empty side
- * gutters, very low opacity with a soft glow. Desktop-only and
- * no-preference-only (CSS `.scroll-trail` gate) — mobile never paints it
- * (gutters are too narrow, and a scroll-scrubbed repaint is not worth the
- * battery), and reduced-motion users get nothing. GSAP core + ScrollTrigger
- * only (both free); no new dependency.
+ * Desktop + no-preference only (CSS `.scroll-trail` gate); GSAP core +
+ * ScrollTrigger only (both free), no new dependency.
  */
 export default function ScrollTrail() {
+  const svgRef = useRef<SVGSVGElement>(null);
   const pathRef = useRef<SVGPathElement>(null);
 
   useGSAP(() => {
     const path = pathRef.current;
-    if (!path) return;
+    const svg = svgRef.current;
+    if (!path || !svg) return;
+    const hero = svg.closest<HTMLElement>(".hero-twilight");
+    if (!hero) return;
     const mm = gsap.matchMedia();
-    // Mirror the CSS visibility gate so getTotalLength runs on a laid-out
-    // path and the scrub only exists where the trail is actually shown.
     mm.add("(min-width: 1024px) and (prefers-reduced-motion: no-preference)", () => {
       const len = path.getTotalLength();
       gsap.set(path, { strokeDasharray: len });
-      // G5: start ~22% already drawn so the trail is present on the first
-      // screen without scrolling (not invisible until you scroll), then
-      // completes to full as the page scrolls.
+      // ~45% pre-drawn so it's present on the first screen, completing as
+      // the hero scrolls out (and clipping away with it).
       const tween = gsap.fromTo(
         path,
-        { strokeDashoffset: len * 0.62 },
+        { strokeDashoffset: len * 0.55 },
         {
           strokeDashoffset: 0,
           ease: "none",
-          scrollTrigger: {
-            trigger: document.documentElement,
-            start: "top top",
-            end: "bottom bottom",
-            scrub: 0.6,
-          },
+          scrollTrigger: { trigger: hero, start: "top top", end: "bottom top", scrub: 0.6 },
         }
       );
       return () => {
@@ -57,11 +50,8 @@ export default function ScrollTrail() {
   });
 
   return (
-    <svg className="scroll-trail" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-      <path
-        ref={pathRef}
-        d="M 4 -6 C 8 16, 3 33, 6 51 C 9 69, 88 65, 92 83 C 95 95, 90 106, 88 114"
-      />
+    <svg ref={svgRef} className="scroll-trail" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+      <path ref={pathRef} d="M 5 -4 C 9 22, 2 46, 6 70 C 9 92, 4 108, 6 122" />
     </svg>
   );
 }

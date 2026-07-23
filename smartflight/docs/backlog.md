@@ -16,6 +16,15 @@ any fabricated stat/trend means skipping that item with a specific reason.
   Most Popular Airlines data-fx-card moved from the grid to each cell so the
   six cards stagger in one-by-one. Captures g5-trail-firstscreen / g5-tilt-
   rest vs g5-tilt-active / g5-stagger-mid vs g5-stagger-settled)
+- G5-fix. Scroll-trail leak past the hero — [x] (at 0.22 the page-wide fixed
+  trail's centre-crossing diagonal became visible over the Airline Deals /
+  Destinations content. Fixed by scoping the trail to the hero: moved
+  <ScrollTrail> inside .hero-twilight, CSS position fixed→absolute so the
+  hero's overflow:hidden clips it and it scrolls away with the hero, and
+  rerouted the path entirely down the hero's far-left gutter (x 2–9) so it
+  never crosses the globe/search/any content. Verified trailfix-hero /
+  trailfix-deals-clean / trailfix-destinations-clean — no trail below the
+  hero; the dashed arc in Destinations is the intentional RouteArcView.)
 - H1. Airline Deals → signature page (nav-surfaced, per-airline brand
   accent, no invented categories) — [x] (/deals already existed + nav-linked;
   redesigned the cards into a Tern signature: per-carrier brand micro-accent
