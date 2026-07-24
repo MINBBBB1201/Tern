@@ -1,12 +1,18 @@
-"use client";
-
-import { useTranslations } from "next-intl";
+import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { SubpageShell } from "../../components/SubpageShell";
+
+export const metadata: Metadata = {
+  title: "Help & FAQ",
+  description:
+    "Answers to common questions about searching flights on Tern — delay-risk signals, points-vs-cash booking, how affiliate links work, and how to reach us.",
+  alternates: { canonical: "/support" },
+};
 
 /* /support — FAQ as native <details> styled into the glass system
    (no JS accordion dependency for six questions), plus contact. */
-export default function SupportPage() {
-  const t = useTranslations("SupportPage");
+export default async function SupportPage() {
+  const t = await getTranslations("SupportPage");
   const faqs = ["faq1", "faq2", "faq3", "faq4", "faq5", "faq6"] as const;
 
   return (

@@ -1,5 +1,5 @@
 "use client";
-/* eslint-disable react-hooks/immutability, react-hooks/refs --
+/* eslint-disable react-hooks/refs --
    Imperative three.js scene graph: objects are constructed once (lazy ref
    init, sanctioned by the React docs) and mutated per-frame inside
    useFrame callbacks, which is how react-three-fiber animation works.

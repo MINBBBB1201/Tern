@@ -1,0 +1,8 @@
+User-Agent: *
+Allow: /
+Disallow: /signin
+Disallow: /api/
+Disallow: /booking?
+
+Host: https://www.flytern.site
+Sitemap: https://www.flytern.site/sitemap.xml

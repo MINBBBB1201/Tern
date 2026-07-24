@@ -1,0 +1,67 @@
+SEO verification — generated from prod build (next start), 2026-07-24T09:56:47Z
+================================================================
+
+SITEMAP: 36 URLs (8 static + 23 airport guides + 5 blog posts)
+ROBOTS: allow / ; disallow /signin, /api/, /booking? ; Host + Sitemap set
+
+PER-PAGE METADATA (title / canonical / json-ld types):
+----------------------------------------------------------------
+/                         
+  title: Tern — Compare Flights, Delay Risk &amp; Points Value
+  canonical: https://www.flytern.site
+  json-ld: Organization,WebSite
+
+/booking                  
+  title: Search &amp; Compare Flights | Tern
+  canonical: https://www.flytern.site/booking
+  json-ld: (none)
+
+/deals                    
+  title: Airline Deals &amp; Promotions | Tern
+  canonical: https://www.flytern.site/deals
+  json-ld: (none)
+
+/blog                     
+  title: Guides &amp; Notes | Tern
+  canonical: https://www.flytern.site/blog
+  json-ld: (none)
+
+/about                    
+  title: About | Tern
+  canonical: https://www.flytern.site/about
+  json-ld: (none)
+
+/support                  
+  title: Help &amp; FAQ | Tern
+  canonical: https://www.flytern.site/support
+  json-ld: (none)
+
+/terms                    
+  title: Terms of Use | Tern
+  canonical: https://www.flytern.site/terms
+  json-ld: (none)
+
+/privacy                  
+  title: Privacy Policy | Tern
+  canonical: https://www.flytern.site/privacy
+  json-ld: (none)
+
+/guide/airport/ICN        
+  title: Incheon International Airport (ICN) Airport Guide — Layovers, Accessibility &amp; Ground Transport | Tern
+  canonical: https://www.flytern.site/guide/airport/ICN
+  json-ld: Airport,BreadcrumbList,GeoCoordinates,ListItem,PostalAddress
+
+/blog/icn-layover-guide   
+  title: Layover at Incheon (ICN): rest, showers, and getting out | Tern
+  canonical: https://www.flytern.site/blog/icn-layover-guide
+  json-ld: (none)
+
+/signin                   
+  title: Tern — Compare Flights, Delay Risk &amp; Points Value
+  canonical: (none)
+  json-ld: (none)
+
+HOME JSON-LD (Organization + WebSite):
+----------------------------------------------------------------
+{"@context":"https://schema.org","@type":"Organization","name":"Tern","url":"https://www.flytern.site","logo":"https://www.flytern.site/logos/tern-logo-purepick.png","description":"Tern compares flights across price, speed, arrival time, delay risk, and points-vs-cash value, then books by cash or miles."}
+{"@context":"https://schema.org","@type":"WebSite","name":"Tern","url":"https://www.flytern.site"}

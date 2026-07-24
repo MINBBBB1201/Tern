@@ -1,12 +1,18 @@
-"use client";
-
+import type { Metadata } from "next";
 import Link from "next/link";
-import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
 import { SubpageShell } from "../../components/SubpageShell";
 import { blogPosts } from "../../lib/blogPosts";
 
-export default function BlogIndexPage() {
-  const t = useTranslations("BlogPage");
+export const metadata: Metadata = {
+  title: "Guides & Notes",
+  description:
+    "Airport layover guides, points-and-miles explainers, and product notes from Tern — practical, factual travel research reshaped from the same data the app uses.",
+  alternates: { canonical: "/blog" },
+};
+
+export default async function BlogIndexPage() {
+  const t = await getTranslations("BlogPage");
 
   return (
     <SubpageShell kicker={t("kicker")} title={t("title")} intro={t("intro")}>

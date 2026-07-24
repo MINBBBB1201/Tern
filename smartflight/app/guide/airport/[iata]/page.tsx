@@ -67,6 +67,22 @@ export default async function AirportGuidePage({ params }: Props) {
     },
   };
 
+  // BreadcrumbList: Home → this airport guide. Factual trail only (there is
+  // no /guide index route to sit between them).
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: "https://www.flytern.site" },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: `${guide.name} (${guide.iata}) Airport Guide`,
+        item: `https://www.flytern.site/guide/airport/${guide.iata}`,
+      },
+    ],
+  };
+
   return (
     <main
       className="night-tail min-h-screen text-foreground"
@@ -79,6 +95,10 @@ export default async function AirportGuidePage({ params }: Props) {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
       <header className="glass-nav-dark border-b border-[var(--glass-border)]">
         <div className="mx-auto flex max-w-4xl flex-wrap items-center justify-between gap-3 px-5 py-4">

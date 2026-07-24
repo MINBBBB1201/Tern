@@ -1,5 +1,5 @@
 "use client";
-/* eslint-disable react-hooks/immutability, react-hooks/refs --
+/* eslint-disable react-hooks/refs --
    Imperative three.js objects mutated per-frame in useFrame (see
    HeroTernView.tsx for the rationale). */
 import { useRef } from "react";

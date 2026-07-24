@@ -1,14 +1,20 @@
-"use client";
-
+import type { Metadata } from "next";
 import Link from "next/link";
-import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
 import { SubpageShell } from "../../components/SubpageShell";
+
+export const metadata: Metadata = {
+  title: "About",
+  description:
+    "Tern compares flights across price, speed, arrival time, delay risk, and points-vs-cash value — and refuses fabricated stats or fake urgency. What we compare, how we make money, and where the name comes from.",
+  alternates: { canonical: "/about" },
+};
 
 /* /about — what Tern compares, what it refuses to do, and where the
    name comes from. The tern glyph is the same mark the WHY strip uses. */
-export default function AboutPage() {
-  const t = useTranslations("AboutPage");
-  const tf = useTranslations("Footer"); // reuse the localized Terms/Privacy labels
+export default async function AboutPage() {
+  const t = await getTranslations("AboutPage");
+  const tf = await getTranslations("Footer"); // reuse the localized Terms/Privacy labels
 
   return (
     <SubpageShell kicker={t("kicker")} title={t("title")} intro={t("intro")}>
