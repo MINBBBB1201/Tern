@@ -672,6 +672,31 @@ body {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.10), 0 4px 16px rgba(10, 15, 30, 0.35);
 }
 
+/* ─────────────────────────────────────────────
+   F4 — /booking + /guide/airport join the night tail.
+   These pages lean on a few light utility fills the F1–F3
+   scopes never hit (bare form controls, the semantic
+   status chips). Remap them here once — the same
+   wholesale flip F2 used — so the many booking
+   sub-components go dark with no per-element churn.
+   ───────────────────────────────────────────── */
+/* Form controls: brand-tint the native check/radio, lift the hairline
+   borders off pure gray, and warm the row hovers to a faint contrail. */
+.night-tail input[type="checkbox"],
+.night-tail input[type="radio"] { accent-color: var(--contrail-300); }
+.night-tail .border-gray-300 { border-color: rgba(143, 224, 232, 0.28); }
+.night-tail .hover\:bg-gray-50:hover { background-color: rgba(143, 224, 232, 0.08); }
+
+/* Semantic status chips/badges: the light *-subtle fills and the -strong
+   text shades wash out on the night tail. Remap to a tinted dark glass
+   with a light-enough text shade to hold AA on the dusk fills — the same
+   civil-twilight status language the /booking info banners now use. */
+.night-tail .bg-primary-subtle { background-color: rgba(143, 224, 232, 0.12); }
+.night-tail .bg-success-subtle { background-color: rgba(52, 211, 153, 0.13); }
+.night-tail .text-success-strong { color: #6ee7b7; }
+.night-tail .text-warning-strong { color: #fbbf24; }
+.night-tail .text-danger-strong { color: #f87171; }
+
 @media (prefers-reduced-transparency: reduce) {
   /* The background shorthand reset also wipes the border-box edge
      gradient, so each opaque fallback restores a visible flat border. */

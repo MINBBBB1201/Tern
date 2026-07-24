@@ -39,14 +39,24 @@ export default function PriceTrendChart({ priceChartData, chartLoading, onLoadTr
       </div>
       {priceChartData.length > 0 && (
         <div>
+          {/* Civil-twilight chart palette: contrail line on the dark glass
+              panel, axes in dimmed paper, a dark tooltip, and the cheapest
+              day marked with the warm horizon accent (the "best" highlight,
+              kept off the contrail line so the two never blend). */}
           <ResponsiveContainer width="100%" height={220}>
             <LineChart data={priceChartData} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
-              <XAxis dataKey="date" tick={{ fontSize: 11, fontFamily: "var(--font-mono)" }} />
-              <YAxis tick={{ fontSize: 11, fontFamily: "var(--font-mono)" }} tickFormatter={(v) => `$${v}`} />
-              <Tooltip formatter={(v: unknown) => [`$${v as number}`, "Min fare"]} contentStyle={{ fontFamily: "var(--font-mono)" }} />
-              <Line type="monotone" dataKey="price" stroke="var(--signal-600)" strokeWidth={2} dot={{ r: 3 }} activeDot={{ r: 5 }} />
+              <XAxis dataKey="date" stroke="rgba(143,224,232,0.25)" tick={{ fontSize: 11, fontFamily: "var(--font-mono)", fill: "rgba(246,248,251,0.65)" }} />
+              <YAxis stroke="rgba(143,224,232,0.25)" tick={{ fontSize: 11, fontFamily: "var(--font-mono)", fill: "rgba(246,248,251,0.65)" }} tickFormatter={(v) => `$${v}`} />
+              <Tooltip
+                formatter={(v: unknown) => [`$${v as number}`, "Min fare"]}
+                contentStyle={{ fontFamily: "var(--font-mono)", background: "#141F3D", border: "1px solid rgba(143,224,232,0.25)", borderRadius: 12, color: "#F6F8FB" }}
+                labelStyle={{ color: "rgba(246,248,251,0.7)" }}
+                itemStyle={{ color: "#F6F8FB" }}
+                cursor={{ stroke: "rgba(143,224,232,0.3)" }}
+              />
+              <Line type="monotone" dataKey="price" stroke="var(--contrail-300)" strokeWidth={2} dot={{ r: 3, fill: "var(--contrail-300)" }} activeDot={{ r: 5 }} />
               {cheapestDatePoint && (
-                <ReferenceDot x={cheapestDatePoint.date} y={cheapestDatePoint.price} r={6} fill="var(--contrail-300)" stroke="white" strokeWidth={2} label={{ value: "Best", position: "top", fontSize: 10 }} />
+                <ReferenceDot x={cheapestDatePoint.date} y={cheapestDatePoint.price} r={6} fill="var(--horizon-500)" stroke="#0A0F1E" strokeWidth={2} label={{ value: "Best", position: "top", fontSize: 10, fill: "var(--horizon-500)" }} />
               )}
             </LineChart>
           </ResponsiveContainer>

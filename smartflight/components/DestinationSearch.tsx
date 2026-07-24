@@ -77,14 +77,14 @@ export function DestinationSearch({ onSelect, countryCode }: DestinationSearchPr
 
   return (
     <div className="relative mb-3">
-      <div className="flex items-center gap-2 rounded-xl border border-[#dbe5f3] bg-white px-3 py-2">
+      <div className="glass-chip flex items-center gap-2 rounded-xl px-3 py-2">
         <span className="text-xs text-muted">{t("toLabel")}</span>
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => suggestions.length > 0 && setOpen(true)}
           placeholder={t("hotelPlaceholder")}
-          className="flex-1 text-xs outline-none placeholder:text-muted/70"
+          className="flex-1 bg-transparent text-xs text-[var(--paper-50)] outline-none placeholder:text-[rgba(246,248,251,0.4)]"
         />
         {loading && <span className="text-[10px] text-muted">…</span>}
         {query && (
@@ -103,7 +103,7 @@ export function DestinationSearch({ onSelect, countryCode }: DestinationSearchPr
                 key={`${s.lat}-${s.lon}`}
                 type="button"
                 onClick={() => handlePick(s)}
-                className="block w-full truncate px-3 py-2 text-left text-xs hover:bg-black/5"
+                className="block w-full truncate px-3 py-2 text-left text-xs hover:bg-white/5"
               >
                 {s.displayName}
               </button>

@@ -110,7 +110,7 @@ function OfferCardImpl({ offer, isExpanded, onToggleExpand, onSelect, from, to, 
             <button
               type="button"
               onClick={onToggleExpand}
-              className="rounded-full border border-[#d5dfec] px-3 py-1.5 text-xs font-medium hover:bg-gray-50 transition-colors"
+              className="rounded-full border border-[var(--glass-border)] px-3 py-1.5 text-xs font-medium hover:bg-gray-50 transition-colors"
             >
               {isExpanded ? t("less") : t("details")}
             </button>

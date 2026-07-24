@@ -1,15 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  ReferenceDot,
-} from "recharts";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
@@ -18,12 +9,9 @@ import SearchBar, { type SearchParams } from "../components/SearchBar";
 import { LocaleSwitcher } from "../components/LocaleSwitcher";
 import { AuthMenu } from "../components/AuthMenu";
 import { useHoverTilt } from "../hooks/useHoverTilt";
-import { usePriceAlerts } from "../hooks/usePriceAlerts";
 import type { Offer } from "../lib/offerUtils";
 import { airlineDealPages } from "../lib/airlineDeals";
 import { SiteFooter } from "../components/SiteFooter";
-
-type PricePoint = { date: string; price: number; fullDate: string; isSelected: boolean };
 
 // Lazy, client-only: the 3D scene must never block first paint — the
 // headline and search form are usable before this finishes loading.
@@ -32,21 +20,9 @@ const HeroTernView = dynamic(() => import("../components/canvas/HeroTernView"), 
 const ScrollFX = dynamic(() => import("../components/ScrollFX"), { ssr: false });
 const ScrollTrail = dynamic(() => import("../components/ScrollTrail"), { ssr: false });
 
-const PlaneIcon = () => (
-  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-  </svg>
-);
-
 const PlaneRightIcon = ({ className = "w-5 h-5" }: { className?: string }) => (
   <svg className={className} fill="currentColor" viewBox="0 0 24 24">
     <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" transform="rotate(-90 12 12)" />
-  </svg>
-);
-
-const SwapIcon = () => (
-  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
   </svg>
 );
 
@@ -279,19 +255,6 @@ const sampleFlights = [
     departureTime: '10:15', arrivalTime: '16:30', duration: '12h 15m', stops: 1, price: 687,
   },
 ];
-
-const airlineLogoByName: Record<string, string> = {
-  "turkish airlines": "https://images.kiwi.com/airlines/64/TK.png",
-  "korean air": "https://images.kiwi.com/airlines/64/KE.png",
-  "asiana airlines": "https://images.kiwi.com/airlines/64/OZ.png",
-  "jeju air": "https://images.kiwi.com/airlines/64/7C.png",
-  "air premia": "https://images.kiwi.com/airlines/64/YP.png",
-};
-
-const resolveAirlineLogoByName = (name?: string) => {
-  if (!name) return undefined;
-  return airlineLogoByName[name.toLowerCase()] ?? undefined;
-};
 
 /* Popular-routes ticker: rotates through routes only — deliberately no
    prices and no booking/activity claims. A "just booked" feed was
@@ -536,30 +499,17 @@ export default function Home() {
   const tHero = useTranslations("Hero");
   const tPicks = useTranslations("SmartPicks");
   const tHome = useTranslations("Home");
-  const tAlert = useTranslations("PriceAlert");
   // G3: one cursor-tilt instance reused across the inline card grids
   // (the hook keys off e.currentTarget, so a single instance drives many
   // cards). Airline-deal cards tilt a touch more than the wide picker rows.
   const cardTilt = useHoverTilt<HTMLElement>(5);
   const rowTilt = useHoverTilt<HTMLButtonElement>(4);
 
-  // Search params are owned by SearchBar; page tracks last submitted for downstream use
-  const [lastSearch, setLastSearch] = useState<SearchParams>({
-    tripType: "roundtrip",
-    from: "ICN", fromCity: "Seoul",
-    to: "NRT", toCity: "Tokyo",
-    departureDate: "", adults: 1, children: 0, infants: 0, cabinClass: "economy",
-  });
   const [loading, setLoading] = useState(false);
-  const [results, setResults] = useState<Offer[]>([]);
-  const [sortTab, setSortTab] = useState<"price" | "duration" | "ai">("price");
-  const [priceChartData, setPriceChartData] = useState<PricePoint[]>([]);
-  const [chartLoading, setChartLoading] = useState(false);
-  const { alerts, alertPrice, setAlertPrice, matchedAlert, addAlert, deleteAlert } = usePriceAlerts({
-    from: lastSearch.from,
-    to: lastSearch.to,
-  });
-  const [showResults, setShowResults] = useState(false);
+  // Always empty on the homepage — search redirects to /booking. Kept because
+  // the airlines panel's "fastest schedule" lookup below still reads it (it
+  // simply renders its empty-state fallback here).
+  const [results] = useState<Offer[]>([]);
   const [showOffers, setShowOffers] = useState(true);
   const [selectedAirlineKey, setSelectedAirlineKey] = useState("turkish");
 
@@ -580,7 +530,6 @@ export default function Home() {
 
   // Called by SearchBar on submit — navigates to /booking with all params
   const handleSearch = (params: SearchParams) => {
-    setLastSearch(params);
     setLoading(true);
     const urlParams = new URLSearchParams({
       from: params.from,
@@ -604,14 +553,6 @@ export default function Home() {
     return new Date(arr).getTime() - new Date(dep).getTime();
   };
 
-  const getSortedResults = () => {
-    const sorted = [...results];
-    if (sortTab === "price") return sorted.sort((a, b) => Number(a.price) - Number(b.price));
-    if (sortTab === "duration") return sorted.sort((a, b) => calculateDuration(a.departure, a.arrival) - calculateDuration(b.departure, b.arrival));
-    if (sortTab === "ai") return sorted.sort((a, b) => { if ((a.stops ?? 0) !== (b.stops ?? 0)) return (a.stops ?? 0) - (b.stops ?? 0); return Number(a.price) - Number(b.price); });
-    return sorted;
-  };
-
   const getFastestOfferForAirline = (airlineName?: string) => {
     if (!airlineName || results.length === 0) return null;
     const filtered = results.filter((offer) => (offer.airline ?? "").toLowerCase() === airlineName.toLowerCase());
@@ -621,43 +562,8 @@ export default function Home() {
     }, filtered[0]);
   };
 
-  const handlePriceTrend = async () => {
-    if (!lastSearch.departureDate) return;
-    setChartLoading(true);
-    const chartData: PricePoint[] = [];
-    const selectedDate = new Date(lastSearch.departureDate);
-    try {
-      for (let i = -7; i <= 7; i++) {
-        const checkDate = new Date(selectedDate);
-        checkDate.setDate(checkDate.getDate() + i);
-        const dateStr = checkDate.toISOString().split("T")[0];
-        const res = await fetch("/api/search", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ origin: lastSearch.from, destination: lastSearch.to, departureDate: dateStr, adults: lastSearch.adults }) });
-        const data = await res.json();
-        if (res.ok && data.offers?.length > 0) {
-          const minPrice = Math.min(...data.offers.map((o: { price: string }) => Number(o.price)));
-          chartData.push({ date: new Date(dateStr).toLocaleDateString("en-US", { month: "short", day: "numeric" }), price: minPrice, fullDate: dateStr, isSelected: dateStr === lastSearch.departureDate });
-        }
-      }
-      setPriceChartData(chartData);
-    } catch {} finally { setChartLoading(false); }
-  };
-
-  const cheapestDatePoint = priceChartData.length > 0 ? priceChartData.reduce((min, curr) => Number(curr.price) < Number(min.price) ? curr : min) : null;
-
-  const cheapestDirect = results.filter((f) => f.stops === 0).reduce<Offer | null>((min, curr) => !min || Number(curr.price) < Number(min.price) ? curr : min, null);
-  const cheapestConnecting = results.filter((f) => (f.stops ?? 0) > 0).reduce<Offer | null>((min, curr) => !min || Number(curr.price) < Number(min.price) ? curr : min, null);
   const selectedAirline = popularAirlines.find((a) => a.key === selectedAirlineKey) ?? popularAirlines[0];
   const fastestOfferForSelectedAirline = getFastestOfferForAirline(selectedAirline?.name);
-
-  const getCabinClassLabel = (cls: string) => {
-    switch (cls) {
-      case 'economy': return tHome('cabinEconomy');
-      case 'premium_economy': return tHome('cabinPremium');
-      case 'business': return tHome('cabinBusiness');
-      case 'first': return tHome('cabinFirst');
-      default: return tHome('cabinEconomy');
-    }
-  };
 
   return (
     <main
@@ -1112,8 +1018,10 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Popular Flights Section */}
-      {!showResults && (
+      {/* Popular Flights — the homepage's sample-flights strip. The
+          conditional search-results view that used to render below it
+          (gated on showResults, which was never set true) was removed:
+          search redirects to /booking. */}
         <section className="relative overflow-hidden py-20">
           <div className="hero-stars night-stars" aria-hidden="true" />
           <div className="relative z-10 max-w-5xl mx-auto px-6">
@@ -1149,133 +1057,6 @@ export default function Home() {
             </div>
           </div>
         </section>
-      )}
-
-      {/* Search Results */}
-      {showResults && (
-        <section className="py-16 bg-[#F8FAFC]">
-          <div className="max-w-5xl mx-auto px-6">
-            {results.length > 0 ? (
-              <div className="space-y-6">
-                <h2 className="text-2xl font-bold text-foreground">{tHome("flightsFound", { count: results.length })}</h2>
-
-                {matchedAlert && (
-                  <div className="p-4 rounded-xl bg-green-50 border border-green-200 text-green-700 text-sm font-medium text-center">
-                    {tHome("alertReached", { from: matchedAlert.from, to: matchedAlert.to, price: `$${Math.min(...results.map((o) => Number(o.price))).toLocaleString()} USD` })}
-                  </div>
-                )}
-
-                {(cheapestDirect || cheapestConnecting) && (
-                  <div className="space-y-4">
-                    <h3 className="text-sm font-semibold text-muted uppercase tracking-wide">{tHome("directVsConnecting")}</h3>
-                    <div className="grid md:grid-cols-2 gap-4">
-                      {cheapestDirect && (
-                        <div className="bg-white rounded-xl p-5 border border-primary/30 shadow-sm">
-                          <div className="flex items-center gap-2 mb-3">
-                            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center"><PlaneIcon /></div>
-                            <span className="text-sm font-semibold text-primary">{tHome("directFlight")}</span>
-                          </div>
-                          <p className="text-3xl font-bold text-foreground">${Number(cheapestDirect.price).toLocaleString()}</p>
-                          <p className="text-sm text-muted mt-1">{cheapestDirect.airline}</p>
-                          <p className="text-sm text-foreground mt-2">{cheapestDirect.departure?.slice(11, 16)} → {cheapestDirect.arrival?.slice(11, 16)}</p>
-                        </div>
-                      )}
-                      {cheapestConnecting && (
-                        <div className="bg-white rounded-xl p-5 border border-amber-300/50 shadow-sm">
-                          <div className="flex items-center gap-2 mb-3">
-                            <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center"><SwapIcon /></div>
-                            <span className="text-sm font-semibold text-amber-600">{tHome("connStopCount", { count: cheapestConnecting.stops })}</span>
-                          </div>
-                          <p className="text-3xl font-bold text-foreground">${Number(cheapestConnecting.price).toLocaleString()}</p>
-                          <p className="text-sm text-muted mt-1">{cheapestConnecting.airline}</p>
-                          <p className="text-sm text-foreground mt-2">{cheapestConnecting.departure?.slice(11, 16)} → {cheapestConnecting.arrival?.slice(11, 16)}</p>
-                        </div>
-                      )}
-                    </div>
-                    {cheapestDirect && cheapestConnecting && (
-                      <div className={`text-center py-3 rounded-xl text-sm font-semibold ${Number(cheapestDirect.price) <= Number(cheapestConnecting.price) ? "bg-primary/10 text-primary" : "bg-green-50 text-green-600"}`}>
-                        {Number(cheapestDirect.price) <= Number(cheapestConnecting.price) ? tHome("directCheaper") : tHome("saveWithConnecting", { amount: `$${(Number(cheapestDirect.price) - Number(cheapestConnecting.price)).toLocaleString()}` })}
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                <div className="flex gap-1 bg-white rounded-xl p-1 border border-gray-200">
-                  {(["price", "duration", "ai"] as const).map((tab) => (
-                    <button key={tab} onClick={() => setSortTab(tab)} className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition ${sortTab === tab ? "bg-primary text-white" : "text-muted hover:text-foreground"}`}>
-                      {tab === "price" ? tHome("sortLowestPrice") : tab === "duration" ? tHome("sortShortest") : tHome("sortAiPick")}
-                    </button>
-                  ))}
-                </div>
-
-                <div className="space-y-4">
-                  {getSortedResults().map((offer) => (
-                    <FlightTicketCard
-                      key={offer.id}
-                      airline={offer.airline ?? "Unknown Airline"}
-                      airlineLogo={offer.airlineLogo ?? resolveAirlineLogoByName(offer.airline)}
-                      onBook={() => router.push(`/booking?from=${lastSearch.from}&to=${lastSearch.to}`)}
-                      cabinClass={getCabinClassLabel(lastSearch.cabinClass)}
-                      from={lastSearch.from} to={lastSearch.to} fromCity={lastSearch.fromCity} toCity={lastSearch.toCity}
-                      departureTime={offer.departure?.slice(11, 16) ?? '--:--'}
-                      arrivalTime={offer.arrival?.slice(11, 16) ?? '--:--'}
-                      duration={`${Math.floor(calculateDuration(offer.departure, offer.arrival) / 3600000)}h ${Math.floor((calculateDuration(offer.departure, offer.arrival) % 3600000) / 60000)}m`}
-                      stops={offer.stops ?? 0}
-                      price={Number(offer.price)}
-                    />
-                  ))}
-                </div>
-
-                <button onClick={handlePriceTrend} disabled={chartLoading} className="w-full py-3 rounded-xl bg-white border border-gray-200 text-foreground text-sm font-medium hover:bg-gray-50 transition disabled:opacity-50">
-                  {chartLoading ? tHome("loadingPriceTrends") : tHome("viewPriceTrends")}
-                </button>
-
-                {priceChartData.length > 0 && (
-                  <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
-                    <h3 className="text-lg font-semibold text-foreground mb-4">{tHome("priceTrendsTitle")}</h3>
-                    <ResponsiveContainer width="100%" height={300}>
-                      <LineChart data={priceChartData}>
-                        <XAxis dataKey="date" stroke="#64748b" style={{ fontSize: "12px" }} />
-                        <YAxis stroke="#64748b" style={{ fontSize: "12px" }} label={{ value: "USD", angle: -90, position: "insideLeft" }} />
-                        <Tooltip contentStyle={{ backgroundColor: "#ffffff", border: "1px solid #e2e8f0", borderRadius: "12px", boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)" }} formatter={(value) => `$${Number(value).toLocaleString()}`} />
-                        <Line type="monotone" dataKey="price" stroke="#2563eb" strokeWidth={2} dot={{ fill: "#2563eb", r: 4 }} activeDot={{ r: 6 }} />
-                        {priceChartData.map((point) => point.isSelected ? <ReferenceDot key={point.fullDate} x={point.date} y={point.price} r={6} fill="#0ea5e9" stroke="#0891b2" strokeWidth={2} /> : null)}
-                        {cheapestDatePoint && !cheapestDatePoint.isSelected && <ReferenceDot x={cheapestDatePoint.date} y={cheapestDatePoint.price} r={6} fill="#10b981" stroke="#059669" strokeWidth={2} label={{ value: "Best", position: "top", fill: "#10b981", fontSize: 12 }} />}
-                      </LineChart>
-                    </ResponsiveContainer>
-                  </div>
-                )}
-
-                <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
-                  <h3 className="text-lg font-semibold text-foreground mb-4">{tHome("setPriceAlert")}</h3>
-                  <div className="flex gap-3">
-                    <input type="number" value={alertPrice} onChange={(e) => setAlertPrice(e.target.value)} placeholder={tAlert("targetPricePlaceholder")} className="flex-1 p-3 rounded-xl bg-gray-50 text-foreground border border-gray-200 placeholder-gray-400 outline-none focus:border-primary transition" />
-                    <button onClick={addAlert} disabled={!alertPrice} className="btn-sheen px-6 py-3 rounded-xl bg-primary text-white font-semibold hover:bg-primary/90 transition disabled:opacity-50">{tAlert("setAlert")}</button>
-                  </div>
-                  {alerts.length > 0 && (
-                    <div className="mt-4 space-y-2">
-                      <p className="text-xs text-muted uppercase tracking-wide">{tHome("activeAlerts", { count: alerts.length })}</p>
-                      {alerts.map((alert) => (
-                        <div key={alert.id} className="flex justify-between items-center bg-gray-50 p-3 rounded-xl border border-gray-200">
-                          <div>
-                            <p className="text-sm font-semibold text-foreground">{alert.from} → {alert.to}</p>
-                            <p className="text-xs text-muted">${alert.targetPrice} USD · {alert.setDate}</p>
-                          </div>
-                          <button onClick={() => deleteAlert(alert.id)} className="px-3 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 text-xs font-medium transition">{tHome("remove")}</button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-            ) : !loading ? (
-              <div className="text-center py-12">
-                <p className="text-muted">{tHome("noFlights")}</p>
-              </div>
-            ) : null}
-          </div>
-        </section>
-      )}
 
       {/* Footer — returns to the hero's night sky so the page ends where it
           began. Grouped links shared site-wide via SiteFooter (C7). */}

@@ -98,13 +98,13 @@ export default function AirportGuideCards({ departureGuide, arrivalGuide, from, 
             <div className="flex flex-wrap items-center gap-2">
               <Link
                 href={`/guide/airport/${iata}`}
-                className="inline-flex items-center gap-1 rounded-full bg-[#eff5ff] px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary hover:text-white transition-colors"
+                className="inline-flex items-center gap-1 rounded-full bg-[rgba(143,224,232,0.12)] px-3 py-1.5 text-xs font-medium text-[var(--contrail-300)] hover:bg-primary hover:text-white transition-colors"
               >
                 {t("airportGuide")}
               </Link>
               <Link
                 href={`/guide/airport/${iata}#accessibility`}
-                className="inline-flex items-center gap-1 rounded-full border border-[#dbe5f3] px-3 py-1.5 text-xs font-medium text-muted hover:text-primary hover:border-primary transition-colors"
+                className="inline-flex items-center gap-1 rounded-full border border-[var(--glass-border)] px-3 py-1.5 text-xs font-medium text-muted hover:text-primary hover:border-primary transition-colors"
               >
                 {t("accessibility")}
               </Link>

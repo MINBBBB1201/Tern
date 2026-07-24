@@ -68,17 +68,24 @@ export default async function AirportGuidePage({ params }: Props) {
   };
 
   return (
-    <main className="min-h-screen bg-[#F4F7FC] text-foreground">
+    <main
+      className="night-tail min-h-screen text-foreground"
+      style={{
+        /* Same continuous dark tone track as the F2 subpages. */
+        background:
+          "linear-gradient(180deg, var(--dusk-700) 0%, #131E3C 40%, #101A36 72%, var(--dusk-700) 100%)",
+      }}
+    >
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <header className="border-b border-[#e4ebf5] bg-white">
+      <header className="glass-nav-dark border-b border-[var(--glass-border)]">
         <div className="mx-auto flex max-w-4xl flex-wrap items-center justify-between gap-3 px-5 py-4">
-          <Link href="/" className="text-sm font-semibold text-primary hover:underline">
+          <Link href="/" className="text-sm font-semibold text-[var(--contrail-300)] hover:underline">
             {t("backHome")}
           </Link>
-          <span className="rounded-full bg-[#eff5ff] px-3 py-1 text-xs font-semibold text-[#2563eb]">
+          <span className="glass-chip rounded-full px-3 py-1 text-xs font-semibold text-[var(--contrail-300)]">
             {t("badge")}
           </span>
         </div>
@@ -93,7 +100,7 @@ export default async function AirportGuidePage({ params }: Props) {
         </h1>
         <p className="mt-4 text-muted leading-relaxed">{guide.summary}</p>
 
-        <section className="mt-10 rounded-2xl border border-[#e1eaf6] bg-white p-6 shadow-sm">
+        <section className="mt-10 glass-panel rounded-2xl p-6">
           <h2 className="text-lg font-bold">{t("terminals")}</h2>
           <ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-muted">
             {guide.terminals.map((t) => (
@@ -102,7 +109,7 @@ export default async function AirportGuidePage({ params }: Props) {
           </ul>
         </section>
 
-        <section className="mt-6 rounded-2xl border border-[#e1eaf6] bg-white p-6 shadow-sm">
+        <section className="mt-6 glass-panel rounded-2xl p-6">
           <h2 className="text-lg font-bold">{t("beforeDepart")}</h2>
           <ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-muted">
             {guide.beforeYouFly.map((t) => (
@@ -111,7 +118,7 @@ export default async function AirportGuidePage({ params }: Props) {
           </ul>
         </section>
 
-        <section className="mt-6 rounded-2xl border border-[#e1eaf6] bg-white p-6 shadow-sm">
+        <section className="mt-6 glass-panel rounded-2xl p-6">
           <h2 className="text-lg font-bold">{t("afterLand")}</h2>
           <ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-muted">
             {guide.afterYouLand.map((t) => (
@@ -120,7 +127,7 @@ export default async function AirportGuidePage({ params }: Props) {
           </ul>
         </section>
 
-        <section id="accessibility" className="mt-6 rounded-2xl border border-[#e1eaf6] bg-white p-6 shadow-sm">
+        <section id="accessibility" className="mt-6 glass-panel rounded-2xl p-6">
           <h2 className="text-lg font-bold">{t("accessibilityTitle")}</h2>
           <p className="mt-2 text-sm text-muted leading-relaxed">{guide.accessibility.summary}</p>
           <ul className="mt-4 space-y-3">
@@ -139,7 +146,7 @@ export default async function AirportGuidePage({ params }: Props) {
                   href={l.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="rounded-full border border-[#dbe5f3] px-3 py-1.5 text-xs font-semibold text-primary hover:bg-[#f8fbff]"
+                  className="rounded-full border border-[var(--glass-border)] px-3 py-1.5 text-xs font-semibold text-[var(--contrail-300)] hover:bg-white/5"
                 >
                   {l.label} ↗
                 </a>
@@ -149,12 +156,12 @@ export default async function AirportGuidePage({ params }: Props) {
         </section>
 
         {guide.floorGuide && guide.floorGuide.length > 0 && (
-          <section className="mt-6 rounded-2xl border border-[#e1eaf6] bg-white p-6 shadow-sm">
+          <section className="mt-6 glass-panel rounded-2xl p-6">
             <h2 className="text-lg font-bold">{t("floorGuide")}</h2>
             <ul className="mt-3 space-y-2">
               {guide.floorGuide.map((f) => (
                 <li key={f.floor} className="flex gap-3 text-sm">
-                  <span className="data-mono w-32 shrink-0 font-semibold text-primary">{f.floor}</span>
+                  <span className="data-mono w-32 shrink-0 font-semibold text-[var(--contrail-300)]">{f.floor}</span>
                   <span className="text-muted">{f.label}</span>
                 </li>
               ))}
@@ -163,7 +170,7 @@ export default async function AirportGuidePage({ params }: Props) {
         )}
 
         {guide.transitTips && guide.transitTips.length > 0 && (
-          <section className="mt-6 rounded-2xl border border-[#e1eaf6] bg-white p-6 shadow-sm">
+          <section className="mt-6 glass-panel rounded-2xl p-6">
             <h2 className="text-lg font-bold">{t("transitTitle")}</h2>
             <p className="mt-1 text-xs text-muted">{t("transitNote")}</p>
             <ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-muted">
@@ -183,7 +190,7 @@ export default async function AirportGuidePage({ params }: Props) {
           return (
             <section
               key={mode}
-              className="mt-6 rounded-2xl border border-[#e1eaf6] bg-white p-6 shadow-sm"
+              className="mt-6 glass-panel rounded-2xl p-6"
             >
               <h3 className="text-lg font-bold">{block.title}</h3>
               <ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-muted">
@@ -193,10 +200,10 @@ export default async function AirportGuidePage({ params }: Props) {
               </ul>
               {block.avoidScams.length > 0 && (
                 <>
-                  <p className="mt-4 text-xs font-semibold uppercase tracking-wide text-amber-700">
+                  <p className="mt-4 text-xs font-semibold uppercase tracking-wide text-[#fbbf24]">
                     {t("avoidScams")}
                   </p>
-                  <ul className="mt-2 list-disc space-y-2 pl-5 text-sm text-amber-900/90">
+                  <ul className="mt-2 list-disc space-y-2 pl-5 text-sm text-[rgba(252,211,77,0.9)]">
                     {block.avoidScams.map((b) => (
                       <li key={b}>{b}</li>
                     ))}
@@ -209,7 +216,7 @@ export default async function AirportGuidePage({ params }: Props) {
                     href={uberLink}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 rounded-full bg-black px-4 py-2 text-xs font-semibold text-white hover:bg-black/85"
+                    className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-black px-4 py-2 text-xs font-semibold text-white hover:bg-black/70"
                   >
                     {t("uberCta")}
                   </a>
@@ -226,7 +233,7 @@ export default async function AirportGuidePage({ params }: Props) {
                       href={l.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="rounded-full border border-[#dbe5f3] px-3 py-1.5 text-xs font-semibold text-primary hover:bg-[#f8fbff]"
+                      className="rounded-full border border-[var(--glass-border)] px-3 py-1.5 text-xs font-semibold text-[var(--contrail-300)] hover:bg-white/5"
                     >
                       {l.label}
                     </a>

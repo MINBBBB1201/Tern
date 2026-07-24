@@ -35,7 +35,7 @@ const BrandLogo = ({ className = "" }: { className?: string }) => (
       src="/logos/tern-logo-purepick.png"
       alt="Tern"
       fill
-      className="object-cover object-center"
+      className="object-cover object-center brightness-0 invert"
       sizes="(max-width: 768px) 160px, 220px"
       priority
       quality={100}
@@ -117,9 +117,17 @@ function BookingPageClient() {
   };
 
   return (
-    <main className="min-h-screen bg-[var(--paper-50)] text-foreground">
+    <main
+      className="night-tail min-h-screen text-foreground"
+      style={{
+        /* Same continuous dark tone track as the F2 subpages: dusk under
+           the sticky nav, dipping through ink, back to the footer's dusk. */
+        background:
+          "linear-gradient(180deg, var(--dusk-700) 0%, #131E3C 40%, #101A36 72%, var(--dusk-700) 100%)",
+      }}
+    >
       <ScrollFX />
-      <header className="glass-nav sticky top-0 z-40">
+      <header className="glass-nav-dark sticky top-0 z-40">
         <div className="mx-auto flex h-16 w-full max-w-[min(100%,88rem)] items-center justify-between px-5">
           <Link href="/" aria-label={tNav("home")}>
             <BrandLogo className="h-10 w-36 md:h-11 md:w-44" />
@@ -128,8 +136,8 @@ function BookingPageClient() {
             <span className="hidden rounded-full bg-primary-subtle px-3 py-1.5 text-primary-hover md:inline-flex">
               {tFilters(tripType === "oneway" ? "oneWay" : "roundTrip")}
             </span>
-            <LocaleSwitcher />
-            <AuthMenu />
+            <LocaleSwitcher dark />
+            <AuthMenu dark />
             <Link href="/" className="btn-sheen rounded-full bg-primary px-4 py-2 font-semibold text-white">
               {tNav("changeSearch")}
             </Link>
@@ -139,14 +147,14 @@ function BookingPageClient() {
 
       <section className="mx-auto w-full max-w-[min(100%,88rem)] px-4 py-6 sm:px-5">
         {linkOrderId && (
-          <div className="glass-panel mb-4 rounded-2xl border border-[color-mix(in_srgb,var(--color-success)_30%,white)] bg-success-subtle p-4 text-sm text-success-strong">
+          <div className="glass-panel mb-4 rounded-2xl border border-[rgba(52,211,153,0.35)] p-4 text-sm text-success-strong">
             ✅ Booking confirmed on Tern&apos;s secure checkout (test mode — no real ticket issued).{" "}
             <span className="data-mono">Order {linkOrderId}</span>
           </div>
         )}
 
         <div data-fx-quick className="glass-panel mb-4 rounded-2xl p-4 md:p-5">
-          <p className="text-xs font-semibold uppercase tracking-wide text-[#2563eb]">{tWhyShop("title")}</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-[var(--contrail-300)]">{tWhyShop("title")}</p>
           <p className="mt-2 text-sm font-medium text-foreground md:text-base">
             {tWhyShop("body")}
           </p>
@@ -212,7 +220,7 @@ function BookingPageClient() {
 
         {/* Matched alert banner */}
         {priceAlerts.matchedAlert && (
-          <div className="mt-4 rounded-2xl border border-[color-mix(in_srgb,var(--color-success)_30%,white)] bg-success-subtle p-4 text-sm text-success-strong">
+          <div className="glass-panel mt-4 rounded-2xl border border-[rgba(52,211,153,0.35)] p-4 text-sm text-success-strong">
             🎉 Price alert triggered! A fare for {priceAlerts.matchedAlert.from} → {priceAlerts.matchedAlert.to} is at or below your target of <span className="data-mono">{formatMoney(priceAlerts.matchedAlert.targetPrice, "USD")}</span>.
           </div>
         )}
@@ -229,7 +237,7 @@ function BookingPageClient() {
         )}
 
         {error && !loading && (
-          <div className="mt-8 rounded-2xl border border-red-200 bg-red-50 p-6 text-center text-sm text-red-700">
+          <div className="glass-panel mt-8 rounded-2xl border border-[rgba(248,113,113,0.35)] p-6 text-center text-sm text-[#fca5a5]">
             {tFilters("offersError")}
           </div>
         )}
@@ -303,7 +311,7 @@ function BookingPageClient() {
 function BookingPageFallback() {
   const t = useTranslations("Filters");
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[var(--paper-50)]">
+    <div className="night-tail flex min-h-screen items-center justify-center bg-[#131E3C]">
       <div className="flex items-center gap-3 text-muted">
         <svg className="h-5 w-5 animate-spin" viewBox="0 0 24 24" fill="none">
           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />

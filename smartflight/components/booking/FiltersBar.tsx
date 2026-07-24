@@ -63,11 +63,11 @@ export default function FiltersBar({
           <button type="button" onClick={() => togglePanel("stops")} className="glass-chip rounded-full px-4 py-2 text-sm font-medium">{t("stops")}</button>
           <button type="button" onClick={() => togglePanel("times")} className="glass-chip rounded-full px-4 py-2 text-sm font-medium">{t("times")}</button>
           <button type="button" onClick={() => togglePanel("programs")} className="glass-chip rounded-full px-4 py-2 text-sm font-medium">{t("programs")}</button>
-          <label className={`flex cursor-pointer items-center gap-2 rounded-full border px-3 py-2 text-xs font-medium transition-colors ${loyaltyFilterOn ? "border-[var(--contrail-300)] bg-[color-mix(in_srgb,var(--contrail-300)_12%,white)]" : "glass-chip"}`}>
+          <label className={`flex cursor-pointer items-center gap-2 rounded-full border px-3 py-2 text-xs font-medium transition-colors ${loyaltyFilterOn ? "border-[var(--contrail-300)] bg-[rgba(143,224,232,0.14)]" : "glass-chip"}`}>
             <input type="checkbox" checked={loyaltyFilterOn} onChange={(e) => setLoyaltyFilterOn(e.target.checked)} className="rounded border-gray-300" />
             {t("matchAlliance")}
           </label>
-          <label className={`flex cursor-pointer items-center gap-2 rounded-full border px-3 py-2 text-xs font-medium transition-colors ${connectingOnly ? "border-[var(--contrail-300)] bg-[color-mix(in_srgb,var(--contrail-300)_12%,white)]" : "glass-chip"}`}>
+          <label className={`flex cursor-pointer items-center gap-2 rounded-full border px-3 py-2 text-xs font-medium transition-colors ${connectingOnly ? "border-[var(--contrail-300)] bg-[rgba(143,224,232,0.14)]" : "glass-chip"}`}>
             <input type="checkbox" checked={connectingOnly} onChange={(e) => setConnectingOnly(e.target.checked)} className="rounded border-gray-300" />
             {t("connectingOnly")}
           </label>
