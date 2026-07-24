@@ -43,6 +43,38 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function BlogPostPage({ params }: Props) {
   const { slug } = await params;
-  if (!getBlogPost(slug)) notFound();
-  return <BlogPostClient slug={slug} />;
+  const post = getBlogPost(slug);
+  if (!post) notFound();
+
+  const t = await getTranslations("BlogPage");
+  const url = `https://www.flytern.site/blog/${post.slug}`;
+  // Article structured data. datePublished is intentionally omitted — post
+  // dates aren't tracked in the data, and the no-fake-data rule means we omit
+  // the field rather than invent one. Author/publisher are the Tern org.
+  const articleJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: t(post.titleKey),
+    description: t(post.excerptKey),
+    mainEntityOfPage: url,
+    author: { "@type": "Organization", name: "Tern", url: "https://www.flytern.site" },
+    publisher: {
+      "@type": "Organization",
+      name: "Tern",
+      logo: {
+        "@type": "ImageObject",
+        url: "https://www.flytern.site/logos/tern-logo-purepick.png",
+      },
+    },
+  };
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
+      />
+      <BlogPostClient slug={slug} />
+    </>
+  );
 }

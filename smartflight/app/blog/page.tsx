@@ -8,7 +8,10 @@ export const metadata: Metadata = {
   title: "Guides & Notes",
   description:
     "Airport layover guides, points-and-miles explainers, and product notes from Tern — practical, factual travel research reshaped from the same data the app uses.",
-  alternates: { canonical: "/blog" },
+  alternates: {
+    canonical: "/blog",
+    types: { "application/rss+xml": "/blog/rss.xml" },
+  },
 };
 
 export default async function BlogIndexPage() {
