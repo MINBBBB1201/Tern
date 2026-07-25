@@ -1,5 +1,86 @@
 # Backlog — B/C/D/E/F/G/H series (2026-07-17 → 2026-07-22)
 
+## I5 — 로케일 SEO 정합성 (2026-07-26)
+
+### I5-0 진단 (이 라운드의 본체)
+
+I4 보고 말미의 "Guide OG images stay English (crawlers don't send the locale
+cookie)" 한 문장을 실제 요청으로 확인한 결과, **파급이 OG 이미지가 아니라
+사이트 전체였다.**
+
+- 로케일 전달은 **`TERN_LOCALE` 쿠키 단독**이었다. `/ko/about` 등 경로는 404,
+  `Accept-Language` 헤더는 무시 — 쿠키만이 유일한 신호.
+- 그래서 **크롤러에게 Tern은 영어 단일 언어 사이트였다.** Googlebot UA +
+  쿠키 없음으로 `/guide/airport/ICN`을 받으면 `<html lang="en">`, 본문
+  한글/가나 문자 **0개**. I4에 들인 4개 언어 번역이 유입으로 이어질 경로가
+  아예 없었다.
+- `<link rel="alternate">` 0개, `og:locale` 0개, sitemap 36 URL에 로케일 URL
+  및 hreflang 0개. canonical은 있으나 로케일 무관 단일 URL.
+- robots.txt는 원인이 아니었다 (`Allow: /`).
+
+판단 근거로 결정적이었던 것: Duffel Links의 `success_url`이
+`${origin}/booking` 하드코딩이라, `localePrefix: "as-needed"` + 쿠키 폴백이면
+**어필리에이트 페이로드를 바꾸지 않고도** 반환 레그 로케일이 유지된다.
+따라서 전환 규모가 라우팅·미들웨어·링크 생성으로 국한 → 진행 가능.
+
+**규약 충돌 (§머리말에 따라 명시):** §3 불가침의 "next-intl 로케일 시스템"을
+I5-1이 재배선한다. 브리프 우선 원칙으로 진행하되, 실제로는 로케일 집합(4개)과
+메시지 파일은 불변이고 **전달 경로만 쿠키 → URL**로 바뀌었다.
+
+### I5-1 경로 기반 로케일 라우팅
+
+`i18n/routing.ts`(`localePrefix: "as-needed"`), `i18n/navigation.ts`,
+`middleware.ts` 신설. `app/*` → `app/[locale]/*` 이동(`git mv`, 이력 보존).
+`i18n/request.ts`가 쿠키 대신 `requestLocale` 사용. 내부 링크·`router.push`
+13파일을 로케일 인지 `Link`/`useRouter`로 교체. `lib/actions/setLocale.ts`는
+사용처가 사라져 삭제.
+
+검증: 크롤러 기준 `/ko/guide/airport/ICN` 본문 한글 **0 → 11,155자**.
+접두어 없는 기존 URL 10종 전부 200. 무손상 3종(로그인 리다이렉트 /
+어필리에이트 파라미터 / 공유 URL 로케일) 통과 —
+`scripts/i5-nondestructive.mjs`. Duffel 반환 레그는
+`/booking?order_id=…` → 307 → `/ko/booking?order_id=…`로 쿼리까지 보존.
+
+**I5-1이 만든 회귀를 같은 라운드에서 수정:** `HomeContent`의 nav에 원시
+`<a href="/booking">`가 남아 있어 로케일 접두어를 잃었다. `Link`로 교체
+(eslint `no-html-link-for-pages`도 동시 해소). 범위 밖 발견이 아니라 이번
+변경이 유발한 회귀라 이번 커밋에 포함.
+
+### I5-2 hreflang / canonical / sitemap / og:locale
+
+`lib/seo.ts` 신설 — 로케일별 self-canonical + 4개 로케일 hreflang +
+`x-default`(en) + `og:locale`/`og:locale:alternate`. sitemap **36 → 144 URL,
+hreflang 576개**.
+
+가이드 23공항 × 4로케일 **전량 포함 판단**: I4에서 본문이 실제로 완전 번역되어
+로케일별 콘텐츠가 진짜 다르다(중복 콘텐츠 아님). 사이트 최대 롱테일 자산이라
+제외하면 I4를 낭비하는 셈. 반대로 `/booking?…`는 쿼리 변형이 무한하고
+로케일별 콘텐츠 차이가 없어 robots 제외를 **유지** — 전량 확장을 무비판
+적용하지 않았다.
+
+### 다음 라운드 대상 (I5에서 미착수)
+
+I5-0 진단이 예상보다 무겁고 I5-1이 앱 라우트 전체 이동이라 리뷰 단위가 이미
+가득 차, §7에 따라 여기서 끊었다. 셋 다 I5-1 완료로 선행 조건이 해소되어
+독립 라운드로 바로 착수 가능하다.
+
+- **I5-3 OG 이미지 로케일화** — 이제 URL에 로케일이 있으므로 가능해졌다.
+  빌드 로그상 `/[locale]/guide/airport/[iata]/opengraph-image`가 여전히 SSG이므로
+  `generateStaticParams`에 locale을 추가하는 형태가 될 것 (합리적 추정, 미구현).
+- **I5-4 airports.json 로케일화 전략 미정** — 전량 번역 vs 도시명만 로케일화하고
+  공항 정식 명칭은 원문 유지. 전량 기계 번역은 §2-1 위반 소지가 있어 전략 판단
+  자체가 산출물.
+- **I5-5 `lib/transportService.ts` 미처리** — 861줄, 임포트되는 곳 없음(dead code).
+  삭제할지 연결할지 판단 필요.
+
+### 보류 (결정됨, 지금 손대지 않음)
+
+- **`x-default` = en 유지.** 실트래픽 데이터 없이 판단 보류. 애널리틱스 연결 후 재논의.
+- `app/[locale]/blog/rss.xml`이 로케일 세그먼트 안으로 들어가 `/ko/blog/rss.xml`도
+  생성된다. 피드 정본을 하나로 둘지 로케일별로 둘지 미결정.
+- 중간에 `/guide/airport/ICN`에서 HTTP 500을 한 차례 관측했으나 `.next` 삭제 후
+  200. Turbopack 캐시 문제로 판단하되 재현 조건은 미확정.
+
 ## I4 — i18n completeness + naturalness (2026-07-26)
 
 Closes the **B6 residual** below. `lib/airportGuides.ts` was split into

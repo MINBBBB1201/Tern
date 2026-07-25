@@ -1,11 +1,21 @@
 import { getRequestConfig } from "next-intl/server";
-import { cookies } from "next/headers";
-import { DEFAULT_LOCALE, isLocale, LOCALE_COOKIE } from "./locales";
+import { hasLocale } from "next-intl";
+import { routing } from "./routing";
 
-export default getRequestConfig(async () => {
-  const cookieStore = await cookies();
-  const cookieLocale = cookieStore.get(LOCALE_COOKIE)?.value;
-  const locale = isLocale(cookieLocale) ? cookieLocale : DEFAULT_LOCALE;
+/**
+ * I5: the locale now comes from the URL segment the middleware resolved, not
+ * from the TERN_LOCALE cookie directly. The cookie still exists — the
+ * middleware reads it to decide which prefix a returning visitor lands on,
+ * which is what keeps the Duffel return leg (`/booking` → `/ko/booking`) in
+ * the user's language — but it is no longer the source of truth for
+ * rendering. That switch is the point of the round: crawlers send no cookie,
+ * so a cookie-sourced locale meant crawlers only ever saw English.
+ */
+export default getRequestConfig(async ({ requestLocale }) => {
+  const requested = await requestLocale;
+  const locale = hasLocale(routing.locales, requested)
+    ? requested
+    : routing.defaultLocale;
 
   return {
     locale,

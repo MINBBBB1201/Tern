@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
+import { Link } from "../i18n/navigation";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Menu, X } from "lucide-react";

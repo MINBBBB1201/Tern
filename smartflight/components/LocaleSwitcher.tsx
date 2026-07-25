@@ -2,7 +2,8 @@
 
 import { useLocale } from "next-intl";
 import { useState, useTransition } from "react";
-import { setLocale } from "../lib/actions/setLocale";
+import { useParams } from "next/navigation";
+import { usePathname, useRouter } from "../i18n/navigation";
 import { LOCALES, LOCALE_LABELS, type Locale } from "../i18n/locales";
 
 type LocaleSwitcherProps = {
@@ -11,6 +12,9 @@ type LocaleSwitcherProps = {
 
 export function LocaleSwitcher({ dark }: LocaleSwitcherProps) {
   const locale = useLocale() as Locale;
+  const router = useRouter();
+  const pathname = usePathname();
+  const params = useParams();
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
 
@@ -18,7 +22,19 @@ export function LocaleSwitcher({ dark }: LocaleSwitcherProps) {
     setOpen(false);
     if (next === locale) return;
     startTransition(() => {
-      setLocale(next);
+      /* I5: switching language is a navigation now, not a cookie write — the
+         locale lives in the URL. next-intl's usePathname returns the
+         locale-stripped path, and `params` carries dynamic segments (the
+         [iata] of an airport guide, the [slug] of a post) so the switch stays
+         on the same page. next-intl also refreshes TERN_LOCALE, which is what
+         the middleware later reads to keep the Duffel return leg in this
+         language. */
+      router.replace(
+        // @ts-expect-error -- the {pathname, params} form is the documented
+        // way to carry dynamic segments; pathnames aren't typed in this project.
+        { pathname, params },
+        { locale: next }
+      );
     });
   };
 
