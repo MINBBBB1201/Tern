@@ -1,17 +1,29 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { Link } from "../../../i18n/navigation";
 import { getTranslations } from "next-intl/server";
-import { SubpageShell } from "../../components/SubpageShell";
-import { blogPosts } from "../../lib/blogPosts";
+import { alternatesFor, localeUrl, ogLocaleFor } from "../../../lib/seo";
+import { SubpageShell } from "../../../components/SubpageShell";
+import { blogPosts } from "../../../lib/blogPosts";
 
-export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("Meta");
+type Props = { params: Promise<{ locale: string }> };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "Meta" });
   return {
     title: t("blogTitle"),
     description: t("blogDescription"),
     alternates: {
-      canonical: "/blog",
+      ...alternatesFor("/blog", locale),
       types: { "application/rss+xml": "/blog/rss.xml" },
+    },
+    openGraph: {
+      title: t("blogTitle"),
+      description: t("blogDescription"),
+      url: localeUrl("/blog", locale),
+      siteName: "Tern",
+      type: "website",
+      ...ogLocaleFor(locale),
     },
   };
 }

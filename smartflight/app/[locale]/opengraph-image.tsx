@@ -1,5 +1,5 @@
 import { ImageResponse } from "next/og";
-import { ogCard, ogSize, ogContentType } from "../lib/og";
+import { ogCard, ogSize, ogContentType } from "../../lib/og";
 
 export const alt = "Tern — compare flights by price, speed, delay risk, and points value";
 export const size = ogSize;

@@ -1,11 +1,11 @@
 "use client";
 
-import Link from "next/link";
+import { Link } from "../../../../i18n/navigation";
 import { notFound } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { SubpageShell } from "../../../components/SubpageShell";
-import { getBlogPost } from "../../../lib/blogPosts";
-import type { AirportGuide } from "../../../lib/airportGuides";
+import { SubpageShell } from "../../../../components/SubpageShell";
+import { getBlogPost } from "../../../../lib/blogPosts";
+import type { AirportGuide } from "../../../../lib/airportGuides";
 
 const Card = ({ children }: { children: React.ReactNode }) => (
   <section className="glass-panel rounded-2xl p-6">{children}</section>

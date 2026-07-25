@@ -1,11 +1,11 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
+import { Link } from "../../../i18n/navigation";
 import { useTranslations } from "next-intl";
-import { SubpageShell } from "../../components/SubpageShell";
-import { airlineDealPages } from "../../lib/airlineDeals";
-import { useHoverTilt } from "../../hooks/useHoverTilt";
+import { SubpageShell } from "../../../components/SubpageShell";
+import { airlineDealPages } from "../../../lib/airlineDeals";
+import { useHoverTilt } from "../../../hooks/useHoverTilt";
 
 /* /deals — the C1 card pattern promoted to a full route. Same honesty
    contract: every fact is verifiable on the linked airline page; the

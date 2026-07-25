@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
 import { Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
-import { getLocale, getMessages, getTranslations } from "next-intl/server";
-import GlobalCanvas from "../components/canvas/GlobalCanvas";
-import "./globals.css";
+import { getMessages, getTranslations, setRequestLocale } from "next-intl/server";
+import { notFound } from "next/navigation";
+import { routing } from "../../i18n/routing";
+import { hasLocale } from "next-intl";
+import GlobalCanvas from "../../components/canvas/GlobalCanvas";
+import "../globals.css";
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -17,8 +20,17 @@ const jetbrainsMono = JetBrains_Mono({
 
 // Title/description follow the request's TERN_LOCALE cookie, like the rest
 // of the site — a Korean visitor should not get an English <title>.
-export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("Meta");
+type LayoutProps = { children: React.ReactNode; params: Promise<{ locale: string }> };
+
+export function generateStaticParams() {
+  return routing.locales.map((locale) => ({ locale }));
+}
+
+export async function generateMetadata({
+  params,
+}: Omit<LayoutProps, "children">): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "Meta" });
   const title = t("siteTitle");
   const description = t("siteDescription");
 
@@ -59,12 +71,12 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default async function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
-  const locale = await getLocale();
+export default async function RootLayout({ children, params }: LayoutProps) {
+  const { locale } = await params;
+  // An unknown prefix (/de/about) must 404 rather than silently render English.
+  if (!hasLocale(routing.locales, locale)) notFound();
+  // Opts this layout into static rendering for the locale segment.
+  setRequestLocale(locale);
   const messages = await getMessages();
 
   return (

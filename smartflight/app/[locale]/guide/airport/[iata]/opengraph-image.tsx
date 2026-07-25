@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
-import { getAirportBrief } from "../../../../lib/airportBrief";
-import { getAllGuidedAirportCodes } from "../../../../lib/airportGuides";
-import { ogCard, ogSize, ogContentType } from "../../../../lib/og";
+import { getAirportBrief } from "../../../../../lib/airportBrief";
+import { getAllGuidedAirportCodes } from "../../../../../lib/airportGuides";
+import { ogCard, ogSize, ogContentType } from "../../../../../lib/og";
 
 export const alt = "Tern — Airport Guide";
 export const size = ogSize;

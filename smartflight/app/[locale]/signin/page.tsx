@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "../../../i18n/navigation";
 import { useTranslations } from "next-intl";
 import {
   signInWithGoogle,
@@ -11,9 +11,9 @@ import {
   onAuthStateChanged,
   handleRedirectResult,
   authErrorKey,
-} from "../../lib/auth";
+} from "../../../lib/auth";
 import type { User } from "firebase/auth";
-import Link from "next/link";
+import { Link } from "../../../i18n/navigation";
 import Image from "next/image";
 
 const BrandLogo = ({ className = "" }: { className?: string }) => (

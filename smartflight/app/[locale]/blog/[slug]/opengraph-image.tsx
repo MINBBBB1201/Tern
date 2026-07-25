@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
-import { getBlogPost, blogPosts } from "../../../lib/blogPosts";
-import { ogCard, ogSize, ogContentType } from "../../../lib/og";
-import messages from "../../../messages/en.json";
+import { getBlogPost, blogPosts } from "../../../../lib/blogPosts";
+import { ogCard, ogSize, ogContentType } from "../../../../lib/og";
+import messages from "../../../../messages/en.json";
 
 export const alt = "Tern — Guides & Notes";
 export const size = ogSize;

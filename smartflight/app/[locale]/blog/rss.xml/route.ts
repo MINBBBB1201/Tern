@@ -1,5 +1,5 @@
-import { blogPosts } from "../../../lib/blogPosts";
-import messages from "../../../messages/en.json";
+import { blogPosts } from "../../../../lib/blogPosts";
+import messages from "../../../../messages/en.json";
 
 // Static — the feed only changes when a post is added to blogPosts.
 export const dynamic = "force-static";

@@ -1,36 +1,38 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { getLocale, getTranslations } from "next-intl/server";
-import { SiteFooter } from "../../../../components/SiteFooter";
-import { getAirportGuide } from "../../../../lib/airportGuides";
-import { buildAirportUberLink } from "../../../../lib/rideDeepLinks";
-import { getAirport } from "../../../../lib/airportData";
+import { Link } from "../../../../../i18n/navigation";
+import { getTranslations } from "next-intl/server";
+import { SiteFooter } from "../../../../../components/SiteFooter";
+import { getAirportGuide } from "../../../../../lib/airportGuides";
+import { buildAirportUberLink } from "../../../../../lib/rideDeepLinks";
+import { getAirport } from "../../../../../lib/airportData";
+import { alternatesFor, localeUrl, ogLocaleFor } from "../../../../../lib/seo";
 
-type Props = { params: Promise<{ iata: string }> };
+type Props = { params: Promise<{ iata: string; locale: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { iata } = await params;
-  const guide = getAirportGuide(iata, await getLocale());
+  const { iata, locale } = await params;
+  const guide = getAirportGuide(iata, locale);
   // The root layout's title template ("%s | Tern") appends the suffix
   // automatically for `title` below — don't add it again here, or it
   // renders as "... | Tern | Tern". openGraph/twitter titles aren't
   // templated, so they need it added explicitly.
-  const tMeta = await getTranslations("Meta");
+  const tMeta = await getTranslations({ locale, namespace: "Meta" });
   const title = tMeta("guideTitle", { name: guide.name, iata: guide.iata });
   const description =
     guide.summary || tMeta("guideDescriptionFallback", { name: guide.name, iata: guide.iata });
-  const url = `https://www.flytern.site/guide/airport/${guide.iata}`;
+  const url = localeUrl(`/guide/airport/${guide.iata}`, locale);
 
   return {
     title,
     description,
-    alternates: { canonical: url },
+    alternates: alternatesFor(`/guide/airport/${guide.iata}`, locale),
     openGraph: {
       title: `${title} | Tern`,
       description,
       url,
       type: "website",
       siteName: "Tern",
+      ...ogLocaleFor(locale),
     },
     twitter: {
       card: "summary",
@@ -41,11 +43,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function AirportGuidePage({ params }: Props) {
-  const { iata } = await params;
-  const guide = getAirportGuide(iata, await getLocale());
+  const { iata, locale } = await params;
+  const guide = getAirportGuide(iata, locale);
   const coords = getAirport(guide.iata);
-  const t = await getTranslations("AirportGuide");
-  const tNav = await getTranslations("Nav");
+  const t = await getTranslations({ locale, namespace: "AirportGuide" });
+  const tNav = await getTranslations({ locale, namespace: "Nav" });
 
   const jsonLd = {
     "@context": "https://schema.org",

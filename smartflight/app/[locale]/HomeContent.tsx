@@ -2,26 +2,26 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter } from "../../i18n/navigation";
 import dynamic from "next/dynamic";
-import Link from "next/link";
-import SearchBar, { type SearchParams } from "../components/SearchBar";
-import { LocaleSwitcher } from "../components/LocaleSwitcher";
-import { AuthMenu } from "../components/AuthMenu";
-import { MobileMenu } from "../components/MobileMenu";
-import { useHoverTilt } from "../hooks/useHoverTilt";
-import type { Offer } from "../lib/offerUtils";
-import { airlineDealPages } from "../lib/airlineDeals";
-import { SiteFooter } from "../components/SiteFooter";
-import { localeTag } from "../i18n/locales";
-import { useDurationLabel } from "../lib/useDurationLabel";
+import { Link } from "../../i18n/navigation";
+import SearchBar, { type SearchParams } from "../../components/SearchBar";
+import { LocaleSwitcher } from "../../components/LocaleSwitcher";
+import { AuthMenu } from "../../components/AuthMenu";
+import { MobileMenu } from "../../components/MobileMenu";
+import { useHoverTilt } from "../../hooks/useHoverTilt";
+import type { Offer } from "../../lib/offerUtils";
+import { airlineDealPages } from "../../lib/airlineDeals";
+import { SiteFooter } from "../../components/SiteFooter";
+import { localeTag } from "../../i18n/locales";
+import { useDurationLabel } from "../../lib/useDurationLabel";
 
 // Lazy, client-only: the 3D scene must never block first paint — the
 // headline and search form are usable before this finishes loading.
 // Renders as a drei <View> into the site-wide canvas (see GlobalCanvas).
-const HeroTernView = dynamic(() => import("../components/canvas/HeroTernView"), { ssr: false });
-const ScrollFX = dynamic(() => import("../components/ScrollFX"), { ssr: false });
-const ScrollTrail = dynamic(() => import("../components/ScrollTrail"), { ssr: false });
+const HeroTernView = dynamic(() => import("../../components/canvas/HeroTernView"), { ssr: false });
+const ScrollFX = dynamic(() => import("../../components/ScrollFX"), { ssr: false });
+const ScrollTrail = dynamic(() => import("../../components/ScrollTrail"), { ssr: false });
 
 const PlaneRightIcon = ({ className = "w-5 h-5" }: { className?: string }) => (
   <svg className={className} fill="currentColor" viewBox="0 0 24 24">
@@ -573,7 +573,9 @@ export default function Home() {
           </Link>
           <div className="hidden md:flex items-center gap-8">
             <Link href="/" className="text-sm font-medium hover:text-[var(--contrail-300)] transition text-white">{tNav("home")}</Link>
-            <a href="/booking" className="text-sm font-medium transition text-white/70 hover:text-[var(--contrail-300)]">{tNav("booking")}</a>
+            {/* Was a raw <a>, which since I5 would drop the locale prefix and
+                bounce a ko visitor onto the English booking page. */}
+            <Link href="/booking" className="text-sm font-medium transition text-white/70 hover:text-[var(--contrail-300)]">{tNav("booking")}</Link>
             <Link href="/deals" className="text-sm font-medium transition text-white/70 hover:text-[var(--contrail-300)]">{tNav("deals")}</Link>
             <Link href="/blog" className="text-sm font-medium transition text-white/70 hover:text-[var(--contrail-300)]">{tNav("blog")}</Link>
           </div>

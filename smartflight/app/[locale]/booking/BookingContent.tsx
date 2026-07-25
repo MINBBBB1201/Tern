@@ -3,35 +3,35 @@
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import type { User } from "firebase/auth";
-import Link from "next/link";
+import { Link } from "../../../i18n/navigation";
 import Image from "next/image";
 import dynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
-import { getAirportBrief } from "../../lib/airportBrief";
-import { buildAviasalesLink } from "../../lib/affiliateLinks";
-import { useOfferSearch } from "../../hooks/useOfferSearch";
-import { useOfferFilters } from "../../hooks/useOfferFilters";
-import { usePriceAlerts } from "../../hooks/usePriceAlerts";
-import { usePriceTrend } from "../../hooks/usePriceTrend";
-import { useCheckoutFlow } from "../../hooks/useCheckoutFlow";
-import FiltersBar from "../../components/booking/FiltersBar";
-import SmartPickCards from "../../components/booking/SmartPickCards";
-import OfferList from "../../components/booking/OfferList";
-import PriceTrendChart from "../../components/booking/PriceTrendChart";
-import PriceAlertPanel from "../../components/booking/PriceAlertPanel";
-import AirportGuideCards from "../../components/booking/AirportGuideCards";
-import LoyaltyCardTips from "../../components/booking/LoyaltyCardTips";
-import CheckoutModal from "../../components/booking/CheckoutModal";
-import SignInGate from "../../components/booking/SignInGate";
-import { LocaleSwitcher } from "../../components/LocaleSwitcher";
-import { AuthMenu } from "../../components/AuthMenu";
-import { MobileMenu } from "../../components/MobileMenu";
-import { SiteFooter } from "../../components/SiteFooter";
-import { formatMoney, type Offer } from "../../lib/offerUtils";
-import { auth, onAuthStateChanged } from "../../lib/auth";
+import { getAirportBrief } from "../../../lib/airportBrief";
+import { buildAviasalesLink } from "../../../lib/affiliateLinks";
+import { useOfferSearch } from "../../../hooks/useOfferSearch";
+import { useOfferFilters } from "../../../hooks/useOfferFilters";
+import { usePriceAlerts } from "../../../hooks/usePriceAlerts";
+import { usePriceTrend } from "../../../hooks/usePriceTrend";
+import { useCheckoutFlow } from "../../../hooks/useCheckoutFlow";
+import FiltersBar from "../../../components/booking/FiltersBar";
+import SmartPickCards from "../../../components/booking/SmartPickCards";
+import OfferList from "../../../components/booking/OfferList";
+import PriceTrendChart from "../../../components/booking/PriceTrendChart";
+import PriceAlertPanel from "../../../components/booking/PriceAlertPanel";
+import AirportGuideCards from "../../../components/booking/AirportGuideCards";
+import LoyaltyCardTips from "../../../components/booking/LoyaltyCardTips";
+import CheckoutModal from "../../../components/booking/CheckoutModal";
+import SignInGate from "../../../components/booking/SignInGate";
+import { LocaleSwitcher } from "../../../components/LocaleSwitcher";
+import { AuthMenu } from "../../../components/AuthMenu";
+import { MobileMenu } from "../../../components/MobileMenu";
+import { SiteFooter } from "../../../components/SiteFooter";
+import { formatMoney, type Offer } from "../../../lib/offerUtils";
+import { auth, onAuthStateChanged } from "../../../lib/auth";
 
 // Client-only scroll choreography — see components/ScrollFX.tsx
-const ScrollFX = dynamic(() => import("../../components/ScrollFX"), { ssr: false });
+const ScrollFX = dynamic(() => import("../../../components/ScrollFX"), { ssr: false });
 
 const BrandLogo = ({ className = "" }: { className?: string }) => (
   <div className={`relative overflow-hidden ${className}`}>
