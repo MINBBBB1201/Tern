@@ -48,7 +48,7 @@ export default function PriceTrendChart({ priceChartData, chartLoading, onLoadTr
               <XAxis dataKey="date" stroke="rgba(143,224,232,0.25)" tick={{ fontSize: 11, fontFamily: "var(--font-mono)", fill: "rgba(246,248,251,0.65)" }} />
               <YAxis stroke="rgba(143,224,232,0.25)" tick={{ fontSize: 11, fontFamily: "var(--font-mono)", fill: "rgba(246,248,251,0.65)" }} tickFormatter={(v) => `$${v}`} />
               <Tooltip
-                formatter={(v: unknown) => [`$${v as number}`, "Min fare"]}
+                formatter={(v: unknown) => [`$${v as number}`, t("tooltipMinFare")]}
                 contentStyle={{ fontFamily: "var(--font-mono)", background: "#141F3D", border: "1px solid rgba(143,224,232,0.25)", borderRadius: 12, color: "#F6F8FB" }}
                 labelStyle={{ color: "rgba(246,248,251,0.7)" }}
                 itemStyle={{ color: "#F6F8FB" }}
@@ -56,7 +56,7 @@ export default function PriceTrendChart({ priceChartData, chartLoading, onLoadTr
               />
               <Line type="monotone" dataKey="price" stroke="var(--contrail-300)" strokeWidth={2} dot={{ r: 3, fill: "var(--contrail-300)" }} activeDot={{ r: 5 }} />
               {cheapestDatePoint && (
-                <ReferenceDot x={cheapestDatePoint.date} y={cheapestDatePoint.price} r={6} fill="var(--horizon-500)" stroke="#0A0F1E" strokeWidth={2} label={{ value: "Best", position: "top", fontSize: 10, fill: "var(--horizon-500)" }} />
+                <ReferenceDot x={cheapestDatePoint.date} y={cheapestDatePoint.price} r={6} fill="var(--horizon-500)" stroke="#0A0F1E" strokeWidth={2} label={{ value: t("bestLabel"), position: "top", fontSize: 10, fill: "var(--horizon-500)" }} />
               )}
             </LineChart>
           </ResponsiveContainer>

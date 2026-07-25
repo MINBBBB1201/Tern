@@ -32,7 +32,10 @@ export function usePriceAlerts({ from, to }: UsePriceAlertsParams) {
       from,
       to,
       targetPrice: Number(alertPrice),
-      setDate: new Date().toLocaleDateString("en-US"),
+      // Stored as ISO (locale-neutral) — PriceAlertPanel formats it for the
+      // active locale at render. Persisting a pre-formatted en-US string
+      // froze old alerts in English forever.
+      setDate: new Date().toISOString().split("T")[0],
     };
     const updated = [...alerts, newAlert];
     setAlerts(updated);

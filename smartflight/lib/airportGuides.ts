@@ -1,7 +1,20 @@
 /**
  * Curated airport arrival/departure guides. Real-time APIs are not wired;
  * copy is practical guidance for travelers. Falls back to a generic template.
+ *
+ * I4 split this file in two so the guides can be localized without shipping
+ * every locale to the browser:
+ *   - the four short fields (name/city/country/summary) live in
+ *     lib/airportBrief.ts, which /booking imports from a client component;
+ *   - the bodies below are the English source, with ko/ja/zh overlays in
+ *     lib/airportGuideBodies.{ko,ja,zh}.ts.
+ * getAirportGuide() recombines them for a locale. Nothing is duplicated
+ * across the two files.
  */
+import { getAirportBrief, type AirportBrief } from "./airportBrief";
+import { BODIES_KO, DEFAULT_BODY_KO } from "./airportGuideBodies.ko";
+import { BODIES_JA, DEFAULT_BODY_JA } from "./airportGuideBodies.ja";
+import { BODIES_ZH, DEFAULT_BODY_ZH } from "./airportGuideBodies.zh";
 
 export type TransitMode = "taxi" | "bus" | "rail";
 
@@ -28,12 +41,8 @@ export type FloorGuide = {
   label: string;
 };
 
-export type AirportGuide = {
-  iata: string;
-  name: string;
-  city: string;
-  country: string;
-  summary: string;
+/** The localizable prose of a guide - everything except the brief fields. */
+export type AirportGuideBody = {
   terminals: string[];
   beforeYouFly: string[];
   afterYouLand: string[];
@@ -43,19 +52,15 @@ export type AirportGuide = {
   floorGuide?: FloorGuide[];
   /**
    * Facilities useful specifically for connecting/transit passengers
-   * (showers, day-use rooms, lounges) — kept to what's available, not
+   * (showers, day-use rooms, lounges) - kept to what's available, not
    * precise current prices, since those change often and get stale fast.
    */
   transitTips?: string[];
 };
 
-const DEFAULT_GUIDE = (iata: string): AirportGuide => ({
-  iata: iata.toUpperCase(),
-  name: `${iata.toUpperCase()} Airport`,
-  city: "",
-  country: "",
-  summary:
-    "Practical rules of thumb: follow official airport signage, prefer official taxi ranks or app pricing before you get in the car, and check the airport website for the latest bus or train maps.",
+export type AirportGuide = AirportBrief & AirportGuideBody;
+
+const DEFAULT_BODY_EN: AirportGuideBody = {
   terminals: ["Check the airport site for your airline’s terminal—assignments can change."],
   beforeYouFly: [
     "Arrive 2h early for international flights (3h in peak season if the airport recommends it).",
@@ -110,16 +115,10 @@ const DEFAULT_GUIDE = (iata: string): AirportGuide => ({
     ],
     officialLinks: [],
   },
-});
+};
 
-const GUIDES: Record<string, AirportGuide> = {
+const BODIES_EN: Record<string, AirportGuideBody> = {
   ICN: {
-    iata: "ICN",
-    name: "Incheon International Airport",
-    city: "Seoul",
-    country: "South Korea",
-    summary:
-      "Main gateway to Seoul with clear signage in Korean and English. AREX trains and airport buses connect to the city; taxis use meter or flat fares from official ranks.",
     terminals: ["Terminal 1", "Terminal 2"],
     beforeYouFly: [
       "Verify whether your airline uses T1 or T2—some carriers moved terminals.",
@@ -180,12 +179,6 @@ const GUIDES: Record<string, AirportGuide> = {
     ],
   },
   NRT: {
-    iata: "NRT",
-    name: "Narita International Airport",
-    city: "Tokyo",
-    country: "Japan",
-    summary:
-      "Major Tokyo gateway. Narita Express (N’EX), Keisei Skyliner, and airport buses compete with taxis at different price/speed tradeoffs.",
     terminals: ["Terminal 1", "Terminal 2", "Terminal 3"],
     beforeYouFly: [
       "Terminal 3 is mainly LCC—double-check walking distance and shuttle buses between terminals.",
@@ -238,12 +231,6 @@ const GUIDES: Record<string, AirportGuide> = {
     ],
   },
   HND: {
-    iata: "HND",
-    name: "Haneda Airport",
-    city: "Tokyo",
-    country: "Japan",
-    summary:
-      "Closer to central Tokyo than Narita; strong rail links (Tokyo Monorail, Keikyu) and taxi ranks by terminal.",
     terminals: ["Terminal 1", "Terminal 2", "Terminal 3"],
     beforeYouFly: ["Haneda is dense—allow time for domestic→international connections."],
     afterYouLand: [
@@ -291,12 +278,6 @@ const GUIDES: Record<string, AirportGuide> = {
     ],
   },
   JFK: {
-    iata: "JFK",
-    name: "John F. Kennedy International Airport",
-    city: "New York",
-    country: "USA",
-    summary:
-      "Large multi-terminal airport; AirTrain connects terminals and links to NYC subway and LIRR at Jamaica or Howard Beach.",
     terminals: ["Terminals 1, 4, 5, 7, 8 (check airline)"],
     beforeYouFly: ["AirTrain is free between terminals; fare applies when exiting to subway/LIRR."],
     afterYouLand: [
@@ -346,12 +327,6 @@ const GUIDES: Record<string, AirportGuide> = {
     ],
   },
   LHR: {
-    iata: "LHR",
-    name: "Heathrow Airport",
-    city: "London",
-    country: "UK",
-    summary:
-      "Heathrow Express and Elizabeth Line offer fast central London links; black cabs and licensed minicabs use regulated pricing.",
     terminals: ["Terminals 2, 3, 4, 5"],
     beforeYouFly: [],
     afterYouLand: [
@@ -402,11 +377,6 @@ const GUIDES: Record<string, AirportGuide> = {
     ],
   },
   SIN: {
-    iata: "SIN",
-    name: "Singapore Changi Airport",
-    city: "Singapore",
-    country: "Singapore",
-    summary: "Consistently rated one of the world's best airports; Jewel Changi connects landside to Terminals 1, 2, and 3.",
     terminals: ["Terminals 1, 2, 3, 4"],
     beforeYouFly: [],
     afterYouLand: [
@@ -438,11 +408,6 @@ const GUIDES: Record<string, AirportGuide> = {
     ],
   },
   AMS: {
-    iata: "AMS",
-    name: "Amsterdam Airport Schiphol",
-    city: "Amsterdam",
-    country: "Netherlands",
-    summary: "A single-terminal airport — everything is under one roof, organized into three departure halls (1, 2, 3) rather than separate terminal buildings.",
     terminals: ["Single terminal, Departure Halls 1–3"],
     beforeYouFly: [],
     afterYouLand: [
@@ -471,11 +436,6 @@ const GUIDES: Record<string, AirportGuide> = {
     ],
   },
   HKG: {
-    iata: "HKG",
-    name: "Hong Kong International Airport",
-    city: "Hong Kong",
-    country: "Hong Kong",
-    summary: "Terminal 1 is Y-shaped and one of the world's largest enclosed spaces; an Automated People Mover (APM) connects distant gate areas.",
     terminals: ["Terminal 1, Terminal 2"],
     beforeYouFly: [],
     afterYouLand: [
@@ -503,11 +463,6 @@ const GUIDES: Record<string, AirportGuide> = {
     ],
   },
   DXB: {
-    iata: "DXB",
-    name: "Dubai International Airport",
-    city: "Dubai",
-    country: "United Arab Emirates",
-    summary: "One of the world's busiest hubs; Emirates operates from Terminal 3, the world's largest airport terminal by floor area. Terminal 1 serves most other international airlines, Terminal 2 mainly regional/budget carriers.",
     terminals: ["Terminal 1", "Terminal 2", "Terminal 3 (Emirates)"],
     beforeYouFly: [],
     afterYouLand: [
@@ -535,11 +490,6 @@ const GUIDES: Record<string, AirportGuide> = {
     ],
   },
   BKK: {
-    iata: "BKK",
-    name: "Suvarnabhumi Airport",
-    city: "Bangkok",
-    country: "Thailand",
-    summary: "Thailand's main international gateway; a single terminal building stacked over multiple levels, with a newer satellite terminal (SAT-1) reached by automated people mover.",
     terminals: ["Main Terminal", "Satellite Terminal SAT-1"],
     beforeYouFly: [],
     afterYouLand: [
@@ -569,11 +519,6 @@ const GUIDES: Record<string, AirportGuide> = {
     ],
   },
   IST: {
-    iata: "IST",
-    name: "Istanbul Airport",
-    city: "Istanbul",
-    country: "Turkey",
-    summary: "A single massive terminal building (one of the largest in the world) with five concourses (A, B, D, F international; G domestic) — no internal train between them, all connected on foot.",
     terminals: ["Single terminal, Concourses A/B/D/F/G"],
     beforeYouFly: [],
     afterYouLand: [
@@ -602,11 +547,6 @@ const GUIDES: Record<string, AirportGuide> = {
     ],
   },
   TPE: {
-    iata: "TPE",
-    name: "Taiwan Taoyuan International Airport",
-    city: "Taipei",
-    country: "Taiwan",
-    summary: "Two terminals connected by Skytrain and MRT — Terminal 1 (mainly regional/low-cost carriers) and Terminal 2 (long-haul and premium airlines), both following the same basic floor pattern.",
     terminals: ["Terminal 1", "Terminal 2"],
     beforeYouFly: [],
     afterYouLand: [
@@ -635,11 +575,6 @@ const GUIDES: Record<string, AirportGuide> = {
     ],
   },
   SYD: {
-    iata: "SYD",
-    name: "Sydney Kingsford Smith Airport",
-    city: "Sydney",
-    country: "Australia",
-    summary: "Terminal 1 (International) is physically separate from the domestic terminals (T2/T3) and requires a train, shuttle bus, or taxi to transfer between them — walking is not practical.",
     terminals: ["Terminal 1 (International)", "Terminal 2 (Domestic)", "Terminal 3 (Domestic, Qantas)"],
     beforeYouFly: [],
     afterYouLand: [
@@ -667,11 +602,6 @@ const GUIDES: Record<string, AirportGuide> = {
     ],
   },
   FRA: {
-    iata: "FRA",
-    name: "Frankfurt Airport",
-    city: "Frankfurt",
-    country: "Germany",
-    summary: "Two terminals, each split into concourses with their own floor numbering — Terminal 1's concourses (A, B, C, Z) don't share a single 'arrivals is floor X' answer, so check your specific concourse below rather than assuming.",
     terminals: ["Terminal 1 (Concourses A, B, C, Z)", "Terminal 2 (Concourses D, E)"],
     beforeYouFly: [],
     afterYouLand: [
@@ -709,11 +639,6 @@ const GUIDES: Record<string, AirportGuide> = {
     ],
   },
   MUC: {
-    iata: "MUC",
-    name: "Munich Airport",
-    city: "Munich",
-    country: "Germany",
-    summary: "Terminal 1 is split into six largely-independent modules (A–F) that don't share one floor scheme — some handle both arrivals and departures, one (E) is arrivals-only, one (F) is a separate high-security building. Terminal 2 is simpler and mainly serves Lufthansa/Star Alliance.",
     terminals: ["Terminal 1 (Modules A–F)", "Terminal 2 (Gates G, H + Satellite Gates K, L)"],
     beforeYouFly: [],
     afterYouLand: [
@@ -743,11 +668,6 @@ const GUIDES: Record<string, AirportGuide> = {
     ],
   },
   CDG: {
-    iata: "CDG",
-    name: "Paris Charles de Gaulle Airport",
-    city: "Paris",
-    country: "France",
-    summary: "A genuinely complex airport — Terminal 2 alone splits into seven sub-terminals (2A–2G) with their own layouts, Terminal 1 has an unusual circular design, and Terminal 3 is a single small building. Confirm your specific sub-terminal, not just 'Terminal 2'.",
     terminals: ["Terminal 1", "Terminal 2 (sub-terminals 2A–2G)", "Terminal 3"],
     beforeYouFly: [],
     afterYouLand: [
@@ -779,11 +699,6 @@ const GUIDES: Record<string, AirportGuide> = {
     ],
   },
   LAX: {
-    iata: "LAX",
-    name: "Los Angeles International Airport",
-    city: "Los Angeles",
-    country: "United States",
-    summary: "A U-shaped airport — 9 terminals (1–8 plus Tom Bradley International, 'Terminal B') around a two-level central roadway. The upper/lower split is consistent across all terminals except TBIT, which has its own multi-level scheme.",
     terminals: ["Terminals 1–8", "Tom Bradley International Terminal (Terminal B)"],
     beforeYouFly: [],
     afterYouLand: [
@@ -813,11 +728,6 @@ const GUIDES: Record<string, AirportGuide> = {
     ],
   },
   ORD: {
-    iata: "ORD",
-    name: "Chicago O'Hare International Airport",
-    city: "Chicago",
-    country: "United States",
-    summary: "Terminals 1, 2, and 3 (domestic) are physically connected by walkways and share the same simple upper/lower pattern. Terminal 5 (international) is about a mile away with no walkway — a free Airport Transit System (ATS) train is required to reach it.",
     terminals: ["Terminal 1", "Terminal 2", "Terminal 3", "Terminal 5 (International)"],
     beforeYouFly: [],
     afterYouLand: [
@@ -846,11 +756,6 @@ const GUIDES: Record<string, AirportGuide> = {
     ],
   },
   MAD: {
-    iata: "MAD",
-    name: "Adolfo Suárez Madrid–Barajas Airport",
-    city: "Madrid",
-    country: "Spain",
-    summary: "Terminals 1, 2, and 3 are grouped together (walkable, no immigration/customs between them) — Terminal 4 and its satellite T4S are a separate complex, connected only by a free shuttle bus or underground train (APM).",
     terminals: ["Terminal 1", "Terminal 2", "Terminal 3", "Terminal 4", "Terminal 4S (Satellite)"],
     beforeYouFly: [],
     afterYouLand: [
@@ -882,11 +787,6 @@ const GUIDES: Record<string, AirportGuide> = {
     ],
   },
   ZRH: {
-    iata: "ZRH",
-    name: "Zurich Airport",
-    city: "Zurich",
-    country: "Switzerland",
-    summary: "Effectively a single terminal (the old separate terminals were merged, with one shared security checkpoint), organized as Check-in 1/Arrivals 1 and Check-in 2/Arrivals 2 within the same building, plus a separate Dock E for most international/non-Schengen flights reached by an underground SkyMetro train.",
     terminals: ["Main terminal (Check-in/Arrivals 1 & 2)", "Dock E (non-Schengen, via SkyMetro)"],
     beforeYouFly: [],
     afterYouLand: [
@@ -915,11 +815,6 @@ const GUIDES: Record<string, AirportGuide> = {
     ],
   },
   PVG: {
-    iata: "PVG",
-    name: "Shanghai Pudong International Airport",
-    city: "Shanghai",
-    country: "China",
-    summary: "Two large terminals (T1, T2) plus satellite concourses S1 and S2 reached by underground people mover — landside transfer between T1 and T2 requires exiting and re-entering (they're not connected pre-security).",
     terminals: ["Terminal 1", "Terminal 2", "Satellite S1", "Satellite S2"],
     beforeYouFly: [],
     afterYouLand: [
@@ -952,11 +847,6 @@ const GUIDES: Record<string, AirportGuide> = {
     ],
   },
   KUL: {
-    iata: "KUL",
-    name: "Kuala Lumpur International Airport",
-    city: "Kuala Lumpur",
-    country: "Malaysia",
-    summary: "Two separate terminals: KLIA (Terminal 1, full-service airlines) and klia2 (Terminal 2, mainly AirAsia and other budget carriers) — they're a distance apart, connected by a free shuttle bus or the KLIA Ekspres/Transit train.",
     terminals: ["KLIA (Terminal 1)", "klia2 (Terminal 2)"],
     beforeYouFly: [],
     afterYouLand: [
@@ -985,11 +875,6 @@ const GUIDES: Record<string, AirportGuide> = {
     ],
   },
   GRU: {
-    iata: "GRU",
-    name: "São Paulo/Guarulhos International Airport",
-    city: "São Paulo",
-    country: "Brazil",
-    summary: "Three terminals: Terminal 3 handles most international long-haul flights, Terminal 2 handles most domestic and regional South American flights, Terminal 1 (Azul only) is smallest and physically separate. T2 and T3 are connected by a walkway; T1 requires a shuttle bus.",
     terminals: ["Terminal 1 (Azul, domestic)", "Terminal 2 (domestic + regional international)", "Terminal 3 (international long-haul)"],
     beforeYouFly: [],
     afterYouLand: [
@@ -1018,12 +903,29 @@ const GUIDES: Record<string, AirportGuide> = {
   },
 };
 
-export function getAirportGuide(iata: string): AirportGuide {
+const BODIES_BY_LOCALE: Record<string, { bodies: Record<string, AirportGuideBody>; fallback: AirportGuideBody }> = {
+  en: { bodies: BODIES_EN, fallback: DEFAULT_BODY_EN },
+  ko: { bodies: BODIES_KO, fallback: DEFAULT_BODY_KO },
+  ja: { bodies: BODIES_JA, fallback: DEFAULT_BODY_JA },
+  zh: { bodies: BODIES_ZH, fallback: DEFAULT_BODY_ZH },
+};
+
+/**
+ * `locale` defaults to English. Prefer calling this from a server component -
+ * it pulls every locale's bodies in, so a client import ships all four.
+ * Client surfaces that only need name/summary should use getAirportBrief().
+ */
+export function getAirportGuide(iata: string, locale = "en"): AirportGuide {
   const code = iata.trim().toUpperCase();
-  return GUIDES[code] ?? DEFAULT_GUIDE(code);
+  const set = BODIES_BY_LOCALE[locale] ?? BODIES_BY_LOCALE.en;
+  // An airport curated in English but not yet in this locale falls back to
+  // the English body rather than the generic template - partial real
+  // information beats correct-language boilerplate.
+  const body = set.bodies[code] ?? BODIES_EN[code] ?? set.fallback;
+  return { ...getAirportBrief(code, locale), ...body };
 }
 
-/** All airports with a real curated guide (not the generic fallback) — used by the sitemap. */
+/** All airports with a real curated guide (not the generic fallback) - used by the sitemap. */
 export function getAllGuidedAirportCodes(): string[] {
-  return Object.keys(GUIDES);
+  return Object.keys(BODIES_EN);
 }

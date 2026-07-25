@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { SiteFooter } from "../../../../components/SiteFooter";
 import { getAirportGuide } from "../../../../lib/airportGuides";
 import { buildAirportUberLink } from "../../../../lib/rideDeepLinks";
@@ -10,13 +10,15 @@ type Props = { params: Promise<{ iata: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { iata } = await params;
-  const guide = getAirportGuide(iata);
+  const guide = getAirportGuide(iata, await getLocale());
   // The root layout's title template ("%s | Tern") appends the suffix
   // automatically for `title` below — don't add it again here, or it
   // renders as "... | Tern | Tern". openGraph/twitter titles aren't
   // templated, so they need it added explicitly.
-  const title = `${guide.name} (${guide.iata}) Airport Guide — Layovers, Accessibility & Ground Transport`;
-  const description = guide.summary || `Everything you need to know about ${guide.name} (${guide.iata}): terminal layout, ground transport, and accessibility services.`;
+  const tMeta = await getTranslations("Meta");
+  const title = tMeta("guideTitle", { name: guide.name, iata: guide.iata });
+  const description =
+    guide.summary || tMeta("guideDescriptionFallback", { name: guide.name, iata: guide.iata });
   const url = `https://www.flytern.site/guide/airport/${guide.iata}`;
 
   return {
@@ -40,9 +42,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function AirportGuidePage({ params }: Props) {
   const { iata } = await params;
-  const guide = getAirportGuide(iata);
+  const guide = getAirportGuide(iata, await getLocale());
   const coords = getAirport(guide.iata);
   const t = await getTranslations("AirportGuide");
+  const tNav = await getTranslations("Nav");
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -73,11 +76,13 @@ export default async function AirportGuidePage({ params }: Props) {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Home", item: "https://www.flytern.site" },
+      { "@type": "ListItem", position: 1, name: tNav("home"), item: "https://www.flytern.site" },
       {
         "@type": "ListItem",
         position: 2,
-        name: `${guide.name} (${guide.iata}) Airport Guide`,
+        // Localized name + code only; the English "Airport Guide" suffix that
+        // used to be appended here didn't follow the page's language.
+        name: `${guide.name} (${guide.iata})`,
         item: `https://www.flytern.site/guide/airport/${guide.iata}`,
       },
     ],
@@ -113,7 +118,7 @@ export default async function AirportGuidePage({ params }: Props) {
 
       <article className="mx-auto max-w-4xl px-5 py-10">
         <p className="text-xs font-semibold uppercase tracking-wide text-muted">
-          {guide.country ? `${guide.city}, ${guide.country}` : guide.city || "Travel"}
+          {guide.country ? `${guide.city}, ${guide.country}` : guide.city || t("badge")}
         </p>
         <h1 className="mt-2 text-3xl font-bold tracking-tight">
           {guide.name} ({guide.iata})

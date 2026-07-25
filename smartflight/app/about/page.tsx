@@ -3,12 +3,14 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { SubpageShell } from "../../components/SubpageShell";
 
-export const metadata: Metadata = {
-  title: "About",
-  description:
-    "Tern compares flights across price, speed, arrival time, delay risk, and points-vs-cash value — and refuses fabricated stats or fake urgency. What we compare, how we make money, and where the name comes from.",
-  alternates: { canonical: "/about" },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("Meta");
+  return {
+    title: t("aboutTitle"),
+    description: t("aboutDescription"),
+    alternates: { canonical: "/about" },
+  };
+}
 
 /* /about — what Tern compares, what it refuses to do, and where the
    name comes from. The tern glyph is the same mark the WHY strip uses. */

@@ -4,15 +4,17 @@ import { getTranslations } from "next-intl/server";
 import { SubpageShell } from "../../components/SubpageShell";
 import { blogPosts } from "../../lib/blogPosts";
 
-export const metadata: Metadata = {
-  title: "Guides & Notes",
-  description:
-    "Airport layover guides, points-and-miles explainers, and product notes from Tern — practical, factual travel research reshaped from the same data the app uses.",
-  alternates: {
-    canonical: "/blog",
-    types: { "application/rss+xml": "/blog/rss.xml" },
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("Meta");
+  return {
+    title: t("blogTitle"),
+    description: t("blogDescription"),
+    alternates: {
+      canonical: "/blog",
+      types: { "application/rss+xml": "/blog/rss.xml" },
+    },
+  };
+}
 
 export default async function BlogIndexPage() {
   const t = await getTranslations("BlogPage");

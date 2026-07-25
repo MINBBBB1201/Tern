@@ -57,7 +57,15 @@
     "labelReturn": "RETURN",
     "labelPassengers": "PASSENGERS",
     "searchFlights": "Search flights",
-    "searching": "Searching…"
+    "searching": "Searching…",
+    "paxAdults": "Adults",
+    "paxAdultsAge": "Age 12+",
+    "paxChildren": "Children",
+    "paxChildrenAge": "Age 2–11",
+    "paxInfants": "Infants",
+    "paxInfantsAge": "Under 2",
+    "paxDone": "Done",
+    "datePlaceholder": "Select"
   },
   "Checkout": {
     "reviewTitle": "Review your flight",
@@ -150,7 +158,13 @@
     "whyKicker": "WHY “TERN”",
     "whyBody": "The Arctic Tern flies pole to pole every year — farther than any other animal alive — chasing an endless summer. Tern helps you do the same, for less.",
     "footerRights": "© 2026 Tern. All rights reserved.",
-    "dealsSeeAll": "See all deals"
+    "dealsSeeAll": "See all deals",
+    "citySeoul": "Seoul",
+    "cityTokyo": "Tokyo",
+    "cityNewYork": "New York",
+    "cityParis": "Paris",
+    "cityDubai": "Dubai",
+    "cityLosAngeles": "Los Angeles"
   },
   "Filters": {
     "airlines": "Airlines",
@@ -189,13 +203,21 @@
     "cabinFirst": "First",
     "cheapestNonStop": "Cheapest non-stop: {price}",
     "cheapestWithStops": "Cheapest with stops: {price}",
-    "bookRouteDisclosure": "\"Book this route\" opens our booking site, book.flytern.site, with your route, dates, and passengers pre-filled — you'll pick your exact flight there, and prices may differ. Tern earns a commission on bookings made there, at no extra cost to you."
+    "bookRouteDisclosure": "\"Book this route\" opens our booking site, book.flytern.site, with your route, dates, and passengers pre-filled — you'll pick your exact flight there, and prices may differ. Tern earns a commission on bookings made there, at no extra cost to you.",
+    "bookingConfirmed": "Booking confirmed on Tern's secure checkout (test mode — no real ticket issued).",
+    "orderNumber": "Order {id}",
+    "alertTriggered": "Price alert triggered — a {from} → {to} fare is at or below your target of {price}.",
+    "searchingFares": "Searching live fares…",
+    "noMatchFilters": "No flights match your current filters. Try adjusting stops, price, or airline filters.",
+    "noFlightsFound": "No bookable flights found for this route and date. Try a different date or route."
   },
   "PriceTrend": {
     "title": "Price trend (±5 days)",
     "subtitle": "Compare fares around your travel date",
     "load": "Load trend",
-    "loading": "Loading…"
+    "loading": "Loading…",
+    "tooltipMinFare": "Min fare",
+    "bestLabel": "Best"
   },
   "Guide": {
     "rideFrom": "Get a ride from {iata}",
@@ -205,7 +227,8 @@
     "accessibility": "♿ Accessibility",
     "toLabel": "To:",
     "hotelPlaceholder": "Hotel or address (optional)",
-    "uberNote": "Uber operates in most major cities worldwide, but not everywhere—if it's not available here, the app will let you know."
+    "uberNote": "Uber operates in most major cities worldwide, but not everywhere—if it's not available here, the app will let you know.",
+    "clearDestination": "Clear destination"
   },
   "AirportGuide": {
     "backHome": "← Home",
@@ -414,7 +437,12 @@
     "layoverAt": "at {airport}",
     "approxChargedIn": "≈, charged in {price}",
     "getRideAtArrival": "Get a ride at {airport}",
-    "riskInfo": "Estimated from the itinerary's shape — stops, red-eye departure times, and tight connections. A relative signal, not live delay data."
+    "riskInfo": "Estimated from the itinerary's shape — stops, red-eye departure times, and tight connections. A relative signal, not live delay data.",
+    "durationHm": "{hours}h {minutes}m",
+    "durationM": "{minutes}m",
+    "partnerAirline": "Partner Airline",
+    "altAirline": "Airline logo",
+    "altAircraft": "Aircraft"
   },
   "TermsPage": {
     "kicker": "Legal",
@@ -457,5 +485,35 @@
     "s6p": "You can sign out at any time, clear saved price alerts by clearing them in your browser, and ask for your account and email to be deleted by writing to support. Because searches are passed straight to providers to return results, they aren't kept as a personal profile on Tern's side.",
     "s7h": "Retention and changes",
     "s7p": "Personal data is kept only as long as it's needed for the purpose it was given — account data until you ask us to delete it. This policy may change as the product does; the effective date above marks the current version."
+  },
+  "AuthError": {
+    "unauthorizedDomain": "This domain is not authorized for sign-in. (Firebase console → Authentication → Settings → Authorized domains)",
+    "operationNotAllowed": "This sign-in method is not enabled for the project. (Firebase console → Authentication → Sign-in method)",
+    "invalidCredential": "Incorrect email or password.",
+    "emailInUse": "An account with this email already exists — try logging in instead.",
+    "weakPassword": "Password must be at least 6 characters.",
+    "invalidEmail": "That email address doesn't look right.",
+    "tooManyRequests": "Too many attempts — please wait a moment and try again.",
+    "networkFailed": "Network error — check your connection and try again."
+  },
+  "Meta": {
+    "siteTitle": "Tern — Compare Flights, Delay Risk & Points Value",
+    "siteDescription": "Compare cheapest fares, fastest trips, earliest arrivals, AI-balanced picks, smart connection deals, and delay-risk signals — then book with points or cash in one flow.",
+    "aboutTitle": "About",
+    "aboutDescription": "Tern compares flights across price, speed, arrival time, delay risk, and points-vs-cash value — and refuses fabricated stats or fake urgency. What we compare, how we make money, and where the name comes from.",
+    "bookingTitle": "Search & Compare Flights",
+    "bookingDescription": "Live fares with smart picks for cheapest, fastest, earliest arrival, and lowest delay risk — plus points-vs-cash options and a ±5-day price trend.",
+    "dealsTitle": "Airline Deals & Promotions",
+    "dealsDescription": "Official deal pages for Turkish Airlines, Korean Air, Asiana, and other carriers — links straight to each airline's own promotions, plus a one-tap Tern search for that route. Every fact is verifiable on the linked airline page.",
+    "blogTitle": "Guides & Notes",
+    "blogDescription": "Airport layover guides, points-and-miles explainers, and product notes from Tern — practical, factual travel research reshaped from the same data the app uses.",
+    "supportTitle": "Help & FAQ",
+    "supportDescription": "Answers to common questions about searching flights on Tern — delay-risk signals, points-vs-cash booking, how affiliate links work, and how to reach us.",
+    "termsTitle": "Terms of Use",
+    "termsDescription": "The terms that apply when you use Tern — what the service does, how affiliate and partner bookings work, and the limits of the information shown.",
+    "privacyTitle": "Privacy Policy",
+    "privacyDescription": "What Tern collects, what it does not, and which third parties are involved — sign-in, search, analytics, and affiliate links, stated plainly.",
+    "guideTitle": "{name} ({iata}) Airport Guide — Layovers, Accessibility & Ground Transport",
+    "guideDescriptionFallback": "Everything you need to know about {name} ({iata}): terminal layout, ground transport, and accessibility services."
   }
 }

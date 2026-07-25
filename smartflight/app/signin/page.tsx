@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import {
@@ -10,7 +10,7 @@ import {
   auth,
   onAuthStateChanged,
   handleRedirectResult,
-  authErrorMessage,
+  authErrorKey,
 } from "../../lib/auth";
 import type { User } from "firebase/auth";
 import Link from "next/link";
@@ -47,6 +47,17 @@ const twilightBg =
 export default function SignInPage() {
   const router = useRouter();
   const t = useTranslations("SignIn");
+  const tAuthError = useTranslations("AuthError");
+  /* lib/auth is locale-blind, so it hands back a message key; anything it
+     has no specific copy for falls back to the generic sign-in error.
+     Memoized because the redirect-result effect below depends on it. */
+  const authErrorText = useCallback(
+    (err: unknown) => {
+      const key = authErrorKey(err);
+      return key ? tAuthError(key) : t("genericError");
+    },
+    [t, tAuthError]
+  );
   const [user, setUser] = useState<User | null>(null);
   const [mode, setMode] = useState<Mode>("login");
   const [name, setName] = useState("");
@@ -61,7 +72,7 @@ export default function SignInPage() {
       if (u) setUser(u);
     }).catch((err) => {
       console.error("Redirect sign-in failed:", err);
-      setError(authErrorMessage(err) ?? t("genericError"));
+      setError(authErrorText(err));
     });
     const unsubscribe = onAuthStateChanged(auth, (u) => {
       setUser(u);
@@ -70,7 +81,7 @@ export default function SignInPage() {
       }
     });
     return () => unsubscribe();
-  }, [router, t]);
+  }, [router, authErrorText]);
 
   const switchMode = (next: Mode) => {
     setMode(next);
@@ -88,7 +99,7 @@ export default function SignInPage() {
       if (u) router.push("/");
     } catch (err) {
       console.error("Login failed:", err);
-      setError(authErrorMessage(err) ?? t("genericError"));
+      setError(authErrorText(err));
     } finally {
       setLoading(false);
     }
@@ -112,7 +123,7 @@ export default function SignInPage() {
       }
     } catch (err) {
       console.error(`${mode} failed:`, err);
-      setError(authErrorMessage(err) ?? t("genericError"));
+      setError(authErrorText(err));
     } finally {
       setLoading(false);
     }

@@ -16,26 +16,26 @@
   },
   "WhyShop": {
     "title": "Tern을 이용하는 이유",
-    "body": "최저가, 최단 시간, 최속 도착, AI 추천, 스마트 경유 조합, 지연 위험 신호까지 한 번에 비교하고 포인트나 현금으로 바로 예약하세요.",
-    "disclaimer": "지연 위험은 기기 내 휴리스틱(경유, 심야 비행 등) 기반이며 실시간 관제 데이터가 아닙니다. 출발 당일 항공사에서 반드시 재확인하세요."
+    "body": "최저가, 최단 시간, 가장 빠른 도착, AI 추천, 경유 특가, 지연 위험까지 한 번에 비교하고 포인트나 현금으로 바로 예약하세요.",
+    "disclaimer": "지연 위험은 일정 구조(경유, 심야 출발 등)로 계산한 자체 추정치이며 실시간 관제 데이터가 아닙니다. 출발 당일 항공사에서 반드시 확인하세요."
   },
   "SmartPicks": {
     "cheapestLabel": "최저가",
     "cheapestSub": "표시된 것 중 최저 요금",
     "fastestLabel": "최단 시간",
     "fastestSub": "가장 짧은 이동 시간",
-    "earliestLabel": "최속 도착",
+    "earliestLabel": "가장 빠른 도착",
     "earliestSub": "가장 먼저 현지 도착",
     "aiLabel": "AI 추천",
     "aiSub": "가격과 시간의 균형",
     "connectionLabel": "경유 특가",
     "connectionSub": "경유 조합 중 최고 가성비",
     "safestLabel": "지연 위험 최저",
-    "safestSub": "휴리스틱 기준 일정 안정성"
+    "safestSub": "일정 구조로 본 안정성"
   },
   "Hero": {
     "title": "지평선을 쫓아서.",
-    "subtitle": "최저가, 최단 시간, 최저 지연 위험, 포인트 결합 최고 가치 요금을 검색할 때마다 나란히 비교해드려요.",
+    "subtitle": "검색할 때마다 최저가, 최단 시간, 지연 위험이 가장 낮은 항공편, 포인트로 결제할 때 가치가 가장 높은 요금을 나란히 놓고 비교합니다.",
     "popularRoute": "인기 노선",
     "searchableAirlines": "검색 가능한 항공사"
   },
@@ -57,7 +57,15 @@
     "labelReturn": "귀국일",
     "labelPassengers": "탑승객",
     "searchFlights": "항공편 검색",
-    "searching": "검색 중…"
+    "searching": "검색 중…",
+    "paxAdults": "성인",
+    "paxAdultsAge": "만 12세 이상",
+    "paxChildren": "소아",
+    "paxChildrenAge": "만 2~11세",
+    "paxInfants": "유아",
+    "paxInfantsAge": "만 2세 미만",
+    "paxDone": "완료",
+    "datePlaceholder": "날짜 선택"
   },
   "Checkout": {
     "reviewTitle": "항공편 확인",
@@ -73,7 +81,7 @@
     "checkoutOpenError": "안전한 결제 페이지를 열 수 없습니다. 다시 시도해주세요.",
     "openingCheckout": "안전한 결제 페이지 여는 중…",
     "continueToCheckout": "안전한 결제로 이동",
-    "whiteLabelHandoff": "또는 저희 예약 사이트 book.flytern.site를 통해서도 예약할 수 있어요: 아래 링크를 누르면 <route>{from} → {to}</route> 노선과 날짜가 미리 채워진 상태로 열립니다 — 거기서 항공편을 다시 선택하시면 되고, 가격은 다를 수 있어요. 여기서 예약이 이뤄지면 Tern이 커미션을 받지만 여러분에게는 추가 비용이 없어요.",
+    "whiteLabelHandoff": "또는 저희 예약 사이트 book.flytern.site에서도 예약할 수 있습니다. 아래 링크를 누르면 <route>{from} → {to}</route> 노선과 날짜가 미리 채워진 채로 열립니다. 항공편은 그곳에서 다시 고르게 되고, 가격은 다를 수 있습니다. 그곳에서 예약이 이뤄지면 Tern이 수수료를 받지만 이용자에게 추가 비용은 없습니다.",
     "bookThisRoute": "이 노선 예약하기 ↗",
     "close": "닫기"
   },
@@ -150,21 +158,27 @@
     "whyKicker": "왜 “TERN”인가",
     "whyBody": "북극제비갈매기(Arctic Tern)는 해마다 극과 극 사이를 납니다 — 살아있는 그 어떤 동물보다 먼 거리를, 끝나지 않는 여름을 쫓아서. Tern은 더 적은 비용으로 당신이 같은 여정을 잇도록 돕습니다.",
     "footerRights": "© 2026 Tern. 모든 권리 보유.",
-    "dealsSeeAll": "전체 딜 보기"
+    "dealsSeeAll": "전체 딜 보기",
+    "citySeoul": "서울",
+    "cityTokyo": "도쿄",
+    "cityNewYork": "뉴욕",
+    "cityParis": "파리",
+    "cityDubai": "두바이",
+    "cityLosAngeles": "로스앤젤레스"
   },
   "Filters": {
     "airlines": "항공사",
     "stops": "경유",
     "times": "시간대",
     "programs": "프로그램",
-    "matchAlliance": "제휴/전환 가능 마일리지 매칭",
+    "matchAlliance": "항공 동맹 · 전환 가능 마일리지만",
     "connectingOnly": "경유만",
     "sortLabel": "정렬",
     "sortFastest": "최단 시간",
     "sortCheapest": "최저가",
-    "sortArrival": "최속 도착",
+    "sortArrival": "도착이 가장 빠른 순",
     "sortAI": "AI 추천",
-    "sortConnecting": "베스트 경유 특가",
+    "sortConnecting": "경유 특가순",
     "sortDelayLow": "지연 위험 최저",
     "selectAirlines": "항공사 선택",
     "reset": "초기화",
@@ -189,13 +203,21 @@
     "cabinFirst": "퍼스트",
     "cheapestNonStop": "직항 최저가: {price}",
     "cheapestWithStops": "경유 최저가: {price}",
-    "bookRouteDisclosure": "\"이 노선 예약하기\"는 노선·날짜·인원이 미리 입력된 저희 예약 사이트 book.flytern.site를 엽니다. 정확한 항공편은 그곳에서 선택하며 가격은 다를 수 있습니다. 해당 예약에서 Tern이 수수료를 받지만, 추가 비용은 없습니다."
+    "bookRouteDisclosure": "\"이 노선 예약하기\"를 누르면 노선·날짜·인원이 미리 입력된 저희 예약 사이트 book.flytern.site가 열립니다. 항공편은 그곳에서 다시 고르게 되고, 가격은 다를 수 있습니다. 그곳에서 예약이 이뤄지면 Tern이 수수료를 받지만 이용자에게 추가 비용은 없습니다.",
+    "bookingConfirmed": "Tern 보안 결제로 예약이 확정됐습니다 (테스트 모드 — 실제 항공권은 발권되지 않습니다).",
+    "orderNumber": "주문번호 {id}",
+    "alertTriggered": "가격 알림이 도착했습니다. {from} → {to} 항공권이 목표가 {price} 이하로 내려왔어요.",
+    "searchingFares": "실시간 운임을 찾는 중…",
+    "noMatchFilters": "현재 필터에 맞는 항공편이 없습니다. 경유, 가격, 항공사 조건을 바꿔 보세요.",
+    "noFlightsFound": "이 노선과 날짜로 예약할 수 있는 항공편이 없습니다. 다른 날짜나 노선으로 검색해 보세요."
   },
   "PriceTrend": {
     "title": "가격 추이 (±5일)",
     "subtitle": "여행 날짜 전후 운임을 비교하세요",
     "load": "추이 불러오기",
-    "loading": "불러오는 중…"
+    "loading": "불러오는 중…",
+    "tooltipMinFare": "최저 운임",
+    "bestLabel": "최저가"
   },
   "Guide": {
     "rideFrom": "{iata}에서 차량 호출",
@@ -205,7 +227,8 @@
     "accessibility": "♿ 접근성",
     "toLabel": "목적지:",
     "hotelPlaceholder": "호텔 또는 주소 (선택)",
-    "uberNote": "Uber는 전 세계 주요 도시 대부분에서 운영되지만 어디서나 되는 건 아니에요 — 이용이 불가능하면 앱에서 알려줍니다."
+    "uberNote": "Uber는 전 세계 주요 도시 대부분에서 운영되지만 모든 곳에서 되는 것은 아닙니다. 이용할 수 없는 지역이면 앱에서 알려줍니다.",
+    "clearDestination": "목적지 지우기"
   },
   "AirportGuide": {
     "backHome": "← 홈",
@@ -215,7 +238,7 @@
     "afterLand": "도착 후 이동",
     "accessibilityTitle": "접근성 & 특별 지원",
     "floorGuide": "층별 안내",
-    "transitTitle": "환승 중이라면? 휴식 & 리프레시",
+    "transitTitle": "환승 중이신가요? 쉬어 갈 곳",
     "transitNote": "시설 이용 가능 여부 정보이며 현재 가격이 아닙니다 — 가격은 자주 바뀌니 데스크에서 확인하세요.",
     "groundTitle": "지상 교통",
     "groundNote": "택시·버스·철도는 인원, 짐, 교통 상황에 따라 달라집니다. 요금은 항상 공식 데스크나 신뢰할 수 있는 앱에서 확인하세요.",
@@ -227,7 +250,7 @@
   "NotFound": {
     "kicker": "404 — 경로 이탈",
     "title": "경로를 벗어났네요",
-    "body": "찾으시는 페이지가 없습니다 — 어쩌면 이주했을지도요. 실제로 있는 경로로 다시 안내해드릴게요.",
+    "body": "찾으시는 페이지가 없습니다. 어쩌면 다른 곳으로 이주했는지도 모르죠. 실제로 있는 경로로 다시 안내해 드릴게요.",
     "ctaHome": "검색으로 돌아가기",
     "ctaSupport": "도움말 & FAQ"
   },
@@ -412,9 +435,14 @@
     "bookWithPoints": "포인트로 예약",
     "layover": "경유 대기",
     "layoverAt": "{airport}에서",
-    "approxChargedIn": "≈, 실제 결제는 {price}",
-    "getRideAtArrival": "{airport}에서 이동하기",
-    "riskInfo": "일정 구조(경유 수·심야 출발·짧은 환승)로 추정한 상대적 신호입니다. 실시간 지연 데이터가 아닙니다."
+    "approxChargedIn": "≈ 실제 결제는 {price}",
+    "getRideAtArrival": "{airport}에서 차량 호출",
+    "riskInfo": "일정 구조(경유 수·심야 출발·짧은 환승)로 추정한 상대적 신호입니다. 실시간 지연 데이터가 아닙니다.",
+    "durationHm": "{hours}시간 {minutes}분",
+    "durationM": "{minutes}분",
+    "partnerAirline": "제휴 항공사",
+    "altAirline": "항공사 로고",
+    "altAircraft": "항공기"
   },
   "TermsPage": {
     "kicker": "법적 고지",
@@ -457,5 +485,35 @@
     "s6p": "언제든지 로그아웃할 수 있고, 브라우저에서 지우는 방식으로 저장된 가격 알림을 삭제할 수 있으며, 문의 메일을 통해 계정과 이메일 삭제를 요청할 수 있습니다. 검색은 결과를 돌려주기 위해 곧바로 제공사로 전달되므로 Tern 쪽에 개인 프로필로 보관되지 않습니다.",
     "s7h": "보관과 변경",
     "s7p": "개인정보는 제공된 목적에 필요한 기간에만 보관됩니다. 계정 정보는 삭제를 요청하실 때까지 보관됩니다. 이 방침은 제품에 따라 바뀔 수 있으며, 위의 시행일이 현재 버전을 나타냅니다."
+  },
+  "AuthError": {
+    "unauthorizedDomain": "이 도메인에서는 로그인이 허용되지 않았습니다. (Firebase 콘솔 → Authentication → Settings → 승인된 도메인)",
+    "operationNotAllowed": "이 프로젝트에서는 해당 로그인 방식이 켜져 있지 않습니다. (Firebase 콘솔 → Authentication → Sign-in method)",
+    "invalidCredential": "이메일 또는 비밀번호가 맞지 않습니다.",
+    "emailInUse": "이미 가입된 이메일입니다. 로그인해 주세요.",
+    "weakPassword": "비밀번호는 6자 이상이어야 합니다.",
+    "invalidEmail": "이메일 주소 형식이 올바르지 않습니다.",
+    "tooManyRequests": "시도가 너무 많았습니다. 잠시 후 다시 시도해 주세요.",
+    "networkFailed": "네트워크 오류입니다. 연결 상태를 확인하고 다시 시도해 주세요."
+  },
+  "Meta": {
+    "siteTitle": "Tern — 항공권 비교, 지연 위험, 마일리지 가치까지",
+    "siteDescription": "최저가, 최단 시간, 가장 빠른 도착, AI 균형 추천, 경유 특가, 지연 위험 신호를 한 번에 비교하고 마일리지나 현금으로 바로 예약하세요.",
+    "aboutTitle": "소개",
+    "aboutDescription": "Tern은 가격, 소요 시간, 도착 시각, 지연 위험, 마일리지 대비 현금 가치를 기준으로 항공권을 비교합니다. 꾸며낸 통계나 가짜 마감 압박은 쓰지 않습니다. 무엇을 비교하는지, 어떻게 수익을 내는지, 이름은 어디서 왔는지 정리했습니다.",
+    "bookingTitle": "항공권 검색 및 비교",
+    "bookingDescription": "실시간 운임에 최저가·최단 시간·가장 빠른 도착·최저 지연 위험 추천을 더하고, 마일리지와 현금 옵션, ±5일 가격 추이까지 한 화면에서 봅니다.",
+    "dealsTitle": "항공사 특가 및 프로모션",
+    "dealsDescription": "터키항공, 대한항공, 아시아나 등 항공사 공식 특가 페이지로 바로 연결하고, 해당 노선을 Tern에서 한 번에 검색합니다. 모든 내용은 연결된 항공사 페이지에서 확인할 수 있습니다.",
+    "blogTitle": "가이드와 기록",
+    "blogDescription": "공항 환승 가이드, 마일리지 설명, Tern의 제품 기록. 앱이 쓰는 것과 같은 데이터를 바탕으로 실제로 쓸모 있는 내용만 담았습니다.",
+    "supportTitle": "도움말 및 자주 묻는 질문",
+    "supportDescription": "Tern에서 항공권을 찾을 때 자주 나오는 질문들 — 지연 위험 신호, 마일리지와 현금 예약, 제휴 링크의 구조, 문의 방법을 정리했습니다.",
+    "termsTitle": "이용약관",
+    "termsDescription": "Tern 이용에 적용되는 약관입니다. 서비스가 하는 일, 제휴·파트너 예약의 구조, 표시되는 정보의 한계를 설명합니다.",
+    "privacyTitle": "개인정보처리방침",
+    "privacyDescription": "Tern이 무엇을 수집하고 무엇을 수집하지 않는지, 어떤 외부 서비스가 관여하는지 — 로그인, 검색, 분석, 제휴 링크까지 있는 그대로 밝힙니다.",
+    "guideTitle": "{name}({iata}) 공항 가이드 — 환승, 이동 약자 지원, 시내 교통",
+    "guideDescriptionFallback": "{name}({iata})에서 알아둘 것들: 터미널 구조, 시내 교통, 이동 약자 지원 서비스."
   }
 }

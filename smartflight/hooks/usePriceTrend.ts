@@ -1,7 +1,9 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useLocale } from "next-intl";
 import type { Offer } from "../lib/offerUtils";
+import { localeTag } from "../i18n/locales";
 
 export type PriceTrendPoint = {
   date: string;
@@ -13,6 +15,7 @@ export type PriceTrendPoint = {
 export function usePriceTrend(departureDate: string, fetchOffers: (targetDate: string) => Promise<Offer[]>) {
   const [priceChartData, setPriceChartData] = useState<PriceTrendPoint[]>([]);
   const [chartLoading, setChartLoading] = useState(false);
+  const tag = localeTag(useLocale());
 
   const loadTrend = async () => {
     setChartLoading(true);
@@ -27,7 +30,7 @@ export function usePriceTrend(departureDate: string, fetchOffers: (targetDate: s
         if (offers.length > 0) {
           const minPrice = Math.min(...offers.map((o) => Number(o.price)));
           chartData.push({
-            date: d.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+            date: d.toLocaleDateString(tag, { month: "short", day: "numeric" }),
             price: minPrice,
             fullDate: dateStr,
             isSelected: dateStr === departureDate,

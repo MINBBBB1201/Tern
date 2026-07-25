@@ -1,6 +1,6 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
-import { useTranslations } from "next-intl";
+import { useState, useEffect, useMemo, useRef } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
@@ -13,6 +13,8 @@ import { useHoverTilt } from "../hooks/useHoverTilt";
 import type { Offer } from "../lib/offerUtils";
 import { airlineDealPages } from "../lib/airlineDeals";
 import { SiteFooter } from "../components/SiteFooter";
+import { localeTag } from "../i18n/locales";
+import { useDurationLabel } from "../lib/useDurationLabel";
 
 // Lazy, client-only: the 3D scene must never block first paint — the
 // headline and search form are usable before this finishes loading.
@@ -88,7 +90,7 @@ const FlightTicketCard = ({
   to,
   fromCity,
   toCity,
-  duration,
+  durationMinutes,
   stops,
   price,
   departureTime,
@@ -102,7 +104,7 @@ const FlightTicketCard = ({
   to: string;
   fromCity: string;
   toCity: string;
-  duration: string;
+  durationMinutes: number;
   stops: number;
   price: number;
   departureTime: string;
@@ -111,6 +113,7 @@ const FlightTicketCard = ({
 }) => {
   const tilt = useHoverTilt<HTMLElement>(5);
   const t = useTranslations("Home");
+  const duration = useDurationLabel();
 
   return (
     <article
@@ -142,7 +145,7 @@ const FlightTicketCard = ({
             <p className="text-xs text-muted">{from} · {fromCity}</p>
           </div>
           <div className="flex flex-col items-center gap-0.5 flex-1 min-w-[80px]">
-            <p className="data-mono text-xs text-muted">{duration}</p>
+            <p className="data-mono text-xs text-muted">{duration.fromMinutes(durationMinutes)}</p>
             <div className="relative w-full flex items-center">
               <div className="h-px flex-1 bg-gray-200" />
               <PlaneRightIcon className="mx-1 h-3 w-3 text-primary shrink-0" />
@@ -187,24 +190,24 @@ const sampleFlights = [
     airline: 'Turkish Airlines',
     airlineLogo: 'https://images.kiwi.com/airlines/64/TK.png',
     cabinClass: 'Economy',
-    from: 'ICN', to: 'NRT', fromCity: 'Seoul', toCity: 'Tokyo',
-    departureTime: '08:30', arrivalTime: '11:00', duration: '2h 30m', stops: 0, price: 289,
+    from: 'ICN', to: 'NRT', fromCityKey: 'citySeoul', toCityKey: 'cityTokyo',
+    departureTime: '08:30', arrivalTime: '11:00', durationMinutes: 150, stops: 0, price: 289,
   },
   {
     id: '2',
     airline: 'Korean Air',
     airlineLogo: 'https://images.kiwi.com/airlines/64/KE.png',
     cabinClass: 'Business',
-    from: 'ICN', to: 'LAX', fromCity: 'Seoul', toCity: 'Los Angeles',
-    departureTime: '13:45', arrivalTime: '09:20', duration: '11h 35m', stops: 0, price: 1249,
+    from: 'ICN', to: 'LAX', fromCityKey: 'citySeoul', toCityKey: 'cityLosAngeles',
+    departureTime: '13:45', arrivalTime: '09:20', durationMinutes: 695, stops: 0, price: 1249,
   },
   {
     id: '3',
     airline: 'Asiana Airlines',
     airlineLogo: 'https://images.kiwi.com/airlines/64/OZ.png',
     cabinClass: 'Economy',
-    from: 'ICN', to: 'CDG', fromCity: 'Seoul', toCity: 'Paris',
-    departureTime: '10:15', arrivalTime: '16:30', duration: '12h 15m', stops: 1, price: 687,
+    from: 'ICN', to: 'CDG', fromCityKey: 'citySeoul', toCityKey: 'cityParis',
+    departureTime: '10:15', arrivalTime: '16:30', durationMinutes: 735, stops: 1, price: 687,
   },
 ];
 
@@ -213,14 +216,15 @@ const sampleFlights = [
    considered and rejected as fabricated social proof (same trust
    principle that removed the fake stats rows). */
 const popularRoutes = [
-  { from: "ICN", to: "NRT", cities: "Seoul · Tokyo" },
-  { from: "ICN", to: "JFK", cities: "Seoul · New York" },
-  { from: "ICN", to: "CDG", cities: "Seoul · Paris" },
-  { from: "ICN", to: "DXB", cities: "Seoul · Dubai" },
-  { from: "ICN", to: "LAX", cities: "Seoul · Los Angeles" },
-];
+  { from: "ICN", to: "NRT", cityKeys: ["citySeoul", "cityTokyo"] },
+  { from: "ICN", to: "JFK", cityKeys: ["citySeoul", "cityNewYork"] },
+  { from: "ICN", to: "CDG", cityKeys: ["citySeoul", "cityParis"] },
+  { from: "ICN", to: "DXB", cityKeys: ["citySeoul", "cityDubai"] },
+  { from: "ICN", to: "LAX", cityKeys: ["citySeoul", "cityLosAngeles"] },
+] as const;
 
 const HeroRouteTicker = ({ label }: { label: string }) => {
+  const t = useTranslations("Home");
   const [idx, setIdx] = useState(0);
   const [entering, setEntering] = useState(true);
 
@@ -246,33 +250,44 @@ const HeroRouteTicker = ({ label }: { label: string }) => {
       <span className="hero-ticker-label">{label}</span>
       <span className={`data-mono hero-ticker-route ${entering ? "is-in" : ""}`}>
         {route.from} → {route.to}
-        <span className="hero-ticker-cities">{route.cities}</span>
+        <span className="hero-ticker-cities">
+          {route.cityKeys.map((k) => t(k)).join(" · ")}
+        </span>
       </span>
     </div>
   );
 };
 
+/* The visible date window is computed, not written down: it anchors to the
+   first of next month (UTC, so server and client agree) and runs a fortnight.
+   The old hardcoded "24 Dec 2025 - 07 Jan 2026" was both English-only and
+   already stale — a B6 residual. */
+const sampleWindow = () => {
+  const now = new Date();
+  const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1));
+  const end = new Date(start);
+  end.setUTCDate(end.getUTCDate() + 13);
+  return [start, end] as const;
+};
+
 const destinationDeals = [
   {
-    city: "Tokyo",
+    cityKey: "cityTokyo",
     route: "ICN → NRT",
-    dateRange: "24 Dec 2025 - 07 Jan 2026",
     price: 450,
     image:
       "https://images.unsplash.com/photo-1536098561742-ca998e48cbcc?auto=format&fit=crop&w=1200&q=80",
   },
   {
-    city: "New York",
+    cityKey: "cityNewYork",
     route: "ICN → JFK",
-    dateRange: "24 Dec 2025 - 07 Jan 2026",
     price: 249,
     image:
       "https://images.unsplash.com/photo-1546436836-07a91091f160?auto=format&fit=crop&w=1200&q=80",
   },
   {
-    city: "Dubai",
+    cityKey: "cityDubai",
     route: "ICN → DXB",
-    dateRange: "24 Dec 2025 - 07 Jan 2026",
     price: 310,
     image:
       "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=1200&q=80",
@@ -288,11 +303,26 @@ const DestinationCard = ({
   deal,
   onOpen,
 }: {
-  deal: { city: string; route: string; dateRange: string; price: number; image: string };
+  deal: { cityKey: string; route: string; price: number; image: string };
   onOpen: () => void;
 }) => {
   const tilt = useHoverTilt<HTMLElement>(5);
   const t = useTranslations("Home");
+  const tag = localeTag(useLocale());
+  const dateRange = useMemo(() => {
+    const [start, end] = sampleWindow();
+    // Two plain format() calls rather than formatRange(): Node's and Chrome's
+    // ICU disagree on the separator formatRange inserts, which shows up as a
+    // hydration mismatch. timeZone is pinned so server and client agree.
+    // No year: the window is always inside the next couple of months, so
+    // repeating "2026" on both sides just made the chip read redundantly.
+    const fmt = new Intl.DateTimeFormat(tag, {
+      month: "short",
+      day: "numeric",
+      timeZone: "UTC",
+    });
+    return `${fmt.format(start)} – ${fmt.format(end)}`;
+  }, [tag]);
   const [active, setActive] = useState(false);
   const [shownPrice, setShownPrice] = useState(deal.price);
   const rafRef = useRef(0);
@@ -358,8 +388,8 @@ const DestinationCard = ({
       </svg>
 
       <div className="absolute inset-x-0 bottom-0 p-5 text-white">
-        <p className="text-3xl font-bold leading-tight">{deal.city}</p>
-        <p className="data-mono mt-1 text-xs text-white/80">{deal.dateRange}</p>
+        <p className="text-3xl font-bold leading-tight">{t(deal.cityKey)}</p>
+        <p className="data-mono mt-1 text-xs text-white/80">{dateRange}</p>
         <div className="mt-3 flex items-end justify-between">
           <div>
             <p className="text-[11px] uppercase tracking-wide text-white/80">{t("economyFrom")}</p>
@@ -823,7 +853,7 @@ export default function Home() {
             {destinationDeals.map((deal) => {
               const [routeFrom, routeTo] = deal.route.split(" → ");
               return (
-                <div data-fx-card key={deal.city}>
+                <div data-fx-card key={deal.cityKey}>
                   <DestinationCard
                     deal={deal}
                     onOpen={() => router.push(`/booking?from=${routeFrom}&to=${routeTo}`)}
@@ -991,11 +1021,11 @@ export default function Home() {
                   cabinClass={flight.cabinClass === "Business" ? tHome("cabinBusiness") : tHome("cabinEconomy")}
                   from={flight.from}
                   to={flight.to}
-                  fromCity={flight.fromCity}
-                  toCity={flight.toCity}
+                  fromCity={tHome(flight.fromCityKey)}
+                  toCity={tHome(flight.toCityKey)}
                   departureTime={flight.departureTime}
                   arrivalTime={flight.arrivalTime}
-                  duration={flight.duration}
+                  durationMinutes={flight.durationMinutes}
                   stops={flight.stops}
                   price={flight.price}
                 />

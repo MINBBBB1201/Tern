@@ -1,12 +1,15 @@
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import DealsContent from "./DealsContent";
 
-export const metadata: Metadata = {
-  title: "Airline Deals & Promotions",
-  description:
-    "Official deal pages for Turkish Airlines, Korean Air, Asiana, and other carriers — links straight to each airline's own promotions, plus a one-tap Tern search for that route. Every fact is verifiable on the linked airline page.",
-  alternates: { canonical: "/deals" },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("Meta");
+  return {
+    title: t("dealsTitle"),
+    description: t("dealsDescription"),
+    alternates: { canonical: "/deals" },
+  };
+}
 
 export default function DealsPage() {
   return <DealsContent />;

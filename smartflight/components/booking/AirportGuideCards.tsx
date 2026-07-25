@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import type { AirportGuide } from "../../lib/airportGuides";
+import type { AirportBrief } from "../../lib/airportBrief";
 import {
   buildAirportUberLink,
   buildAirportUberLinkWithDropoff,
@@ -15,8 +15,8 @@ import { getAirport } from "../../lib/airportData";
 import { DestinationSearch, type DestinationPoint } from "../DestinationSearch";
 
 type AirportGuideCardsProps = {
-  departureGuide: AirportGuide;
-  arrivalGuide: AirportGuide;
+  departureGuide: AirportBrief;
+  arrivalGuide: AirportBrief;
   from: string;
   to: string;
 };

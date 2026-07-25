@@ -1,12 +1,15 @@
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { LegalPage } from "../../components/LegalPage";
 
-export const metadata: Metadata = {
-  title: "Privacy Policy",
-  description:
-    "How Tern handles your information: what stays on your device, what we don't collect, and the third-party services involved when you search and book flights.",
-  alternates: { canonical: "/privacy" },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("Meta");
+  return {
+    title: t("privacyTitle"),
+    description: t("privacyDescription"),
+    alternates: { canonical: "/privacy" },
+  };
+}
 
 /* /privacy — Privacy Policy. Content + all four locales live in the
    PrivacyPage message namespace; LegalPage renders the shared chrome. */

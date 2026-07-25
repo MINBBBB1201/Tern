@@ -1,5 +1,6 @@
 import { ImageResponse } from "next/og";
-import { getAirportGuide, getAllGuidedAirportCodes } from "../../../../lib/airportGuides";
+import { getAirportBrief } from "../../../../lib/airportBrief";
+import { getAllGuidedAirportCodes } from "../../../../lib/airportGuides";
 import { ogCard, ogSize, ogContentType } from "../../../../lib/og";
 
 export const alt = "Tern — Airport Guide";
@@ -13,7 +14,9 @@ export function generateStaticParams() {
 
 export default async function Image({ params }: { params: Promise<{ iata: string }> }) {
   const { iata } = await params;
-  const guide = getAirportGuide(iata);
+  // Statically generated at build time, so it stays English — OG cards are
+  // fetched by crawlers without our locale cookie.
+  const guide = getAirportBrief(iata);
 
   return new ImageResponse(
     ogCard({ kicker: "Airport Guide", title: `${guide.name} (${guide.iata})` }),

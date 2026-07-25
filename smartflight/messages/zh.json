@@ -17,7 +17,7 @@
   "WhyShop": {
     "title": "为什么选择 Tern",
     "body": "一次比较最低价、最短飞行时间、最早到达、AI 智能推荐、超值中转组合和延误风险——用积分或现金一键预订。",
-    "disclaimer": "延误风险是基于设备本地推算的启发式指标(中转、红眼航班等),并非实时空管数据。出发当天请务必与航空公司再次确认。"
+    "disclaimer": "延误风险是在本机推算的参考指标（中转、红眼航班等），并非实时空管数据。出发当天请务必与航空公司再次确认。"
   },
   "SmartPicks": {
     "cheapestLabel": "最低价",
@@ -31,11 +31,11 @@
     "connectionLabel": "超值中转",
     "connectionSub": "中转航班中性价比最高",
     "safestLabel": "延误风险最低",
-    "safestSub": "基于行程稳定性推算"
+    "safestSub": "按行程结构推算的稳定性"
   },
   "Hero": {
     "title": "追逐地平线。",
-    "subtitle": "每次搜索,我们都会并列比较最低价、最快、延误风险最低及积分兑换最划算的票价。",
+    "subtitle": "每次搜索，我们都会把最低价、最快、延误风险最低和积分兑换最划算的票价放在一起对比。",
     "popularRoute": "热门航线",
     "searchableAirlines": "可搜索的航空公司"
   },
@@ -48,7 +48,7 @@
     "returnPlaceholder": "添加返程",
     "swapAirports": "交换出发地和目的地",
     "cabinEconomy": "经济舱",
-    "cabinPremiumEconomy": "超级经济舱",
+    "cabinPremiumEconomy": "豪华经济舱",
     "cabinBusiness": "商务舱",
     "cabinFirst": "头等舱",
     "labelFrom": "出发地",
@@ -57,7 +57,15 @@
     "labelReturn": "返程日期",
     "labelPassengers": "乘客人数",
     "searchFlights": "搜索航班",
-    "searching": "搜索中…"
+    "searching": "搜索中…",
+    "paxAdults": "成人",
+    "paxAdultsAge": "12 岁以上",
+    "paxChildren": "儿童",
+    "paxChildrenAge": "2–11 岁",
+    "paxInfants": "婴儿",
+    "paxInfantsAge": "2 岁以下",
+    "paxDone": "完成",
+    "datePlaceholder": "选择日期"
   },
   "Checkout": {
     "reviewTitle": "确认航班信息",
@@ -150,14 +158,20 @@
     "whyKicker": "为什么叫 “TERN”",
     "whyBody": "北极燕鸥（Arctic Tern）每年往返于两极之间 — 比世上任何动物飞得都远，只为追逐不落幕的夏天。Tern 帮你用更少的花费完成同样的旅程。",
     "footerRights": "© 2026 Tern. 保留所有权利。",
-    "dealsSeeAll": "查看全部优惠"
+    "dealsSeeAll": "查看全部优惠",
+    "citySeoul": "首尔",
+    "cityTokyo": "东京",
+    "cityNewYork": "纽约",
+    "cityParis": "巴黎",
+    "cityDubai": "迪拜",
+    "cityLosAngeles": "洛杉矶"
   },
   "Filters": {
     "airlines": "航空公司",
     "stops": "经停",
     "times": "时段",
     "programs": "常旅客计划",
-    "matchAlliance": "匹配联盟／可转积分",
+    "matchAlliance": "只看联盟 · 可转积分",
     "connectingOnly": "仅中转",
     "sortLabel": "排序",
     "sortFastest": "最短耗时",
@@ -189,13 +203,21 @@
     "cabinFirst": "头等舱",
     "cheapestNonStop": "直飞最低价: {price}",
     "cheapestWithStops": "中转最低价: {price}",
-    "bookRouteDisclosure": "\"预订此航线\" 会打开我们的预订网站 book.flytern.site，并预填航线、日期与乘客信息 — 具体航班在那里选择，价格可能不同。Tern 会从该预订中获得佣金，您无需支付额外费用。"
+    "bookRouteDisclosure": "\"预订此航线\" 会打开我们的预订网站 book.flytern.site，并预填航线、日期与乘客信息 — 具体航班在那里选择，价格可能不同。Tern 会从该预订中获得佣金，您无需支付额外费用。",
+    "bookingConfirmed": "已通过 Tern 的安全结账完成预订（测试模式 — 不会实际出票）。",
+    "orderNumber": "订单号 {id}",
+    "alertTriggered": "价格提醒已触发：{from} → {to} 的票价已降至目标价 {price} 或以下。",
+    "searchingFares": "正在搜索实时票价…",
+    "noMatchFilters": "没有符合当前筛选条件的航班。可以调整经停、价格或航空公司条件再试。",
+    "noFlightsFound": "该航线和日期暂无可预订航班。换个日期或航线再试试。"
   },
   "PriceTrend": {
     "title": "价格趋势（±5天）",
     "subtitle": "比较出行日期前后的票价",
     "load": "加载趋势",
-    "loading": "加载中…"
+    "loading": "加载中…",
+    "tooltipMinFare": "最低票价",
+    "bestLabel": "最低"
   },
   "Guide": {
     "rideFrom": "从{iata}叫车",
@@ -205,7 +227,8 @@
     "accessibility": "♿ 无障碍",
     "toLabel": "目的地:",
     "hotelPlaceholder": "酒店或地址（可选）",
-    "uberNote": "Uber 覆盖全球大多数主要城市，但并非所有地区 — 如不可用，应用会提示。"
+    "uberNote": "Uber 覆盖全球大多数主要城市，但并非所有地区 — 如不可用，应用会提示。",
+    "clearDestination": "清除目的地"
   },
   "AirportGuide": {
     "backHome": "← 首页",
@@ -236,13 +259,13 @@
     "company": "公司",
     "about": "关于我们",
     "whyTern": "为什么叫 \"Tern\"",
-    "support": "支持",
+    "support": "帮助支持",
     "helpFaq": "帮助与常见问题",
     "explore": "探索",
-    "deals": "特惠",
+    "deals": "优惠",
     "blog": "指南与笔记",
     "booking": "航班搜索",
-    "legal": "法律",
+    "legal": "法律条款",
     "terms": "使用条款",
     "privacy": "隐私政策",
     "contact": "联系我们"
@@ -411,10 +434,15 @@
     "noSegmentData": "暂无行程数据。",
     "bookWithPoints": "积分兑换",
     "layover": "中转等待",
-    "layoverAt": "于{airport}",
+    "layoverAt": "在 {airport}",
     "approxChargedIn": "≈，实际扣款为 {price}",
     "getRideAtArrival": "在{airport}叫车",
-    "riskInfo": "根据行程结构（经停数、红眼出发、紧凑衔接）估算的相对信号，并非实时延误数据。"
+    "riskInfo": "根据行程结构（经停数、红眼出发、紧凑衔接）估算的相对信号，并非实时延误数据。",
+    "durationHm": "{hours}小时{minutes}分",
+    "durationM": "{minutes}分钟",
+    "partnerAirline": "合作航空公司",
+    "altAirline": "航空公司标志",
+    "altAircraft": "机型"
   },
   "TermsPage": {
     "kicker": "法律信息",
@@ -457,5 +485,35 @@
     "s6p": "您可以随时退出登录，通过在浏览器中清除来删除已保存的价格提醒，并可通过咨询邮件请求删除您的账户和邮箱。由于搜索会直接转发给提供商以返回结果，因此不会在 Tern 一侧被保留为个人档案。",
     "s7h": "保留与变更",
     "s7p": "个人数据仅在其被提供目的所需的期限内保留——账户数据保留至您要求删除为止。本政策可能随产品变化，上方的生效日期标示当前版本。"
+  },
+  "AuthError": {
+    "unauthorizedDomain": "此域名未获授权登录。（Firebase 控制台 → Authentication → Settings → 已授权网域）",
+    "operationNotAllowed": "该项目未启用此登录方式。（Firebase 控制台 → Authentication → Sign-in method）",
+    "invalidCredential": "邮箱或密码不正确。",
+    "emailInUse": "该邮箱已注册，请直接登录。",
+    "weakPassword": "密码至少需要 6 位。",
+    "invalidEmail": "邮箱地址格式有误。",
+    "tooManyRequests": "尝试次数过多，请稍后再试。",
+    "networkFailed": "网络异常，请检查连接后重试。"
+  },
+  "Meta": {
+    "siteTitle": "Tern — 比较航班、延误风险与积分价值",
+    "siteDescription": "一次比较最低价、最短耗时、最早到达、AI 均衡推荐、中转特价和延误风险，然后用积分或现金直接预订。",
+    "aboutTitle": "关于 Tern",
+    "aboutDescription": "Tern 从价格、耗时、到达时间、延误风险以及积分与现金的价值来比较航班，绝不使用编造的数据或制造虚假紧迫感。这里说明我们比较什么、如何盈利，以及名字的由来。",
+    "bookingTitle": "搜索与比较航班",
+    "bookingDescription": "实时票价搭配最低价、最短耗时、最早到达和最低延误风险的智能推荐，还有积分与现金选项及 ±5 天价格走势。",
+    "dealsTitle": "航空公司特价与促销",
+    "dealsDescription": "直达土耳其航空、大韩航空、韩亚航空等航司的官方优惠页面，并可一键在 Tern 搜索该航线。所有信息都可在所链接的航司页面核实。",
+    "blogTitle": "指南与笔记",
+    "blogDescription": "机场中转指南、积分里程科普和 Tern 的产品笔记，全部基于应用所用的同一份数据，实用且有据可查。",
+    "supportTitle": "帮助与常见问题",
+    "supportDescription": "在 Tern 上搜索航班的常见问题解答 —— 延误风险信号、积分与现金预订、返佣链接的运作方式，以及如何联系我们。",
+    "termsTitle": "使用条款",
+    "termsDescription": "使用 Tern 时适用的条款：服务内容、返佣与合作方预订的运作方式，以及所示信息的局限。",
+    "privacyTitle": "隐私政策",
+    "privacyDescription": "Tern 收集什么、不收集什么，以及涉及哪些第三方 —— 登录、搜索、分析和返佣链接，如实说明。",
+    "guideTitle": "{name}（{iata}）机场指南 —— 中转、无障碍服务与地面交通",
+    "guideDescriptionFallback": "在 {name}（{iata}）需要知道的一切：航站楼布局、地面交通和无障碍服务。"
   }
 }

@@ -1,13 +1,13 @@
 "use client";
 
 import { Suspense, useEffect, useMemo, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import type { User } from "firebase/auth";
 import Link from "next/link";
 import Image from "next/image";
 import dynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
-import { getAirportGuide } from "../../lib/airportGuides";
+import { getAirportBrief } from "../../lib/airportBrief";
 import { buildAviasalesLink } from "../../lib/affiliateLinks";
 import { useOfferSearch } from "../../hooks/useOfferSearch";
 import { useOfferFilters } from "../../hooks/useOfferFilters";
@@ -52,11 +52,10 @@ function BookingPageClient() {
   const tNav = useTranslations("Nav");
   const tWhyShop = useTranslations("WhyShop");
   const tFilters = useTranslations("Filters");
+  const locale = useLocale();
 
   const from = (searchParams.get("from") || "ICN").toUpperCase();
   const to = (searchParams.get("to") || "NRT").toUpperCase();
-  const fromCity = searchParams.get("fromCity") || "Seoul";
-  const toCity = searchParams.get("toCity") || "Tokyo";
   const departureDate = searchParams.get("departureDate") || new Date().toISOString().split("T")[0];
   const returnDate = searchParams.get("returnDate") || "";
   const tripType = searchParams.get("tripType") || "oneway";
@@ -71,8 +70,16 @@ function BookingPageClient() {
   // Duffel redirects back here with `order_id` + `reference` appended.
   const linkOrderId = searchParams.get("order_id");
 
-  const departureGuide = useMemo(() => getAirportGuide(from), [from]);
-  const arrivalGuide = useMemo(() => getAirportGuide(to), [to]);
+  // Only the name + summary are rendered here, so this pulls the light
+  // client-safe brief rather than the full guide (which carries every
+  // locale's bodies — see lib/airportGuides.ts).
+  const departureGuide = useMemo(() => getAirportBrief(from, locale), [from, locale]);
+  const arrivalGuide = useMemo(() => getAirportBrief(to, locale), [to, locale]);
+
+  // A city name in the URL comes from the airport dataset and is English; with
+  // no param (the default ICN→NRT view) fall back to the localized brief.
+  const fromCity = searchParams.get("fromCity") || departureGuide.city || from;
+  const toCity = searchParams.get("toCity") || arrivalGuide.city || to;
 
   // White Label deep link to book.flytern.site (second revenue path alongside
   // Duffel Links). Search-level only: it pre-fills route/dates/pax/cabin, not
@@ -191,8 +198,8 @@ function BookingPageClient() {
       <section className="mx-auto w-full max-w-[min(100%,88rem)] px-4 py-6 sm:px-5">
         {linkOrderId && (
           <div className="glass-panel mb-4 rounded-2xl border border-[rgba(52,211,153,0.35)] p-4 text-sm text-success-strong">
-            ✅ Booking confirmed on Tern&apos;s secure checkout (test mode — no real ticket issued).{" "}
-            <span className="data-mono">Order {linkOrderId}</span>
+            ✅ {tFilters("bookingConfirmed")}{" "}
+            <span className="data-mono">{tFilters("orderNumber", { id: linkOrderId })}</span>
           </div>
         )}
 
@@ -264,7 +271,11 @@ function BookingPageClient() {
         {/* Matched alert banner */}
         {priceAlerts.matchedAlert && (
           <div className="glass-panel mt-4 rounded-2xl border border-[rgba(52,211,153,0.35)] p-4 text-sm text-success-strong">
-            🎉 Price alert triggered! A fare for {priceAlerts.matchedAlert.from} → {priceAlerts.matchedAlert.to} is at or below your target of <span className="data-mono">{formatMoney(priceAlerts.matchedAlert.targetPrice, "USD")}</span>.
+            🎉 {tFilters("alertTriggered", {
+              from: priceAlerts.matchedAlert.from,
+              to: priceAlerts.matchedAlert.to,
+              price: formatMoney(priceAlerts.matchedAlert.targetPrice, "USD"),
+            })}
           </div>
         )}
 
@@ -275,7 +286,7 @@ function BookingPageClient() {
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
             </svg>
-            Searching live fares…
+            {tFilters("searchingFares")}
           </div>
         )}
 
@@ -301,13 +312,13 @@ function BookingPageClient() {
 
         {!loading && !error && filters.filteredSortedOffers.length === 0 && results.length > 0 && (
           <div className="glass-panel mt-8 rounded-2xl p-8 text-center text-sm text-muted">
-            No flights match your current filters. Try adjusting stops, price, or airline filters.
+            {tFilters("noMatchFilters")}
           </div>
         )}
 
         {!loading && !error && results.length === 0 && (
           <div className="glass-panel mt-8 rounded-2xl p-8 text-center text-sm text-muted">
-            No bookable flights found for this route and date. Try a different date or route.
+            {tFilters("noFlightsFound")}
           </div>
         )}
 

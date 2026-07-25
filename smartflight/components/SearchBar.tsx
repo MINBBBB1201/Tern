@@ -3,6 +3,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { heroRoute } from "../lib/heroRoute";
+import { localeTag } from "../i18n/locales";
+import { getAirportBrief } from "../lib/airportBrief";
 import {
   ArrowLeftRight,
   Calendar,
@@ -40,21 +42,26 @@ const nextWeek = () => { const d = new Date(); d.setDate(d.getDate() + 7); retur
 const twoWeeks = () => { const d = new Date(); d.setDate(d.getDate() + 14); return fmt(d); };
 
 /* Dates render in the active locale (ko: 7월 24일 / 금), not en-US. */
-const LOCALE_TAGS: Record<string, string> = { en: "en-US", ko: "ko-KR", ja: "ja-JP", zh: "zh-CN" };
-
 const displayDate = (iso: string, locale: string) => {
   if (!iso) return "";
   const d = new Date(iso + "T00:00:00");
-  return d.toLocaleDateString(LOCALE_TAGS[locale] ?? "en-US", { month: "short", day: "numeric" });
+  return d.toLocaleDateString(localeTag(locale), { month: "short", day: "numeric" });
 };
 
 const displayWeekday = (iso: string, locale: string) => {
   if (!iso) return "";
-  return new Date(iso + "T00:00:00").toLocaleDateString(LOCALE_TAGS[locale] ?? "en-US", { weekday: "short" });
+  return new Date(iso + "T00:00:00").toLocaleDateString(localeTag(locale), { weekday: "short" });
 };
 
 export default function SearchBar({ onSearch, loading = false, routeLineRef }: SearchBarProps) {
   const t = useTranslations("Search");
+  const locale = useLocale();
+  /* The sub-label under each IATA code is a city name. For the airports we
+     curate a guide for it comes from the localized brief; anything else falls
+     back to the raw dataset string, which is English-only (see the airport
+     data note in docs/backlog.md). */
+  const cityLabel = (code: string, fallback: string) =>
+    getAirportBrief(code, locale).city || fallback;
   const CABIN_LABELS: Record<string, string> = {
     economy: t("cabinEconomy"),
     premium_economy: t("cabinPremiumEconomy"),
@@ -189,7 +196,7 @@ export default function SearchBar({ onSearch, loading = false, routeLineRef }: S
                 label={t("labelFrom")}
                 isOrigin
                 value={from}
-                subValue={fromCity}
+                subValue={cityLabel(from, fromCity)}
                 onChange={(code, city) => { setFrom(code); setFromCity(city); }}
                 placeholder={t("originPlaceholder")}
               />
@@ -216,7 +223,7 @@ export default function SearchBar({ onSearch, loading = false, routeLineRef }: S
               <AirportField
                 label={t("labelTo")}
                 value={to}
-                subValue={toCity}
+                subValue={cityLabel(to, toCity)}
                 onChange={(code, city) => { setTo(code); setToCity(city); }}
                 placeholder={t("destinationPlaceholder")}
               />
@@ -307,12 +314,12 @@ export default function SearchBar({ onSearch, loading = false, routeLineRef }: S
             {passengerOpen && (
               <div className="vol-popover animate-fade-up">
                 {([
-                  { label: "Adults", sub: "Age 12+", value: adults, set: setAdults, min: 1 },
-                  { label: "Children", sub: "Age 2–11", value: children, set: setChildren, min: 0 },
-                  { label: "Infants", sub: "Under 2", value: infants, set: setInfants, min: 0 },
-                ] as const).map(({ label, sub, value, set, min }, i, arr) => (
+                  { key: "adults", label: t("paxAdults"), sub: t("paxAdultsAge"), value: adults, set: setAdults, min: 1 },
+                  { key: "children", label: t("paxChildren"), sub: t("paxChildrenAge"), value: children, set: setChildren, min: 0 },
+                  { key: "infants", label: t("paxInfants"), sub: t("paxInfantsAge"), value: infants, set: setInfants, min: 0 },
+                ] as const).map(({ key, label, sub, value, set, min }, i, arr) => (
                   <div
-                    key={label}
+                    key={key}
                     style={{
                       display: "flex",
                       alignItems: "center",
@@ -364,7 +371,7 @@ export default function SearchBar({ onSearch, loading = false, routeLineRef }: S
                   className="vol-done-btn"
                   onClick={() => setPassengerOpen(false)}
                 >
-                  Done
+                  {t("paxDone")}
                 </button>
               </div>
             )}
@@ -592,6 +599,7 @@ interface DateFieldProps {
 function DateField({ label, value, onChange, placeholder }: DateFieldProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const locale = useLocale();
+  const t = useTranslations("Search");
 
   return (
     <div
@@ -611,7 +619,7 @@ function DateField({ label, value, onChange, placeholder }: DateFieldProps) {
       <div className="vol-value" style={{ fontSize: "18px" }}>
         {value
           ? displayDate(value, locale)
-          : <span style={{ color: "rgba(180,200,225,0.8)", fontWeight: 400, fontSize: "14px" }}>{placeholder || "Select"}</span>
+          : <span style={{ color: "rgba(180,200,225,0.8)", fontWeight: 400, fontSize: "14px" }}>{placeholder || t("datePlaceholder")}</span>
         }
       </div>
       <div className="vol-sub">

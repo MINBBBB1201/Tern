@@ -1,8 +1,9 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { type PriceAlert } from "../../lib/offerUtils";
 import { PriceDisplay } from "../../lib/PriceDisplay";
+import { localeTag } from "../../i18n/locales";
 
 type PriceAlertPanelProps = {
   alerts: PriceAlert[];
@@ -14,6 +15,13 @@ type PriceAlertPanelProps = {
 
 export default function PriceAlertPanel({ alerts, alertPrice, setAlertPrice, onAddAlert, onDeleteAlert }: PriceAlertPanelProps) {
   const t = useTranslations("PriceAlert");
+  const tag = localeTag(useLocale());
+  /* Alerts saved before I4 hold a pre-formatted en-US string, not an ISO
+     date — show those through unchanged rather than printing "Invalid Date". */
+  const formatSetDate = (value: string) => {
+    const d = new Date(value);
+    return Number.isNaN(d.getTime()) ? value : d.toLocaleDateString(tag);
+  };
   return (
     <div className="glass-panel mt-4 rounded-[20px] p-5">
       <p className="mb-3 text-sm font-semibold">{t("title")}</p>
@@ -40,7 +48,7 @@ export default function PriceAlertPanel({ alerts, alertPrice, setAlertPrice, onA
               <span className="data-mono">
                 {alert.from} → {alert.to} · {t("target")}{" "}
                 <PriceDisplay amount={alert.targetPrice} currency="USD" />{" "}
-                · {t("setOn")} {alert.setDate}
+                · {t("setOn")} {formatSetDate(alert.setDate)}
               </span>
               <button type="button" onClick={() => onDeleteAlert(alert.id)} className="ml-2 text-red-400 hover:text-red-600">✕</button>
             </div>

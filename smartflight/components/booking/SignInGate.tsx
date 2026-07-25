@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import type { User } from "firebase/auth";
-import { signInWithGoogle, signInWithEmail, signUpWithEmail, authErrorMessage } from "../../lib/auth";
+import { signInWithGoogle, signInWithEmail, signUpWithEmail, authErrorKey } from "../../lib/auth";
 
 type SignInGateProps = {
   open: boolean;
@@ -25,6 +25,11 @@ const inputClass =
 export default function SignInGate({ open, onClose, onSignedIn }: SignInGateProps) {
   const t = useTranslations("SignIn");
   const tGate = useTranslations("Gate");
+  const tAuthError = useTranslations("AuthError");
+  const authErrorText = (err: unknown) => {
+    const key = authErrorKey(err);
+    return key ? tAuthError(key) : t("genericError");
+  };
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -46,7 +51,7 @@ export default function SignInGate({ open, onClose, onSignedIn }: SignInGateProp
       onSignedIn(user);
     } catch (err) {
       console.error(`gate ${mode} failed:`, err);
-      setError(authErrorMessage(err) ?? t("genericError"));
+      setError(authErrorText(err));
     } finally {
       setLoading(false);
     }
@@ -60,7 +65,7 @@ export default function SignInGate({ open, onClose, onSignedIn }: SignInGateProp
       if (user) onSignedIn(user); // null => popup-blocked redirect is navigating away
     } catch (err) {
       console.error("gate google failed:", err);
-      setError(authErrorMessage(err) ?? t("genericError"));
+      setError(authErrorText(err));
     } finally {
       setLoading(false);
     }

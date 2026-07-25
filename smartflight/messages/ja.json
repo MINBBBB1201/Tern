@@ -2,7 +2,7 @@
   "Nav": {
     "home": "ホーム",
     "booking": "予約",
-    "deals": "特典",
+    "deals": "セール",
     "blog": "ブログ",
     "changeSearch": "検索を変更",
     "signIn": "サインイン",
@@ -16,26 +16,26 @@
   },
   "WhyShop": {
     "title": "Ternを選ぶ理由",
-    "body": "最安値、最短時間、最速到着、AIおすすめ、お得な乗継便、遅延リスクまで一度に比較。マイルまたは現金でそのまま予約できます。",
-    "disclaimer": "遅延リスクは端末内のヒューリスティック(乗継・深夜便など)に基づく推定であり、リアルタイムの管制データではありません。出発当日は必ず航空会社にご確認ください。"
+    "body": "最安値、最短時間、最も早い到着、AIおすすめ、お得な乗継便、遅延リスクまで一度に比較。マイルまたは現金でそのまま予約できます。",
+    "disclaimer": "遅延リスクは端末内で計算した独自の推定（乗継・深夜便など）であり、リアルタイムの管制データではありません。出発当日は必ず航空会社にご確認ください。"
   },
   "SmartPicks": {
     "cheapestLabel": "最安値",
     "cheapestSub": "表示中で最も安い運賃",
     "fastestLabel": "最短時間",
     "fastestSub": "最も短い所要時間",
-    "earliestLabel": "最速到着",
+    "earliestLabel": "最も早い到着",
     "earliestSub": "現地に最も早く到着",
     "aiLabel": "AIおすすめ",
     "aiSub": "価格と時間のバランス",
     "connectionLabel": "お得な乗継便",
     "connectionSub": "乗継の中で最もお得",
     "safestLabel": "遅延リスク最小",
-    "safestSub": "推定スケジュール安定性"
+    "safestSub": "行程の組み立てから見た安定性"
   },
   "Hero": {
     "title": "地平線を追いかけて。",
-    "subtitle": "検索のたびに、最安値・最短時間・最低遅延リスク・マイル込み最高コスパの運賃を並べて比較します。",
+    "subtitle": "検索のたびに、最安値・最短時間・遅延リスクが最も低い便・マイルで払うと最も価値が高い運賃を並べて比較します。",
     "popularRoute": "人気路線",
     "searchableAirlines": "検索できる航空会社"
   },
@@ -55,9 +55,17 @@
     "labelTo": "目的地",
     "labelDeparture": "出発日",
     "labelReturn": "復路",
-    "labelPassengers": "乗客数",
+    "labelPassengers": "搭乗者",
     "searchFlights": "検索する",
-    "searching": "検索中…"
+    "searching": "検索中…",
+    "paxAdults": "大人",
+    "paxAdultsAge": "12歳以上",
+    "paxChildren": "小児",
+    "paxChildrenAge": "2〜11歳",
+    "paxInfants": "幼児",
+    "paxInfantsAge": "2歳未満",
+    "paxDone": "完了",
+    "datePlaceholder": "日付を選択"
   },
   "Checkout": {
     "reviewTitle": "フライトを確認",
@@ -149,22 +157,28 @@
     "noFlights": "フライトが見つかりません。別の日付や目的地でお試しください。",
     "whyKicker": "なぜ「TERN」なのか",
     "whyBody": "キョクアジサシ（Arctic Tern）は毎年、極から極へと飛びます — 生きているどの動物よりも遠くへ、終わらない夏を追いかけて。Ternはより少ないコストで、あなたが同じ旅を続けられるように。",
-    "footerRights": "© 2026 Tern. All rights reserved.",
-    "dealsSeeAll": "すべてのお得情報"
+    "footerRights": "© 2026 Tern. 無断転載を禁じます。",
+    "dealsSeeAll": "すべてのお得情報",
+    "citySeoul": "ソウル",
+    "cityTokyo": "東京",
+    "cityNewYork": "ニューヨーク",
+    "cityParis": "パリ",
+    "cityDubai": "ドバイ",
+    "cityLosAngeles": "ロサンゼルス"
   },
   "Filters": {
     "airlines": "航空会社",
     "stops": "経由",
     "times": "時間帯",
     "programs": "プログラム",
-    "matchAlliance": "アライアンス／移行可能マイルに一致",
+    "matchAlliance": "アライアンス・移行可能マイルで絞り込む",
     "connectingOnly": "乗継のみ",
     "sortLabel": "並び替え",
     "sortFastest": "最短時間",
     "sortCheapest": "最安値",
     "sortArrival": "最も早く到着",
     "sortAI": "AIおすすめ",
-    "sortConnecting": "ベスト乗継ディール",
+    "sortConnecting": "乗継のお得度順",
     "sortDelayLow": "遅延リスク最小",
     "selectAirlines": "航空会社を選択",
     "reset": "リセット",
@@ -189,13 +203,21 @@
     "cabinFirst": "ファースト",
     "cheapestNonStop": "直行最安値: {price}",
     "cheapestWithStops": "経由最安値: {price}",
-    "bookRouteDisclosure": "「この路線を予約」は、路線・日付・人数が入力済みの当社予約サイト book.flytern.site を開きます。フライトはそちらで選択し、価格は異なる場合があります。そこでの予約でTernは手数料を得ますが、追加費用はかかりません。"
+    "bookRouteDisclosure": "「この路線を予約」は、路線・日付・人数が入力済みの当社予約サイト book.flytern.site を開きます。フライトはそちらで選択し、価格は異なる場合があります。そこでの予約でTernは手数料を得ますが、追加費用はかかりません。",
+    "bookingConfirmed": "Tern の安全な決済で予約が確定しました（テストモード — 実際の航空券は発券されません）。",
+    "orderNumber": "注文番号 {id}",
+    "alertTriggered": "価格アラートが届きました。{from} → {to} の運賃が目標額 {price} 以下になっています。",
+    "searchingFares": "最新の運賃を検索中…",
+    "noMatchFilters": "現在の絞り込み条件に合う便がありません。経由回数・価格・航空会社の条件を見直してみてください。",
+    "noFlightsFound": "この路線と日付で予約できる便が見つかりませんでした。別の日付か路線でお試しください。"
   },
   "PriceTrend": {
     "title": "価格推移（±5日）",
     "subtitle": "旅行日前後の運賃を比較",
     "load": "推移を読み込む",
-    "loading": "読み込み中…"
+    "loading": "読み込み中…",
+    "tooltipMinFare": "最安運賃",
+    "bestLabel": "最安"
   },
   "Guide": {
     "rideFrom": "{iata}から配車",
@@ -205,7 +227,8 @@
     "accessibility": "♿ アクセシビリティ",
     "toLabel": "行き先:",
     "hotelPlaceholder": "ホテルまたは住所（任意）",
-    "uberNote": "Uberは世界の主要都市のほとんどで利用できますが、すべてではありません。利用できない場合はアプリでお知らせします。"
+    "uberNote": "Uberは世界の主要都市のほとんどで利用できますが、すべてではありません。利用できない場合はアプリでお知らせします。",
+    "clearDestination": "目的地をクリア"
   },
   "AirportGuide": {
     "backHome": "← ホーム",
@@ -414,7 +437,12 @@
     "layoverAt": "{airport}にて",
     "approxChargedIn": "≈、実際の請求は {price}",
     "getRideAtArrival": "{airport}で配車",
-    "riskInfo": "行程の構成（乗継数・深夜出発・短い乗継）から推定した相対的な目安です。リアルタイムの遅延データではありません。"
+    "riskInfo": "行程の構成（乗継数・深夜出発・短い乗継）から推定した相対的な目安です。リアルタイムの遅延データではありません。",
+    "durationHm": "{hours}時間{minutes}分",
+    "durationM": "{minutes}分",
+    "partnerAirline": "提携航空会社",
+    "altAirline": "航空会社のロゴ",
+    "altAircraft": "機材"
   },
   "TermsPage": {
     "kicker": "法的情報",
@@ -457,5 +485,35 @@
     "s6p": "いつでもサインアウトでき、ブラウザで消去することで保存された価格アラートを削除でき、お問い合わせメールでアカウントとメールの削除を依頼できます。検索は結果を返すためにそのまま提供元へ渡されるため、Tern 側に個人プロフィールとして保管されることはありません。",
     "s7h": "保存期間と変更",
     "s7p": "個人データは、提供された目的に必要な期間のみ保存されます。アカウント情報は削除をご依頼いただくまで保存されます。本ポリシーは製品に応じて変更されることがあり、上記の施行日が現在の版を示します。"
+  },
+  "AuthError": {
+    "unauthorizedDomain": "このドメインはログインを許可されていません。（Firebase コンソール → Authentication → Settings → 承認済みドメイン）",
+    "operationNotAllowed": "このプロジェクトではこのログイン方法が有効になっていません。（Firebase コンソール → Authentication → Sign-in method）",
+    "invalidCredential": "メールアドレスまたはパスワードが正しくありません。",
+    "emailInUse": "このメールアドレスのアカウントは既にあります。ログインしてください。",
+    "weakPassword": "パスワードは 6 文字以上で設定してください。",
+    "invalidEmail": "メールアドレスの形式が正しくないようです。",
+    "tooManyRequests": "試行回数が多すぎます。しばらくしてからもう一度お試しください。",
+    "networkFailed": "ネットワークエラーです。接続を確認してもう一度お試しください。"
+  },
+  "Meta": {
+    "siteTitle": "Tern — 航空券の比較、遅延リスク、マイル価値まで",
+    "siteDescription": "最安値・最短時間・最早到着・AI バランス推奨・乗継のお得便・遅延リスクをまとめて比較し、マイルでも現金でもそのまま予約できます。",
+    "aboutTitle": "Tern について",
+    "aboutDescription": "Tern は価格・所要時間・到着時刻・遅延リスク・マイルと現金の価値で航空券を比較します。でっち上げの統計や偽の緊急感は使いません。何を比較し、どう収益を得て、名前はどこから来たのかをまとめました。",
+    "bookingTitle": "航空券の検索・比較",
+    "bookingDescription": "リアルタイム運賃に、最安・最短・最早到着・遅延リスク最小のおすすめを添えて表示。マイルと現金の選択肢、±5 日の価格推移も一画面で確認できます。",
+    "dealsTitle": "航空会社のセール・キャンペーン",
+    "dealsDescription": "ターキッシュ エアラインズ、大韓航空、アシアナ航空などの公式セールページへ直接リンクし、その路線を Tern でワンタップ検索。記載内容はすべてリンク先の航空会社ページで確認できます。",
+    "blogTitle": "ガイドとノート",
+    "blogDescription": "空港での乗継ガイド、マイルの解説、Tern のプロダクトノート。アプリと同じデータをもとにした、実用的で事実ベースの記事です。",
+    "supportTitle": "ヘルプ・よくある質問",
+    "supportDescription": "Tern で航空券を探すときによくある質問 — 遅延リスクの見方、マイルと現金での予約、アフィリエイトリンクの仕組み、問い合わせ方法をまとめました。",
+    "termsTitle": "利用規約",
+    "termsDescription": "Tern をご利用いただく際の規約です。サービスの内容、アフィリエイトおよびパートナー経由の予約の仕組み、表示情報の限界について説明します。",
+    "privacyTitle": "プライバシーポリシー",
+    "privacyDescription": "Tern が何を取得し、何を取得しないか、どの外部サービスが関わるか — ログイン、検索、分析、アフィリエイトリンクについて率直に記載します。",
+    "guideTitle": "{name}（{iata}）空港ガイド — 乗継・バリアフリー・市内アクセス",
+    "guideDescriptionFallback": "{name}（{iata}）で知っておきたいこと: ターミナル構成、市内交通、バリアフリーサービス。"
   }
 }

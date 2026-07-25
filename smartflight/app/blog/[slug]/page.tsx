@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { blogPosts, getBlogPost } from "../../../lib/blogPosts";
+import { getAirportGuide } from "../../../lib/airportGuides";
 import BlogPostClient from "./BlogPostClient";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -68,13 +69,18 @@ export default async function BlogPostPage({ params }: Props) {
     },
   };
 
+  // Airport posts reshape the localized guide data. Resolved here, in the
+  // server component, so the client bundle never pulls in every locale's
+  // guide bodies (see lib/airportGuides.ts).
+  const guide = post.kind === "airport" ? getAirportGuide(post.iata, await getLocale()) : null;
+
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
       />
-      <BlogPostClient slug={slug} />
+      <BlogPostClient slug={slug} guide={guide} />
     </>
   );
 }

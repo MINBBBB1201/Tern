@@ -9,13 +9,21 @@ import { AirportWeatherChip } from "./AirportWeatherChip";
 import { getAircraftImage, getAircraftName } from "../../lib/aircraftImages";
 import { PriceDisplay } from "../../lib/PriceDisplay";
 import { buildAirportUberLink } from "../../lib/rideDeepLinks";
+import { useDurationLabel } from "../../lib/useDurationLabel";
 import {
   buildBookingPrograms,
   computeDelayRiskScore,
-  durationLabel,
   timeLabel,
   type Offer,
 } from "../../lib/offerUtils";
+
+/** Duffel cabin ids → the localized labels the filter bar already uses. */
+const CABIN_KEYS: Record<string, string> = {
+  economy: "cabinEconomy",
+  premium_economy: "cabinPremiumEconomy",
+  business: "cabinBusiness",
+  first: "cabinFirst",
+};
 
 type OfferCardProps = {
   offer: Offer;
@@ -30,6 +38,8 @@ type OfferCardProps = {
 
 function OfferCardImpl({ offer, isExpanded, onToggleExpand, onSelect, from, to, cabinClass, aviasalesUrl }: OfferCardProps) {
   const t = useTranslations("Offer");
+  const tFilters = useTranslations("Filters");
+  const duration = useDurationLabel();
   const delayRisk = computeDelayRiskScore(offer);
   const riskColor = delayRisk < 25 ? "text-success-strong" : delayRisk < 55 ? "text-warning-strong" : "text-danger-strong";
   const aircraftImg = getAircraftImage(offer.aircraftIata);
@@ -52,7 +62,7 @@ function OfferCardImpl({ offer, isExpanded, onToggleExpand, onSelect, from, to, 
           {offer.airlineLogo ? (
             <Image
               src={offer.airlineLogo}
-              alt={offer.airline || "Airline"}
+              alt={offer.airline || t("altAirline")}
               width={36}
               height={36}
               className="object-contain"
@@ -71,7 +81,7 @@ function OfferCardImpl({ offer, isExpanded, onToggleExpand, onSelect, from, to, 
             <AirportWeatherChip iataCode={offer.originAirport || from} />
           </div>
           <div className="flex flex-col items-center gap-0.5 flex-1 min-w-[80px]">
-            <p className="data-mono text-xs text-muted">{durationLabel(offer.duration)}</p>
+            <p className="data-mono text-xs text-muted">{duration.fromIso(offer.duration)}</p>
             <div className="relative w-full flex items-center">
               <div className="h-px flex-1 bg-gray-200" />
               <svg className="mx-1 h-3 w-3 text-primary shrink-0" viewBox="0 0 24 24" fill="currentColor">
@@ -90,8 +100,10 @@ function OfferCardImpl({ offer, isExpanded, onToggleExpand, onSelect, from, to, 
 
         {/* Airline name + cabin */}
         <div className="hidden md:block text-right min-w-[120px]">
-          <p className="text-sm font-semibold">{offer.airline || "Partner Airline"}</p>
-          <p className="text-xs text-muted capitalize">{(offer.cabinClass || cabinClass).replace("_", " ")}</p>
+          <p className="text-sm font-semibold">{offer.airline || t("partnerAirline")}</p>
+          <p className="text-xs text-muted">
+            {tFilters(CABIN_KEYS[offer.cabinClass || cabinClass] ?? "cabinEconomy")}
+          </p>
           <span
             title={t("riskInfo")}
             className={`glass-chip data-mono mt-0.5 inline-flex cursor-help items-center rounded-full px-2 py-0.5 text-[11px] font-semibold ${riskColor}`}
@@ -155,7 +167,7 @@ function OfferCardImpl({ offer, isExpanded, onToggleExpand, onSelect, from, to, 
                         <div className="glass-chip rounded-xl p-3 text-xs">
                           <div className="flex items-center justify-between">
                             <span className="font-semibold">{seg.origin} → {seg.destination}</span>
-                            <span className="data-mono text-muted">{durationLabel(seg.duration)}</span>
+                            <span className="data-mono text-muted">{duration.fromIso(seg.duration)}</span>
                           </div>
                           <div className="data-mono mt-1 flex gap-3 text-muted">
                             <span>{timeLabel(seg.departing_at)} → {timeLabel(seg.arriving_at)}</span>
@@ -187,7 +199,7 @@ function OfferCardImpl({ offer, isExpanded, onToggleExpand, onSelect, from, to, 
                 <div className="relative overflow-hidden rounded-xl border border-[var(--glass-border)]">
                   <Image
                     src={aircraftImg}
-                    alt={aircraftName || "Aircraft"}
+                    alt={aircraftName || t("altAircraft")}
                     width={400}
                     height={200}
                     className="h-32 w-full object-cover"
@@ -197,7 +209,7 @@ function OfferCardImpl({ offer, isExpanded, onToggleExpand, onSelect, from, to, 
                     <div className="glass-chip absolute right-2 top-2 flex h-9 w-9 items-center justify-center overflow-hidden rounded-lg">
                       <Image
                         src={offer.airlineLogo}
-                        alt={offer.airline || "Airline"}
+                        alt={offer.airline || t("altAirline")}
                         width={30}
                         height={30}
                         className="object-contain"

@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { layoverBetweenSegments } from "../../lib/offerUtils";
+import { useDurationLabel } from "../../lib/useDurationLabel";
 
 type LayoverBadgeProps = {
   arrivingAt?: string;
@@ -19,12 +20,11 @@ type LayoverBadgeProps = {
  */
 export function LayoverBadge({ arrivingAt, nextDepartingAt, nextOrigin }: LayoverBadgeProps) {
   const t = useTranslations("Offer");
+  const duration = useDurationLabel();
   const minutes = layoverBetweenSegments(arrivingAt, nextDepartingAt);
   if (!minutes) return null;
 
-  const hours = Math.floor(minutes / 60);
-  const mins = Math.round(minutes % 60);
-  const label = hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
+  const label = duration.fromMinutes(minutes);
 
   const colorClass =
     minutes < 60 ? "text-danger-strong" : minutes <= 150 ? "text-success-strong" : "text-warning-strong";

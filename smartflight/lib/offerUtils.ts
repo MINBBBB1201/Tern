@@ -90,17 +90,12 @@ export const parseDurationMinutes = (iso?: string) => {
   return h * 60 + min;
 };
 
-export const durationLabel = (iso?: string) => {
-  const mins = parseDurationMinutes(iso);
-  if (!Number.isFinite(mins)) return "--";
-  return `${Math.floor(mins / 60)}h ${mins % 60}m`;
-};
-
 export const timeLabel = (iso?: string) => (iso ? iso.slice(11, 16) : "--:--");
 
-export const dateLabel = (iso?: string) => {
+/** `tag` is a BCP-47 tag from i18n/locales — never hardcode one here. */
+export const dateLabel = (iso: string | undefined, tag: string) => {
   if (!iso) return "-";
-  return new Date(iso).toLocaleDateString("en-US", {
+  return new Date(iso).toLocaleDateString(tag, {
     month: "short",
     day: "numeric",
     weekday: "short",

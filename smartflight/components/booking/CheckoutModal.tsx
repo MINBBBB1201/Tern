@@ -2,9 +2,11 @@
 
 import { useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { useTranslations } from "next-intl";
-import { buildBookingPrograms, dateLabel, durationLabel, type Offer } from "../../lib/offerUtils";
+import { useLocale, useTranslations } from "next-intl";
+import { buildBookingPrograms, dateLabel, type Offer } from "../../lib/offerUtils";
 import { PriceDisplay } from "../../lib/PriceDisplay";
+import { useDurationLabel } from "../../lib/useDurationLabel";
+import { localeTag } from "../../i18n/locales";
 
 type CheckoutModalProps = {
   checkoutOffer: Offer | null;
@@ -41,6 +43,8 @@ export default function CheckoutModal(props: CheckoutModalProps) {
 
 function CheckoutModalShell({ checkoutOffer, checkoutStep, fromCity, toCity, from, to, onAdvanceToBook, onClose, aviasalesUrl }: CheckoutModalProps & { checkoutOffer: Offer }) {
   const t = useTranslations("Checkout");
+  const tag = localeTag(useLocale());
+  const duration = useDurationLabel();
   const reduceMotion = useReducedMotion();
 
   // Duffel Links handoff (TEST MODE / DEMO): payment and ticketing happen on
@@ -141,7 +145,7 @@ function CheckoutModalShell({ checkoutOffer, checkoutStep, fromCity, toCity, fro
                         {fromCity} ({from}) → {toCity} ({to})
                       </p>
                       <p className={`data-mono text-xs ${tone.faint} mt-1`}>
-                        {dateLabel(checkoutOffer.departure)} · {durationLabel(checkoutOffer.duration)}
+                        {dateLabel(checkoutOffer.departure, tag)} · {duration.fromIso(checkoutOffer.duration)}
                       </p>
                     </div>
                     <p className="data-mono text-2xl font-black text-white shrink-0">
@@ -201,7 +205,7 @@ function CheckoutModalShell({ checkoutOffer, checkoutStep, fromCity, toCity, fro
                 <div className="glass-chip-dark rounded-2xl p-4 text-sm">
                   <p className="font-semibold">{checkoutOffer.airline || t("partnerAirline")}</p>
                   <p className={tone.muted}>
-                    {fromCity} ({from}) → {toCity} ({to}) · {dateLabel(checkoutOffer.departure)}
+                    {fromCity} ({from}) → {toCity} ({to}) · {dateLabel(checkoutOffer.departure, tag)}
                   </p>
                   <p className={tone.muted}>
                     {t("aroundPricePrefix")}{" "}

@@ -88,28 +88,34 @@ export function getUser(): User | null {
   return auth.currentUser;
 }
 
-/** Human-readable message for the auth error codes users actually hit. */
-export function authErrorMessage(err: unknown): string | null {
+/**
+ * Maps the auth error codes users actually hit to a key in the `AuthError`
+ * message namespace. Returns a key, not prose — this module is locale-blind
+ * (it runs outside React), so the caller does the translating. Returns null
+ * for codes we have no specific copy for; callers fall back to
+ * SignIn.genericError.
+ */
+export function authErrorKey(err: unknown): string | null {
   const code = (err as AuthError)?.code;
   switch (code) {
     case "auth/unauthorized-domain":
-      return "This domain is not authorized for sign-in. (Firebase console → Authentication → Settings → Authorized domains)";
+      return "unauthorizedDomain";
     case "auth/operation-not-allowed":
-      return "This sign-in method is not enabled for the project. (Firebase console → Authentication → Sign-in method)";
+      return "operationNotAllowed";
     case "auth/invalid-credential":
     case "auth/wrong-password":
     case "auth/user-not-found":
-      return "Incorrect email or password.";
+      return "invalidCredential";
     case "auth/email-already-in-use":
-      return "An account with this email already exists — try logging in instead.";
+      return "emailInUse";
     case "auth/weak-password":
-      return "Password must be at least 6 characters.";
+      return "weakPassword";
     case "auth/invalid-email":
-      return "That email address doesn't look right.";
+      return "invalidEmail";
     case "auth/too-many-requests":
-      return "Too many attempts — please wait a moment and try again.";
+      return "tooManyRequests";
     case "auth/network-request-failed":
-      return "Network error — check your connection and try again.";
+      return "networkFailed";
     default:
       return null;
   }

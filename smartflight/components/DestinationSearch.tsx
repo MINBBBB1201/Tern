@@ -88,7 +88,7 @@ export function DestinationSearch({ onSelect, countryCode }: DestinationSearchPr
         />
         {loading && <span className="text-[10px] text-muted">…</span>}
         {query && (
-          <button type="button" onClick={handleClear} className="text-muted hover:text-foreground" aria-label="Clear destination">
+          <button type="button" onClick={handleClear} className="text-muted hover:text-foreground" aria-label={t("clearDestination")}>
             ×
           </button>
         )}

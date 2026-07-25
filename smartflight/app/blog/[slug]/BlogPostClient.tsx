@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { SubpageShell } from "../../../components/SubpageShell";
 import { getBlogPost } from "../../../lib/blogPosts";
-import { getAirportGuide } from "../../../lib/airportGuides";
+import type { AirportGuide } from "../../../lib/airportGuides";
 
 const Card = ({ children }: { children: React.ReactNode }) => (
   <section className="glass-panel rounded-2xl p-6">{children}</section>
@@ -23,7 +23,7 @@ const Bullets = ({ items }: { items: readonly string[] }) => (
   </ul>
 );
 
-export default function BlogPostClient({ slug }: { slug: string }) {
+export default function BlogPostClient({ slug, guide }: { slug: string; guide: AirportGuide | null }) {
   const t = useTranslations("BlogPage");
   const post = getBlogPost(slug);
   if (!post) notFound();
@@ -32,7 +32,7 @@ export default function BlogPostClient({ slug }: { slug: string }) {
     <SubpageShell kicker={t(post.tagKey)} title={t(post.titleKey)} intro={t(post.introKey)}>
       <article className="py-14">
         <div className="max-w-3xl mx-auto px-6 space-y-5">
-          {post.kind === "airport" && <AirportPostBody iata={post.iata} />}
+          {post.kind === "airport" && guide && <AirportPostBody guide={guide} />}
 
           {post.kind === "points" && (
             <>
@@ -74,12 +74,12 @@ export default function BlogPostClient({ slug }: { slug: string }) {
   );
 }
 
-/* Airport posts reshape the real guide data (English content — see the
-   B6 residual note in docs/backlog.md) under localized headings. */
-function AirportPostBody({ iata }: { iata: string }) {
+/* Airport posts reshape the real guide data under localized headings. The
+   guide itself is resolved for the active locale by the server component
+   (I4 closed the B6 residual that left this content English-only). */
+function AirportPostBody({ guide }: { guide: AirportGuide }) {
   const t = useTranslations("BlogPage");
   const tGuide = useTranslations("AirportGuide");
-  const guide = getAirportGuide(iata);
 
   return (
     <>
@@ -116,7 +116,7 @@ function AirportPostBody({ iata }: { iata: string }) {
       </Card>
 
       <Link
-        href={`/guide/airport/${iata}`}
+        href={`/guide/airport/${guide.iata}`}
         className="btn-sheen inline-flex items-center justify-center rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white hover:bg-primary/90 transition"
       >
         {t("openGuide")}

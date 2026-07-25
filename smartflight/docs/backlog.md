@@ -1,5 +1,31 @@
 # Backlog — B/C/D/E/F/G/H series (2026-07-17 → 2026-07-22)
 
+## I4 — i18n completeness + naturalness (2026-07-26)
+
+Closes the **B6 residual** below. `lib/airportGuides.ts` was split into
+`lib/airportBrief.ts` (name/city/country/summary, client-safe) and
+`lib/airportGuideBodies.{ko,ja,zh}.ts` (the prose bodies); `getAirportGuide`
+recombines them per locale, so /guide/airport/*, the airport blog posts and
+/booking's guide cards are now localized instead of English-only. Message
+files went 403 → 457 keys with the hardcoded UI strings migrated (passenger
+popover, /booking states, price-trend chart labels, auth errors, per-route
+metadata). Locale-hardcoded `en-US` formatters were routed through
+`i18n/locales.localeTag`. Captures: `docs/screenshots/i4-{en,ko,ja,zh}-*.png`.
+
+Known residuals after I4 (deliberate, not oversights):
+
+- `lib/data/airports.json` city/airport names are English-only. The 23
+  curated airports display localized city names everywhere (search bar,
+  /booking, guides); any *other* airport picked from the autocomplete shows
+  its English dataset name. Localizing ~5,000 airports is its own project.
+- `lib/transportService.ts` (861 lines of English transport copy) is **dead
+  code** — not imported anywhere. Left untranslated on purpose; delete it or
+  wire it up before it's worth localizing.
+- OG images for airport guides stay English: they're statically generated at
+  build time and crawlers fetch them without the locale cookie.
+- The `Home` namespace still carries ~15 keys for the removed `showResults`
+  block (`flightsFound`, `directVsConnecting`, …). Translated but unrendered.
+
 ## G5 + H series status (visible motion + differentiation, 2026-07-22)
 
 Lesson driving G5: restraint that becomes an *invisible* effect is a

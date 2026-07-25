@@ -2,12 +2,14 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { SubpageShell } from "../../components/SubpageShell";
 
-export const metadata: Metadata = {
-  title: "Help & FAQ",
-  description:
-    "Answers to common questions about searching flights on Tern — delay-risk signals, points-vs-cash booking, how affiliate links work, and how to reach us.",
-  alternates: { canonical: "/support" },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("Meta");
+  return {
+    title: t("supportTitle"),
+    description: t("supportDescription"),
+    alternates: { canonical: "/support" },
+  };
+}
 
 /* /support — FAQ as native <details> styled into the glass system
    (no JS accordion dependency for six questions), plus contact. */

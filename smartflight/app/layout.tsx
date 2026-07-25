@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
-import { getLocale, getMessages } from "next-intl/server";
+import { getLocale, getMessages, getTranslations } from "next-intl/server";
 import GlobalCanvas from "../components/canvas/GlobalCanvas";
 import "./globals.css";
 
@@ -15,27 +15,34 @@ const jetbrainsMono = JetBrains_Mono({
   variable: "--font-jetbrains-mono",
 });
 
-export const metadata: Metadata = {
+// Title/description follow the request's TERN_LOCALE cookie, like the rest
+// of the site — a Korean visitor should not get an English <title>.
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("Meta");
+  const title = t("siteTitle");
+  const description = t("siteDescription");
+
+  return {
   metadataBase: new URL("https://www.flytern.site"),
   title: {
-    default: "Tern — Compare Flights, Delay Risk & Points Value",
+    default: title,
     template: "%s | Tern",
   },
-  description: "Compare cheapest fares, fastest trips, earliest arrivals, AI-balanced picks, smart connection deals, and delay-risk signals — then book with points or cash in one flow.",
+  description,
   icons: {
     icon: "/logos/tern-logo-purepick.png",
   },
   openGraph: {
-    title: "Tern — Compare Flights, Delay Risk & Points Value",
-    description: "Compare cheapest fares, fastest trips, earliest arrivals, AI-balanced picks, smart connection deals, and delay-risk signals — then book with points or cash in one flow.",
+    title,
+    description,
     url: "https://www.flytern.site",
     siteName: "Tern",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Tern — Compare Flights, Delay Risk & Points Value",
-    description: "Compare cheapest fares, fastest trips, earliest arrivals, AI-balanced picks, smart connection deals, and delay-risk signals — then book with points or cash in one flow.",
+    title,
+    description,
   },
   // Search-engine site verification — rendered ONLY when the env vars are
   // set (no placeholder tags ship). Google emits <meta name="google-site-
@@ -49,7 +56,8 @@ export const metadata: Metadata = {
       other: { "msvalidate.01": process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION },
     }),
   },
-};
+  };
+}
 
 export default async function RootLayout({
   children,
