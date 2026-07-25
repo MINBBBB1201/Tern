@@ -8,6 +8,7 @@ import Link from "next/link";
 import SearchBar, { type SearchParams } from "../components/SearchBar";
 import { LocaleSwitcher } from "../components/LocaleSwitcher";
 import { AuthMenu } from "../components/AuthMenu";
+import { MobileMenu } from "../components/MobileMenu";
 import { useHoverTilt } from "../hooks/useHoverTilt";
 import type { Offer } from "../lib/offerUtils";
 import { airlineDealPages } from "../lib/airlineDeals";
@@ -548,7 +549,11 @@ export default function Home() {
           </div>
           <div className="flex items-center gap-4">
             <LocaleSwitcher dark />
-            <AuthMenu dark />
+            {/* Auth lives inline on desktop; on mobile it moves into the drawer. */}
+            <div className="hidden md:block">
+              <AuthMenu dark />
+            </div>
+            <MobileMenu />
           </div>
         </div>
       </nav>

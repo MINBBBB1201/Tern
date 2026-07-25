@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { LocaleSwitcher } from "./LocaleSwitcher";
 import { AuthMenu } from "./AuthMenu";
+import { MobileMenu } from "./MobileMenu";
 import { SiteFooter } from "./SiteFooter";
 
 /**
@@ -72,7 +73,10 @@ export function SubpageShell({
           </div>
           <div className="flex items-center gap-4">
             <LocaleSwitcher dark />
-            <AuthMenu dark />
+            <div className="hidden md:block">
+              <AuthMenu dark />
+            </div>
+            <MobileMenu />
           </div>
         </div>
       </nav>

@@ -6,7 +6,13 @@
     "blog": "博客",
     "changeSearch": "修改搜索",
     "signIn": "登录",
-    "signOut": "退出登录"
+    "signOut": "退出登录",
+    "menu": "菜单"
+  },
+  "Gate": {
+    "title": "登录后预订",
+    "subtitle": "登录或创建账户以完成此航班的预订。",
+    "signedInAs": "已登录"
   },
   "WhyShop": {
     "title": "为什么选择 Tern",

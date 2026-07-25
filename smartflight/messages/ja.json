@@ -6,7 +6,13 @@
     "blog": "ブログ",
     "changeSearch": "検索を変更",
     "signIn": "サインイン",
-    "signOut": "サインアウト"
+    "signOut": "サインアウト",
+    "menu": "メニュー"
+  },
+  "Gate": {
+    "title": "予約するにはログイン",
+    "subtitle": "このフライトの予約を完了するには、ログインまたはアカウントを作成してください。",
+    "signedInAs": "ログイン中"
   },
   "WhyShop": {
     "title": "Ternを選ぶ理由",

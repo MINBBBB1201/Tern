@@ -1,7 +1,8 @@
 "use client";
 
-import { Suspense, useEffect, useMemo } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
+import type { User } from "firebase/auth";
 import Link from "next/link";
 import Image from "next/image";
 import dynamic from "next/dynamic";
@@ -21,10 +22,13 @@ import PriceAlertPanel from "../../components/booking/PriceAlertPanel";
 import AirportGuideCards from "../../components/booking/AirportGuideCards";
 import LoyaltyCardTips from "../../components/booking/LoyaltyCardTips";
 import CheckoutModal from "../../components/booking/CheckoutModal";
+import SignInGate from "../../components/booking/SignInGate";
 import { LocaleSwitcher } from "../../components/LocaleSwitcher";
 import { AuthMenu } from "../../components/AuthMenu";
+import { MobileMenu } from "../../components/MobileMenu";
 import { SiteFooter } from "../../components/SiteFooter";
-import { formatMoney } from "../../lib/offerUtils";
+import { formatMoney, type Offer } from "../../lib/offerUtils";
+import { auth, onAuthStateChanged } from "../../lib/auth";
 
 // Client-only scroll choreography — see components/ScrollFX.tsx
 const ScrollFX = dynamic(() => import("../../components/ScrollFX"), { ssr: false });
@@ -103,6 +107,41 @@ function BookingPageClient() {
   const priceTrend = usePriceTrend(departureDate, fetchOffers);
   const checkout = useCheckoutFlow();
 
+  // Booking gate: only the commit step ("Select" on a fare) requires sign-in —
+  // search, filtering and browsing stay open to everyone. A signed-out Select
+  // stashes the exact offer and opens the gate; on success we resume that
+  // offer's checkout automatically (the offer object is held in memory, so no
+  // fragile re-lookup by ephemeral offer id across a navigation).
+  const [user, setUser] = useState<User | null>(null);
+  const [gateOpen, setGateOpen] = useState(false);
+  const [pendingOffer, setPendingOffer] = useState<Offer | null>(null);
+
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, (u) => setUser(u));
+    return () => unsub();
+  }, []);
+
+  const { openCheckout } = checkout;
+  const handleSelectOffer = (offer: Offer) => {
+    if (user) {
+      openCheckout(offer);
+    } else {
+      setPendingOffer(offer);
+      setGateOpen(true);
+    }
+  };
+
+  const handleGateSignedIn = () => {
+    setGateOpen(false);
+    if (pendingOffer) openCheckout(pendingOffer);
+    setPendingOffer(null);
+  };
+
+  const closeGate = () => {
+    setGateOpen(false);
+    setPendingOffer(null);
+  };
+
   const { resetMaxPriceFor } = filters;
   const { checkMatch } = priceAlerts;
 
@@ -137,10 +176,14 @@ function BookingPageClient() {
               {tFilters(tripType === "oneway" ? "oneWay" : "roundTrip")}
             </span>
             <LocaleSwitcher dark />
-            <AuthMenu dark />
+            {/* Auth lives inline on desktop; on mobile it moves into the drawer. */}
+            <div className="hidden md:block">
+              <AuthMenu dark />
+            </div>
             <Link href="/" className="btn-sheen rounded-full bg-primary px-4 py-2 font-semibold text-white">
               {tNav("changeSearch")}
             </Link>
+            <MobileMenu />
           </div>
         </div>
       </header>
@@ -251,7 +294,7 @@ function BookingPageClient() {
             cabinClass={cabinClass}
             cheapestDirect={filters.cheapestDirect}
             cheapestConnecting={filters.cheapestConnecting}
-            onSelectOffer={checkout.openCheckout}
+            onSelectOffer={handleSelectOffer}
             aviasalesUrl={aviasalesUrl}
           />
         )}
@@ -303,6 +346,7 @@ function BookingPageClient() {
         onClose={checkout.closeCheckout}
         aviasalesUrl={aviasalesUrl}
       />
+      <SignInGate open={gateOpen} onClose={closeGate} onSignedIn={handleGateSignedIn} />
       <SiteFooter />
     </main>
   );
