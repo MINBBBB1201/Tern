@@ -557,6 +557,31 @@ body {
   transition: background 0.3s ease, box-shadow 0.3s ease;
 }
 
+/* iOS Safari (WebKit) mis-renders a position: fixed / sticky element that
+   ALSO carries a backdrop-filter: during scroll the frosted layer detaches
+   from the header and floats mid-viewport, so the translucent nav reads as a
+   broken, oddly-shaped pill bar over the content below. (Blink/Chrome
+   composite it correctly — which is why it only showed on iPhone/iPad, and
+   why the homepage — with its fixed WebGL canvas behind the nav for the blur
+   to sample — was the worst case.) On touch devices we therefore drop the
+   backdrop-filter and use a solid fill, so the fixed/sticky header stays
+   glued to the top and reads as a deliberate bar. Desktop keeps the glass.
+   `pointer: coarse` (not a width query) is the right gate — it covers iPhone
+   and iPad in BOTH orientations, including iPad landscape at desktop widths. */
+@media (pointer: coarse) {
+  .glass-nav,
+  .glass-nav-dark {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .glass-nav {
+    background: var(--paper-50);
+  }
+  .glass-nav-dark {
+    background: rgba(16, 25, 48, 0.95);
+  }
+}
+
 /* Glass sitting on flat --paper-50/white (homepage coupons, airlines,
    stats, flight list): there is nothing behind the panel for the blur to
    act on, so the material must read through its edges instead — a crisper
