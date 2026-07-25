@@ -1750,6 +1750,138 @@ body {
 }
 
 /* ─────────────────────────────────────────────
+   I2 — MOBILE SEARCH FLOW
+   The hero search card and the booking filters were laid out for a wide
+   desktop row. These rules keep that desktop layout untouched (fine
+   pointer, ≥768px) but (a) grow every hit target to ≥44px on any coarse
+   pointer, and (b) restack the desktop row into a vertical sheet on phone
+   widths. Civil-twilight material — colors, glass, fonts — is unchanged;
+   only geometry and hit areas move.
+
+   Layout geometry moved out of SearchBar.tsx inline styles into the
+   classes below so these media queries can override it (inline styles
+   would otherwise always win).
+   ───────────────────────────────────────────── */
+
+/* ── Desktop base (reproduces the former inline styles verbatim) ── */
+.vol-input-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  padding: 6px 8px 8px 8px;
+  gap: 0;
+}
+.vol-fromto {
+  display: flex;
+  align-items: stretch;
+  flex: 2 1 220px;
+  min-width: 0;
+  position: relative;
+}
+.vol-fromto-field { flex: 1 1 0; min-width: 0; }
+.vol-swap-wrap {
+  display: flex;
+  align-items: center;
+  padding: 0 4px;
+  flex-shrink: 0;
+  z-index: 2;
+}
+/* display:contents → Dep / inner-divider / Return stay direct flex items of
+   the row on desktop (identical to the old markup); phone flips this to a
+   real 2-column flex box. */
+.vol-dates { display: contents; }
+.vol-cell-date { flex: 0 1 128px; min-width: 110px; }
+.vol-cell-pax { flex: 0 1 152px; min-width: 130px; position: relative; }
+.vol-cell-search {
+  display: flex;
+  align-items: center;
+  padding: 4px 4px 4px 6px;
+  flex-shrink: 0;
+}
+/* Same trick for the two header pill groups. */
+.vol-pill-group { display: contents; }
+
+/* ── Touch devices (phone + tablet): ≥44px hit targets ── */
+@media (pointer: coarse) {
+  .vol-pill-option { padding: 10px 14px; font-size: 12.5px; min-height: 44px; }
+  .vol-swap { width: 44px; height: 44px; }
+  .vol-stepper-btn { width: 44px; height: 44px; }
+  .vol-done-btn { height: 48px; }
+
+  /* Bigger draggable thumb + a full-height finger strip over the 4px track. */
+  .brand-range { height: 44px; }
+  .brand-range::-webkit-slider-thumb { height: 24px; width: 24px; margin-top: -10px; }
+  .brand-range::-moz-range-thumb { height: 24px; width: 24px; }
+}
+
+/* ── Phone (≤767px): restack the horizontal desktop row into a sheet ── */
+@media (max-width: 767px) {
+  .vol-input-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+    padding: 10px;
+  }
+
+  /* From / swap / To stack vertically (Skyscanner-style) so each airport
+     field — and its autocomplete dropdown — spans the full card width. */
+  .vol-fromto { flex-direction: column; gap: 6px; flex: 1 1 auto; }
+  .vol-route-line { display: none; }  /* horizontal contrail terminus is meaningless in a column */
+  .vol-fromto-field {
+    flex: 1 1 auto;
+    width: 100%;
+    border: 1px solid rgba(143, 224, 232, 0.14);
+    border-radius: 14px;
+  }
+  .vol-swap-wrap { justify-content: center; padding: 0; margin: -2px 0; }
+
+  .vol-divider { display: none; }  /* no vertical rules in a vertical stack */
+
+  .vol-dates { display: flex; gap: 8px; }
+  .vol-dates > .vol-cell-date {
+    flex: 1 1 0;
+    min-width: 0;
+    border: 1px solid rgba(143, 224, 232, 0.14);
+    border-radius: 14px;
+  }
+
+  .vol-cell-pax {
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
+    border: 1px solid rgba(143, 224, 232, 0.14);
+    border-radius: 14px;
+  }
+
+  .vol-cell-search { display: block; width: 100%; padding: 2px 0 0; }
+  .vol-input-row .vol-search-btn { width: 100%; height: 54px; min-height: 54px; }
+
+  /* Passenger popover: a full-width sheet anchored to the now-full-width pax
+     cell — the desktop `right:0; width:268px` used to render off the left
+     edge of a phone. */
+  .vol-popover { left: 8px; right: 8px; width: auto; }
+
+  /* Header pill groups each get their own wrapped row; the dangling "·"
+     between them (which used to wrap into the middle of a row) is dropped. */
+  .vol-header { gap: 8px 6px; }
+  .vol-pill-group { display: flex; flex-wrap: wrap; gap: 6px; flex-basis: 100%; }
+  .vol-pill-sep { display: none; }
+}
+
+/* ── Booking filter popovers: full-width, near-opaque sheet on phone ──
+   the anchored desktop dropdowns (w-56…w-72) floated as a translucent
+   smear over the price slider and result cards. `!important` beats the
+   higher-specificity `.night-tail .glass-panel` fill. */
+@media (max-width: 767px) {
+  .filters-pop {
+    left: 0;
+    right: 0;
+    width: auto;
+    background: linear-gradient(160deg, rgba(23, 35, 72, 0.98) 0%, rgba(10, 15, 30, 0.98) 100%) !important;
+  }
+}
+
+/* ─────────────────────────────────────────────
    SCROLLBAR — minimal
    ───────────────────────────────────────────── */
 

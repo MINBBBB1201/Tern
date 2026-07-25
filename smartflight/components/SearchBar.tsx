@@ -120,8 +120,13 @@ export default function SearchBar({ onSearch, loading = false, routeLineRef }: S
       {/* ── Volumetric 3D Shell ── */}
       <div className="vol-shell">
 
-        {/* ── Header: Trip type + Cabin class ── */}
+        {/* ── Header: Trip type + Cabin class ──
+            Trip-type and cabin live in two `display:contents` groups so the
+            desktop row is unchanged, but on phone each group becomes its own
+            wrapped row (the dangling "·" separator is hidden) — the two
+            concepts stop reading as one cramped pill soup. */}
         <div
+          className="vol-header"
           style={{
             display: "flex",
             alignItems: "center",
@@ -131,42 +136,43 @@ export default function SearchBar({ onSearch, loading = false, routeLineRef }: S
             flexWrap: "wrap",
           }}
         >
-          {(["roundtrip", "oneway"] as const).map((type) => (
-            <button
-              key={type}
-              onClick={() => setTripType(type)}
-              className={`vol-pill-option${tripType === type ? " active" : ""}`}
-            >
-              {type === "roundtrip" ? t("roundTrip") : t("oneWay")}
-            </button>
-          ))}
+          <div className="vol-pill-group">
+            {(["roundtrip", "oneway"] as const).map((type) => (
+              <button
+                key={type}
+                onClick={() => setTripType(type)}
+                className={`vol-pill-option${tripType === type ? " active" : ""}`}
+              >
+                {type === "roundtrip" ? t("roundTrip") : t("oneWay")}
+              </button>
+            ))}
+          </div>
 
-          <span style={{ color: "rgba(138,160,184,0.6)", fontSize: "11px", padding: "0 5px", userSelect: "none" }}>·</span>
+          <span className="vol-pill-sep" style={{ color: "rgba(138,160,184,0.6)", fontSize: "11px", padding: "0 5px", userSelect: "none" }}>·</span>
 
-          {(["economy", "premium_economy", "business", "first"] as const).map((cls) => (
-            <button
-              key={cls}
-              onClick={() => setCabinClass(cls)}
-              className={`vol-pill-option${cabinClass === cls ? " active" : ""}`}
-            >
-              {CABIN_LABELS[cls]}
-            </button>
-          ))}
+          <div className="vol-pill-group">
+            {(["economy", "premium_economy", "business", "first"] as const).map((cls) => (
+              <button
+                key={cls}
+                onClick={() => setCabinClass(cls)}
+                className={`vol-pill-option${cabinClass === cls ? " active" : ""}`}
+              >
+                {CABIN_LABELS[cls]}
+              </button>
+            ))}
+          </div>
         </div>
 
-        {/* ── Main input row ── */}
-        <div
-          style={{
-            display: "flex",
-            flexWrap: "wrap",
-            alignItems: "stretch",
-            padding: "6px 8px 8px 8px",
-            gap: 0,
-          }}
-        >
+        {/* ── Main input row ──
+            Layout geometry lives in CSS classes (not inline) so the phone
+            media query in globals.css can restack the desktop row into a
+            vertical sheet: From/To stack with the swap between them, the two
+            dates share a row, passengers + search go full-width, and the
+            vertical dividers (meaningless in a column) are hidden. */}
+        <div className="vol-input-row">
 
           {/* ── FROM / route line / TO — the route line is the hero contrail's landing point ── */}
-          <div style={{ display: "flex", alignItems: "stretch", flex: "2 1 220px", minWidth: 0, position: "relative" }}>
+          <div className="vol-fromto">
             <div
               ref={routeLineRef}
               className="vol-route-line"
@@ -178,7 +184,7 @@ export default function SearchBar({ onSearch, loading = false, routeLineRef }: S
             </div>
 
             {/* ── FROM field ── */}
-            <div style={{ flex: "1 1 0", minWidth: 0 }}>
+            <div className="vol-fromto-field">
               <AirportField
                 label={t("labelFrom")}
                 isOrigin
@@ -190,11 +196,12 @@ export default function SearchBar({ onSearch, loading = false, routeLineRef }: S
             </div>
 
             {/* ── Swap button ── */}
-            <div style={{ display: "flex", alignItems: "center", padding: "0 4px", flexShrink: 0, zIndex: 2 }}>
+            <div className="vol-swap-wrap">
               <button
                 className="vol-swap"
                 onClick={handleSwap}
                 title={t("swapAirports")}
+                aria-label={t("swapAirports")}
                 style={{
                   transform: swapping ? "rotate(180deg) scale(0.9)" : "rotate(0deg) scale(1)",
                   transition: "transform 0.25s cubic-bezier(0.34,1.56,0.64,1)",
@@ -205,7 +212,7 @@ export default function SearchBar({ onSearch, loading = false, routeLineRef }: S
             </div>
 
             {/* ── TO field ── */}
-            <div style={{ flex: "1 1 0", minWidth: 0 }}>
+            <div className="vol-fromto-field">
               <AirportField
                 label={t("labelTo")}
                 value={to}
@@ -219,44 +226,46 @@ export default function SearchBar({ onSearch, loading = false, routeLineRef }: S
           {/* ── Sculpted divider ── */}
           <div className="vol-divider" />
 
-          {/* ── DEPARTURE date ── */}
-          <div style={{ flex: "0 1 128px", minWidth: "110px" }}>
-            <DateField
-              label={t("labelDeparture")}
-              value={departureDate}
-              onChange={setDepartureDate}
-            />
-          </div>
+          {/* ── DEPARTURE + RETURN — a `display:contents` group on desktop
+              (row unchanged), a shared 2-column row on phone ── */}
+          <div className="vol-dates">
+            <div className="vol-cell-date">
+              <DateField
+                label={t("labelDeparture")}
+                value={departureDate}
+                onChange={setDepartureDate}
+              />
+            </div>
 
-          {/* ── Sculpted divider ── */}
-          <div
-            className="vol-divider"
-            style={{ opacity: tripType === "roundtrip" ? 1 : 0.2, transition: "opacity 0.2s ease" }}
-          />
-
-          {/* ── RETURN date ── */}
-          <div
-            style={{
-              flex: "0 1 128px",
-              minWidth: "110px",
-              opacity: tripType === "roundtrip" ? 1 : 0.35,
-              pointerEvents: tripType === "roundtrip" ? "auto" : "none",
-              transition: "opacity 0.25s ease",
-            }}
-          >
-            <DateField
-              label={t("labelReturn")}
-              value={returnDate}
-              onChange={setReturnDate}
-              placeholder={t("returnPlaceholder")}
+            {/* ── Sculpted divider ── */}
+            <div
+              className="vol-divider vol-divider-inner"
+              style={{ opacity: tripType === "roundtrip" ? 1 : 0.2, transition: "opacity 0.2s ease" }}
             />
+
+            {/* ── RETURN date ── */}
+            <div
+              className="vol-cell-date"
+              style={{
+                opacity: tripType === "roundtrip" ? 1 : 0.35,
+                pointerEvents: tripType === "roundtrip" ? "auto" : "none",
+                transition: "opacity 0.25s ease",
+              }}
+            >
+              <DateField
+                label={t("labelReturn")}
+                value={returnDate}
+                onChange={setReturnDate}
+                placeholder={t("returnPlaceholder")}
+              />
+            </div>
           </div>
 
           {/* ── Sculpted divider ── */}
           <div className="vol-divider" />
 
           {/* ── PASSENGERS field ── */}
-          <div style={{ flex: "0 1 152px", minWidth: "130px", position: "relative" }} ref={passengerRef}>
+          <div className="vol-cell-pax" ref={passengerRef}>
             <button
               onClick={() => setPassengerOpen(!passengerOpen)}
               className="vol-field"
@@ -362,7 +371,7 @@ export default function SearchBar({ onSearch, loading = false, routeLineRef }: S
           </div>
 
           {/* ── Search button ── */}
-          <div style={{ display: "flex", alignItems: "center", padding: "4px 4px 4px 6px", flexShrink: 0 }}>
+          <div className="vol-cell-search">
             <button
               className="vol-search-btn btn-sheen"
               onClick={handleSubmit}
@@ -543,7 +552,7 @@ function AirportField({ label, isOrigin, value, subValue, onChange, placeholder 
                     e.preventDefault();
                     pickSuggestion(s);
                   }}
-                  className={`cursor-pointer px-3 py-2 text-sm ${i === activeIndex ? "bg-black/5" : ""}`}
+                  className={`cursor-pointer px-3 py-3 text-sm sm:py-2 ${i === activeIndex ? "bg-black/5" : ""}`}
                 >
                   <span className="data-mono font-semibold text-primary">{s.iata}</span>
                   <span className="ml-2 text-foreground">{s.city}</span>

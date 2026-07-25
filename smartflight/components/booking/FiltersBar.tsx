@@ -59,21 +59,21 @@ export default function FiltersBar({
     <>
       <div className="relative">
         <div className="flex flex-wrap items-center gap-2">
-          <button type="button" onClick={() => togglePanel("airlines")} className="glass-chip rounded-full px-4 py-2 text-sm font-medium">{t("airlines")}</button>
-          <button type="button" onClick={() => togglePanel("stops")} className="glass-chip rounded-full px-4 py-2 text-sm font-medium">{t("stops")}</button>
-          <button type="button" onClick={() => togglePanel("times")} className="glass-chip rounded-full px-4 py-2 text-sm font-medium">{t("times")}</button>
-          <button type="button" onClick={() => togglePanel("programs")} className="glass-chip rounded-full px-4 py-2 text-sm font-medium">{t("programs")}</button>
-          <label className={`flex cursor-pointer items-center gap-2 rounded-full border px-3 py-2 text-xs font-medium transition-colors ${loyaltyFilterOn ? "border-[var(--contrail-300)] bg-[rgba(143,224,232,0.14)]" : "glass-chip"}`}>
-            <input type="checkbox" checked={loyaltyFilterOn} onChange={(e) => setLoyaltyFilterOn(e.target.checked)} className="rounded border-gray-300" />
+          <button type="button" onClick={() => togglePanel("airlines")} className="glass-chip inline-flex min-h-[44px] items-center rounded-full px-4 py-2 text-sm font-medium">{t("airlines")}</button>
+          <button type="button" onClick={() => togglePanel("stops")} className="glass-chip inline-flex min-h-[44px] items-center rounded-full px-4 py-2 text-sm font-medium">{t("stops")}</button>
+          <button type="button" onClick={() => togglePanel("times")} className="glass-chip inline-flex min-h-[44px] items-center rounded-full px-4 py-2 text-sm font-medium">{t("times")}</button>
+          <button type="button" onClick={() => togglePanel("programs")} className="glass-chip inline-flex min-h-[44px] items-center rounded-full px-4 py-2 text-sm font-medium">{t("programs")}</button>
+          <label className={`flex min-h-[44px] cursor-pointer items-center gap-2 rounded-full border px-3.5 py-2 text-xs font-medium transition-colors ${loyaltyFilterOn ? "border-[var(--contrail-300)] bg-[rgba(143,224,232,0.14)]" : "glass-chip"}`}>
+            <input type="checkbox" checked={loyaltyFilterOn} onChange={(e) => setLoyaltyFilterOn(e.target.checked)} className="h-5 w-5 rounded border-gray-300" />
             {t("matchAlliance")}
           </label>
-          <label className={`flex cursor-pointer items-center gap-2 rounded-full border px-3 py-2 text-xs font-medium transition-colors ${connectingOnly ? "border-[var(--contrail-300)] bg-[rgba(143,224,232,0.14)]" : "glass-chip"}`}>
-            <input type="checkbox" checked={connectingOnly} onChange={(e) => setConnectingOnly(e.target.checked)} className="rounded border-gray-300" />
+          <label className={`flex min-h-[44px] cursor-pointer items-center gap-2 rounded-full border px-3.5 py-2 text-xs font-medium transition-colors ${connectingOnly ? "border-[var(--contrail-300)] bg-[rgba(143,224,232,0.14)]" : "glass-chip"}`}>
+            <input type="checkbox" checked={connectingOnly} onChange={(e) => setConnectingOnly(e.target.checked)} className="h-5 w-5 rounded border-gray-300" />
             {t("connectingOnly")}
           </label>
           <div className="ml-auto flex flex-wrap items-center gap-2">
             <span className="text-xs font-semibold uppercase tracking-wide text-muted">{t("sortLabel")}</span>
-            <select value={sortTab} onChange={(e) => setSortTab(e.target.value as SortTab)} className="glass-chip rounded-full px-3 py-2 text-sm">
+            <select value={sortTab} onChange={(e) => setSortTab(e.target.value as SortTab)} className="glass-chip min-h-[44px] rounded-full px-3 py-2 text-sm">
               <option value="duration">{t("sortFastest")}</option>
               <option value="price">{t("sortCheapest")}</option>
               <option value="arrival">{t("sortArrival")}</option>
@@ -85,18 +85,18 @@ export default function FiltersBar({
         </div>
 
         {openPanel === "airlines" && (
-          <div className="glass-panel absolute left-0 z-20 mt-2 w-72 rounded-2xl p-3">
+          <div className="glass-panel filters-pop absolute left-0 z-20 mt-2 w-72 rounded-2xl p-3">
             <div className="mb-2 flex items-center justify-between">
               <p className="text-sm font-semibold">{t("selectAirlines")}</p>
-              <button className="text-xs text-muted" onClick={() => setSelectedAirlines([])}>{t("reset")}</button>
+              <button className="min-h-[36px] px-2 text-xs text-muted" onClick={() => setSelectedAirlines([])}>{t("reset")}</button>
             </div>
-            <div className="max-h-60 space-y-1 overflow-auto pr-1">
+            <div className="max-h-[50vh] space-y-1 overflow-auto pr-1 sm:max-h-60">
               {uniqueAirlines.map((name) => {
                 const checked = selectedAirlines.includes(name);
                 return (
                   <label
                     key={name}
-                    className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 text-sm hover:bg-gray-50"
+                    className="flex min-h-[44px] cursor-pointer items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm hover:bg-gray-50 sm:min-h-0"
                   >
                     <input
                       type="checkbox"
@@ -106,7 +106,7 @@ export default function FiltersBar({
                           checked ? prev.filter((a) => a !== name) : [...prev, name]
                         )
                       }
-                      className="rounded border-gray-300"
+                      className="h-5 w-5 rounded border-gray-300"
                     />
                     {name}
                   </label>
@@ -117,16 +117,16 @@ export default function FiltersBar({
         )}
 
         {openPanel === "stops" && (
-          <div className="glass-panel absolute left-0 z-20 mt-2 w-56 rounded-2xl p-3">
+          <div className="glass-panel filters-pop absolute left-0 z-20 mt-2 w-56 rounded-2xl p-3">
             <p className="mb-2 text-sm font-semibold">{t("maxStops")}</p>
             {(["all", "0", "1", "2"] as const).map((v) => (
-              <label key={v} className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 text-sm hover:bg-gray-50">
+              <label key={v} className="flex min-h-[44px] cursor-pointer items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm hover:bg-gray-50 sm:min-h-0">
                 <input
                   type="radio"
                   name="stops"
                   checked={stopsFilter === v}
                   onChange={() => setStopsFilter(v)}
-                  className="border-gray-300"
+                  className="h-5 w-5 border-gray-300"
                 />
                 {v === "all" ? t("stopsAny") : v === "0" ? t("stopsNone") : v === "1" ? t("stopsUpTo1") : t("stopsUpTo2")}
               </label>
@@ -135,7 +135,7 @@ export default function FiltersBar({
         )}
 
         {openPanel === "times" && (
-          <div className="glass-panel absolute left-0 z-20 mt-2 w-72 rounded-2xl p-4">
+          <div className="glass-panel filters-pop absolute left-0 z-20 mt-2 w-72 rounded-2xl p-4">
             <p className="mb-3 text-sm font-semibold">{t("timesTitle")}</p>
             <div className="space-y-4">
               <div>
@@ -153,12 +153,12 @@ export default function FiltersBar({
         )}
 
         {openPanel === "programs" && (
-          <div className="glass-panel absolute left-0 z-20 mt-2 w-64 rounded-2xl p-3">
+          <div className="glass-panel filters-pop absolute left-0 z-20 mt-2 w-64 rounded-2xl p-3">
             <p className="mb-2 text-sm font-semibold">{t("loyaltyPrograms")}</p>
             {PROGRAM_GROUPS.map((pg) => {
               const checked = selectedPrograms.includes(pg);
               return (
-                <label key={pg} className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 text-sm hover:bg-gray-50">
+                <label key={pg} className="flex min-h-[44px] cursor-pointer items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm hover:bg-gray-50 sm:min-h-0">
                   <input
                     type="checkbox"
                     checked={checked}
@@ -167,7 +167,7 @@ export default function FiltersBar({
                         checked ? prev.filter((p) => p !== pg) : [...prev, pg]
                       )
                     }
-                    className="rounded border-gray-300"
+                    className="h-5 w-5 rounded border-gray-300"
                   />
                   {pg}
                 </label>
