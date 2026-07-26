@@ -203,3 +203,19 @@ export function getAirportBrief(iata: string, locale?: string): AirportBrief {
 export function getBriefedAirportCodes(): string[] {
   return Object.keys(BRIEFS);
 }
+
+/**
+ * Like getAirportBrief, but null for airports we have NOT hand-curated,
+ * instead of the generic "ICN 공항" placeholder.
+ *
+ * Callers that display an airport from the 7,917-entry dataset must use this:
+ * the placeholder is fine as a page-level fallback (the guide route always
+ * renders *something*), but in the search autocomplete it would overwrite a
+ * real name like "Hartsfield Jackson Atlanta International Airport" with an
+ * invented one — exactly the §2-1 breach I5-4 set out to avoid.
+ */
+export function getCuratedBrief(iata: string, locale?: string): AirportBrief | null {
+  const code = iata.trim().toUpperCase();
+  if (!BRIEFS[code]) return null;
+  return getAirportBrief(code, locale);
+}

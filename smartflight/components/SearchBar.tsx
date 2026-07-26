@@ -4,7 +4,8 @@ import React, { useState, useRef, useEffect } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { heroRoute } from "../lib/heroRoute";
 import { localeTag } from "../i18n/locales";
-import { getAirportBrief } from "../lib/airportBrief";
+import { getCuratedBrief } from "../lib/airportBrief";
+import { countryName } from "../lib/countryNames";
 import {
   ArrowLeftRight,
   Calendar,
@@ -61,7 +62,7 @@ export default function SearchBar({ onSearch, loading = false, routeLineRef }: S
      back to the raw dataset string, which is English-only (see the airport
      data note in docs/backlog.md). */
   const cityLabel = (code: string, fallback: string) =>
-    getAirportBrief(code, locale).city || fallback;
+    getCuratedBrief(code, locale)?.city || fallback;
   const CABIN_LABELS: Record<string, string> = {
     economy: t("cabinEconomy"),
     premium_economy: t("cabinPremiumEconomy"),
@@ -436,6 +437,7 @@ interface AirportFieldProps {
 type AirportSuggestion = { iata: string; name: string; city: string; country: string };
 
 function AirportField({ label, isOrigin, value, subValue, onChange, placeholder }: AirportFieldProps) {
+  const locale = useLocale();
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState("");
   const [suggestions, setSuggestions] = useState<AirportSuggestion[]>([]);
@@ -561,9 +563,26 @@ function AirportField({ label, isOrigin, value, subValue, onChange, placeholder 
                   }}
                   className={`cursor-pointer px-3 py-3 text-sm sm:py-2 ${i === activeIndex ? "bg-black/5" : ""}`}
                 >
-                  <span className="data-mono font-semibold text-primary">{s.iata}</span>
-                  <span className="ml-2 text-foreground">{s.city}</span>
-                  <span className="ml-1 text-xs text-muted">— {s.name}</span>
+                  {/* I5-4: the country renders in the active locale (CLDR via
+                      Intl.DisplayNames — a published source). City and airport
+                      name stay as the dataset has them unless this is one of
+                      the airports we curate a verified translation for; there
+                      is no authoritative ko/ja/zh form for 7,917 proper names,
+                      so inventing one would breach §2-1. */}
+                  <div className="flex items-baseline gap-2">
+                    <span className="data-mono font-semibold text-primary">{s.iata}</span>
+                    <span className="truncate text-foreground">
+                      {getCuratedBrief(s.iata, locale)?.city || s.city}
+                    </span>
+                    <span className="ml-auto shrink-0 text-xs text-muted">
+                      {countryName(s.country, locale)}
+                    </span>
+                  </div>
+                  {/* Airport name on its own line, truncated — adding the
+                      country to the single-line row wrapped it to three. */}
+                  <div className="truncate text-xs text-muted">
+                    {getCuratedBrief(s.iata, locale)?.name || s.name}
+                  </div>
                 </div>
               ))}
             </div>

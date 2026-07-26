@@ -1,13 +1,14 @@
 "use client";
 
-import { Suspense, useEffect, useMemo, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import type { User } from "firebase/auth";
 import { Link } from "../../../i18n/navigation";
 import Image from "next/image";
 import dynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
-import { getAirportBrief } from "../../../lib/airportBrief";
+import { getAirportBrief, getCuratedBrief } from "../../../lib/airportBrief";
+import { getAirport } from "../../../lib/airportData";
 import { buildAviasalesLink } from "../../../lib/affiliateLinks";
 import { useOfferSearch } from "../../../hooks/useOfferSearch";
 import { useOfferFilters } from "../../../hooks/useOfferFilters";
@@ -70,11 +71,29 @@ function BookingPageClient() {
   // Duffel redirects back here with `order_id` + `reference` appended.
   const linkOrderId = searchParams.get("order_id");
 
-  // Only the name + summary are rendered here, so this pulls the light
-  // client-safe brief rather than the full guide (which carries every
-  // locale's bodies — see lib/airportGuides.ts).
-  const departureGuide = useMemo(() => getAirportBrief(from, locale), [from, locale]);
-  const arrivalGuide = useMemo(() => getAirportBrief(to, locale), [to, locale]);
+  /* Only the name + summary are rendered here, so this pulls the light
+     client-safe brief rather than the full guide (which carries every
+     locale's bodies — see lib/airportGuides.ts).
+
+     I5-4: for an airport we have NOT curated, the brief's name is a
+     constructed "ATL 공항" placeholder. Prefer the dataset's real name and
+     city in that case — showing an invented name where a verified one exists
+     is the §2-1 problem this round is about. The generic localized summary
+     is kept either way: it is honest general advice, not fabricated
+     airport-specific detail. */
+  const resolveBrief = useCallback(
+    (iata: string) => {
+      const brief = getAirportBrief(iata, locale);
+      const curated = getCuratedBrief(iata, locale);
+      if (curated) return curated;
+      const raw = getAirport(iata);
+      return raw ? { ...brief, name: raw.name, city: raw.city } : brief;
+    },
+    [locale]
+  );
+
+  const departureGuide = useMemo(() => resolveBrief(from), [from, resolveBrief]);
+  const arrivalGuide = useMemo(() => resolveBrief(to), [to, resolveBrief]);
 
   // A city name in the URL comes from the airport dataset and is English; with
   // no param (the default ICN→NRT view) fall back to the localized brief.
