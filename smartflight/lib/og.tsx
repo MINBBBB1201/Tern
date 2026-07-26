@@ -6,11 +6,16 @@ import type { ReactElement } from "react";
  * inline SVG and the type uses next/og's built-in font, so nothing is
  * fetched at generation time. 1200×630, the standard share-preview size.
  *
+ * I5-3 verified that the built-in face renders Hangul, kana/kanji and
+ * simplified Chinese correctly, so no CJK font has to be bundled for the
+ * localized cards (captures: docs/screenshots/i5-{en,ko,ja,zh}-og-guide-icn.png).
+ *
  * Palette (tokens mirrored from globals.css):
  *   ink #0A0F1E · dusk #1B2A52 · horizon #F2934D · contrail #8FE0E8 · paper #F6F8FB
  */
 export const ogSize = { width: 1200, height: 630 };
 export const ogContentType = "image/png";
+
 
 const PAPER = "#F6F8FB";
 const CONTRAIL = "#8FE0E8";

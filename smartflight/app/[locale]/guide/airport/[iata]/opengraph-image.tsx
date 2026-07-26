@@ -1,25 +1,46 @@
 import { ImageResponse } from "next/og";
+import { getTranslations } from "next-intl/server";
 import { getAirportBrief } from "../../../../../lib/airportBrief";
 import { getAllGuidedAirportCodes } from "../../../../../lib/airportGuides";
 import { ogCard, ogSize, ogContentType } from "../../../../../lib/og";
+import { routing } from "../../../../../i18n/routing";
 
 export const alt = "Tern — Airport Guide";
 export const size = ogSize;
 export const contentType = ogContentType;
 
-// Pre-generate one image per guided airport at build time.
+/**
+ * I5-3: one image per locale × airport (4 × 23 = 92), pre-generated at build
+ * time. Before this the route only varied by `iata`, so every share preview
+ * was English no matter which locale page was shared — the residual I4 left
+ * behind because a cookie-based locale never reached a statically generated
+ * route. Now the locale is a route segment, so it does.
+ */
 export function generateStaticParams() {
-  return getAllGuidedAirportCodes().map((iata) => ({ iata }));
+  return routing.locales.flatMap((locale) =>
+    getAllGuidedAirportCodes().map((iata) => ({ locale, iata }))
+  );
 }
 
-export default async function Image({ params }: { params: Promise<{ iata: string }> }) {
-  const { iata } = await params;
-  // Statically generated at build time, so it stays English — OG cards are
-  // fetched by crawlers without our locale cookie.
-  const guide = getAirportBrief(iata);
+export default async function Image({
+  params,
+}: {
+  params: Promise<{ locale: string; iata: string }>;
+}) {
+  const { locale, iata } = await params;
+  const guide = getAirportBrief(iata, locale);
+  const t = await getTranslations({ locale, namespace: "AirportGuide" });
+
+  // City/country come from the per-locale brief, so the subtitle is localized
+  // by the same data the page body uses — no separate copy to drift.
+  const place = [guide.city, guide.country].filter(Boolean).join(", ");
 
   return new ImageResponse(
-    ogCard({ kicker: "Airport Guide", title: `${guide.name} (${guide.iata})` }),
+    ogCard({
+      kicker: t("badge"),
+      title: `${guide.name} (${guide.iata})`,
+      subtitle: place || undefined,
+    }),
     { ...size }
   );
 }
