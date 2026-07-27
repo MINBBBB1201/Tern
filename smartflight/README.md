@@ -16,7 +16,8 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+You can start editing the page by modifying `app/[locale]/page.tsx`. The page auto-updates as you edit the file.
+(Routes live under `app/[locale]/` — the locale is a path segment; see the Deployment note below and `i18n/routing.ts`.)
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
@@ -29,8 +30,29 @@ To learn more about Next.js, take a look at the following resources:
 
 You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-## Deploy on Vercel
+## Deployment
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+**Production is served by Vercel, deployed automatically from `main`.**
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `www.flytern.site` → Vercel (`*.vercel-dns-017.com`); the apex `flytern.site`
+  308-redirects to `www`.
+- There is **no deploy script and no `vercel.json`** — the Vercel GitHub
+  integration is the whole pipeline. **Pushing to `origin/main` deploys.**
+  There is no separate release step, so treat a push as going live.
+- The app needs a Node runtime: it uses middleware (`middleware.ts`, locale
+  routing), server-rendered routes and API routes. A static export would break
+  all three — in particular the `/booking` → `/ko/booking` redirect that keeps
+  the Duffel Links return leg in the user's language.
+
+### Firebase is Auth-only
+
+`.firebaserc` points at the `smartflight-70ae5` project, which is used for
+**Firebase Authentication only**. Firebase Hosting is *not* part of the
+pipeline: its site (`smartflight-70ae5.web.app`) still serves the default
+"Welcome to Firebase Hosting" placeholder.
+
+`firebase.json` used to declare a `hosting` block pointing at a placeholder
+directory. It was removed — running `firebase deploy --only hosting` would
+have published that placeholder, and would overwrite the real site if a custom
+domain were ever attached to that Firebase site. **Do not add it back** unless
+Firebase Hosting genuinely becomes a deploy target.
