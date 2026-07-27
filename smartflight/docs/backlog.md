@@ -134,10 +134,42 @@ hreflang 576개**.
 **주의 — 백로그 예시가 틀렸었다:** 이전 항목이 비큐레이트 예로 든 CDG·GRU·DXB는
 셋 다 큐레이션 23곳에 **포함**된다. 실제 비큐레이트 검증에는 ATL·LGW를 썼다.
 
+### I5-5 transportService.ts — 삭제 완료
+
+`lib/transportService.ts`(861줄)와 그것만 쓰던 `lib/types/transport.ts`(311줄),
+합계 **1,172줄 삭제**. `lib/types/` 디렉터리도 비어서 사라졌다.
+
+**연결하지 않고 삭제한 근거** (파일 자체 docstring이 이미 다 적어두고 있었다):
+
+1. **명시적 목 데이터.** 파일 제목이 "Transport Service - Mock Data Provider",
+   섹션 헤더가 "Mock Data: Incheon Airport (ICN)". UI에 연결하는 것 자체가
+   §2-1("추정치·더미·플레이스홀더로 UI를 채우지 않는다") 위반이다.
+2. **지어낸 제휴 ID.** `SMARTFLIGHT_KR` / `SMARTFLIGHT_UBER` affiliateTracking
+   블록은 실재하지 않는 파트너 식별자다. docstring도 "placeholders invented
+   before that was confirmed, not real partner IDs / **do not wire this into
+   the UI**"라고 못박아 두었다. 더미 콘텐츠보다 나쁘다.
+3. **검증 안 된 요금.** 공항 픽업비 5,000/10,000/15,000 KRW, 통행료 ~7,000 KRW,
+   AREX 시각표·배차 간격이 하드코딩. 출처 없고 쉽게 낡는다.
+4. **가짜 API.** 모든 함수가 `setTimeout(300~400ms)`으로 "Simulate API delay"만
+   하고 상수를 돌려준다. 데이터 소스가 아니라 프로토타입 스캐폴드다.
+5. **ICN 전용.** 다른 공항에는 전부 `null`/`[]`. 연결해도 23개 가이드 중
+   1곳에서만 동작한다.
+6. **실제 후속 기능이 이미 출시돼 있다.** 라이드헤일링은
+   `lib/rideDeepLinks.ts`(Uber의 실제 공개 딥링크 API)가 가이드 페이지와
+   /booking에 연결돼 동작 중이고, 교통 안내 산문은 `lib/airportGuides.ts`의
+   transit 섹션이 담당하며 I4에서 23공항 × 4로케일로 이미 로케일화됐다.
+
+**연결 비용 대비 가치**: 요금·제휴 데이터를 검증된 소스로 전부 교체해야 하는데
+그런 소스가 없고(공개 API·제휴 프로그램 부재는 이 파일 docstring이 확인한 사실),
+1,172줄을 3개 로케일로 번역해야 하며(I4 원칙상 검증 없는 기계번역 불가),
+결과물은 이미 출시된 기능과 중복되면서 공항 1곳에서만 동작한다. 가치가 음수다.
+
+검증(§5 삭제 증빙): tsc EXIT=0, eslint 0 problems, npm run build EXIT=0
+(159 정적 페이지). 코드 내 잔여 참조 0건.
+
 ### 다음 라운드 대상 (I5에서 미착수)
 
-- **I5-5 `lib/transportService.ts` 미처리** — 861줄, 임포트되는 곳 없음(dead code).
-  삭제할지 연결할지 판단 필요.
+- 없음 — I5-0 ~ I5-5 전부 처리됨.
 
 ### 보류 (결정됨, 지금 손대지 않음)
 
@@ -167,7 +199,7 @@ Known residuals after I4 (deliberate, not oversights):
   its English dataset name. Localizing ~5,000 airports is its own project.
 - `lib/transportService.ts` (861 lines of English transport copy) is **dead
   code** — not imported anywhere. Left untranslated on purpose; delete it or
-  wire it up before it's worth localizing.
+  wire it up before it's worth localizing. → **I5-5에서 삭제됨.**
 - OG images for airport guides stay English: they're statically generated at
   build time and crawlers fetch them without the locale cookie.
 - The `Home` namespace still carries ~15 keys for the removed `showResults`
@@ -497,6 +529,7 @@ string-migration fix:
 - `lib/airportGuides.ts` (1,029 lines) — per-airport guide bodies
   (summaries, terminal notes, transit bullets, scam warnings).
 - `lib/transportService.ts` (861 lines) — per-city transport content.
+  (→ I5-5에서 목 데이터로 판명되어 삭제. 로케일화 대상이 아니었다.)
 - Destination-card date ranges on the homepage render as English data
   strings ("24 Dec 2025 - 07 Jan 2026") and are also stale — replace
   with locale-formatted, dynamically computed ranges.
