@@ -1,5 +1,90 @@
 # Backlog — B/C/D/E/F/G/H series (2026-07-17 → 2026-07-22)
 
+## I6 후보 — 진단만 완료, 수정 미착수 (2026-07-27)
+
+세 건 모두 **원인 파악까지만** 하고 코드는 건드리지 않았다. 증빙:
+`docs/screenshots/i6-diag-booking-order.png`, `i6-diag-mobile-hero.png`.
+
+### I6-a. /booking에서 실제 예약 카드까지 스크롤이 길다
+
+**측정값**: 1440×900에서 첫 `[id^="flight-card-"]`의 문서 상단 기준 위치가
+**901px** — 뷰포트(900px) **정확히 한 개분**을 지나야 Select 버튼이 처음
+나온다. 문서 전체 높이는 3,551px.
+
+**현재 순서** (`app/[locale]/booking/BookingContent.tsx`):
+1. 주문 확인 배너(`linkOrderId` 있을 때만) — L218
+2. WHY SHOP ON TERN 패널 — L226
+3. 검색 요약 칩 + FiltersBar — L254
+4. SmartPickCards — L278
+5. AirportGuideCards(Uber 등) — L287
+6. 가격 알림 배너(조건부) — L291
+7. **OfferList ← 실제 예약 카드** — L320
+8. PriceTrendChart / PriceAlertPanel / LoyaltyCardTips — L345~
+
+**의도된 설계인가**: 부분적으로 그렇다. 2~4번은 "무엇을 비교하는지 먼저
+보여준다"는 기존 방침의 산물이고 SmartPickCards는 스캔 우선 요약 행으로
+설계됐다(컴포넌트 주석). 다만 **5번 AirportGuideCards가 구매 결정 이전에
+오는 것은 근거가 약하다** — 공항 교통편은 예약을 마친 뒤에 필요한 정보다.
+
+**"클릭 안 되는 라벨"은 사용자 인지가 맞고, 기능은 반대다.**
+SmartPickCard는 실제로 `<button>`이고 클릭하면 정렬을 바꾸고 해당 항공권으로
+스무스 스크롤한다(`onPick` → `setSortTab` + `scrollToOffer`). 그런데
+브라우저에서 측정한 `getComputedStyle(...).cursor === "default"`다. 원인:
+`cursor: pointer`가 `.glass-row`에만 정의돼 있고(globals.css L527)
+SmartPickCard는 `glass-panel tilt-card`만 쓴다. 즉 **기능은 있는데 어포던스가
+없다.** 홈의 항공사 피커는 `.glass-row`를 써서 포인터가 붙는 대조군이다.
+
+**재배치 시 걸리는 것**:
+- SmartPickCards의 `scrollToOffer`는 OfferList가 **아래에 있다는 전제**로
+  동작한다. 순서를 바꾸면 스크롤 방향이 뒤집히므로 같이 손봐야 한다.
+- `data-fx-*` 스크롤 리빌(ScrollFX)이 DOM 순서에 묶여 있어 재배치 시
+  등장 스태거가 어긋날 수 있다.
+- `linkOrderId` 주문 확인 배너는 Duffel 반환 레그의 성공 신호라 **반드시
+  최상단**이어야 한다(I5-1에서 검증한 경로).
+
+### I6-b. 모바일 홈에서 히어로 globe 없음 — **의도된 설계, 회귀 아님**
+
+`components/canvas/HeroTernView.tsx` L1295–1300:
+```
+isStatic = window.innerWidth < 768
+        || (navigator.hardwareConcurrency ?? 8) <= 4
+        || prefers-reduced-motion
+```
+390×844 실측: `innerWidth 390`, `hardwareConcurrency 12`, `.hero-twilight`에
+`data-hero-static="1"` 부착됨 → **폭 조건으로 정적 분기**. 저사양 경로가
+아니다. 정적일 때 히어로 카피를 중앙 정렬하는 CSS 훅까지 갖춘 의도적 설계이고,
+모바일은 빈 화면이 아니라 **정적 보딩패스**를 렌더한다(캡처 확인).
+
+도입 시점: `9956dc5` (Stage 3: scroll-driven 3D) / `a3a5e8f`. 최근 회귀가
+아니다. 남은 판단은 "모바일에서도 globe를 보여줄 것인가"라는 **제품 결정**이지
+버그 수정이 아니다.
+
+### I6-c. "Show Offers" 토글 — 스타일 이탈 + **아무것도 제어하지 않음**
+
+위치 정정: 신고는 "검색결과 상단"이지만 실제로는 **홈페이지**의
+"완벽한 항공편 고르기" 섹션이다(`app/[locale]/HomeContent.tsx` L1010–1012).
+`/booking`에는 이 토글이 없다.
+
+**스타일 이탈보다 큰 문제 — 죽은 컨트롤이다.** `showOffers` 상태는
+선언(L495)·토글(L1011)·노브 위치(L1012)에만 쓰이고, **이 값으로 무엇을
+가리는 조건부 렌더가 한 곳도 없다.** 눌러도 토글 모양만 바뀐다.
+
+실측한 이탈 항목:
+- `cursor: default` — 포인터 없음
+- `role`/`aria-checked`/`aria-label` **전부 null** — 스위치 시맨틱 부재
+- 높이 **24px** — I2 라운드가 세운 44px 터치 타깃 기준 미달
+- off 상태가 `bg-gray-300` (원시 Tailwind 회색). Civil Twilight 토큰이 아니라
+  다크 배경에서 밝은 회색 덩어리로 뜬다. on 상태는 `bg-primary`로 토큰을 쓴다.
+
+**판단 필요**: 고칠 대상이 스타일인지, 아니면 제어할 것이 없으므로 **제거**할
+대상인지. 후자가 유력해 보인다 — 홈의 샘플 항공편 3건은 항상 보여야 할
+데모 콘텐츠이고 숨길 이유가 없다.
+
+### 확인했으나 문제 아님
+
+"인기 노선" 칩이 모바일 캡처에서 비어 보였으나, DOM 측정 결과
+`opacity: 1` / 텍스트 `ICN → NRT 서울 · 도쿄` 정상. 캡처 타이밍 아티팩트였다.
+
 ## I5 — 로케일 SEO 정합성 (2026-07-26)
 
 ### I5-0 진단 (이 라운드의 본체)
