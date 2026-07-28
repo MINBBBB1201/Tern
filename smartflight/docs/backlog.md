@@ -1,5 +1,86 @@
 # Backlog — B/C/D/E/F/G/H series (2026-07-17 → 2026-07-22)
 
+## I7 — 세로 tern 위치 + Safari 툴바 색상 (2026-07-28)
+
+### I7-1. 세로에서 tern 이 globe/route 와 분리돼 떠 있던 문제
+
+**원인은 I6-b2-3 이 심은 것이다.** `TernSequence` 는 위치를 **월드 공간**에서
+계산한다(`spin.localToWorld` 궤도, 카메라 unproject 로 구한 패스 정착점).
+그런데 `tern`/`trail`/`pass`/`sparks` 는 전부 `root` 의 자식이고, `root` 는
+`PortraitComposition` 의 스케일·이동된 group 안에 있다. 월드 벡터를 자식의
+`.position` 에 넣으면 **로컬 값으로 해석**되므로 실제 렌더 위치는
+`scale*p + offset` 이 됐다. group 이 없던 시절엔 local == world 라서
+드러나지 않았다.
+
+**수정**: 월드 공간 **생산자** 5곳에서 group-local 로 변환(`compToLocal`).
+소비자(꼬리 방출, 브레이크어웨이 제어점, radial/tangent 프레임)가 훨씬 많아
+생산자 쪽에서 한 번 맞추는 편이 안전하다.
+- `unproject` — 화면 고정 타깃이므로 변환해야 화면상 같은 지점에 남는다
+- `orbitWorld`, `ambientPoint` — `spin` 이 group 안이라 이미 스케일이 실려 있다
+- `spin.getWorldPosition(globeCenter)` 2곳, `globeR` 은 `/ heroComp.scale`
+
+**부모→자식 전달을 쓰지 않았다**: R3F 의 `useFrame` 은 구독(=마운트) 순서로
+돌고 자식이 부모보다 먼저 마운트되므로, 자식이 **한 프레임 낡은** 변환을
+읽는다. 대신 `portraitTransform(aspect)` 순수 함수를 양쪽이 같은 프레임에
+각각 계산한다 — 순서 의존이 아예 없다.
+
+**증빙 — 궤도 불변량**: 궤도 구간에서
+`ratio = |tern_world − globe_center| / globe_radius` 는 aspect 와 무관하게
+`ORBIT_ALT = 1.16` 이어야 한다. 로컬 좌표만 보면 판별 불가라
+`__ternState()` 에 `orbit` 필드를 추가했다.
+
+| t (ms) | before 세로 | after 세로 | before 데스크톱 |
+|---|---|---|---|
+| 1600 | **1.338** | 1.16 | 1.16 |
+| 2500 | 1.115 | 1.16 | 1.16 |
+| 3400 | **0.447** | 1.16 | 1.16 |
+| 4200 | **0.782** | 1.16 | 1.16 |
+
+0.447 은 구체 표면(1.0) **안쪽**이다. 데스크톱은 before 에도 1.16 —
+**세로 전용 회귀**였음이 수치로 확인된다.
+캡처: `docs/screenshots/i7-{before,after}-{mobile,desktop}-orbit.png`
+(before 는 `compToLocal` 을 일시 무효화해 재현했다. 커밋된 상태에는 측정
+훅이 없기 때문이며, 재현용 플래그는 커밋 전에 제거했다.)
+
+캡처의 트레일이 검게 보이는 것은 `__ternReplay` seek+freeze 가 트레일 색
+버퍼를 채우기 전에 정지시키는 하네스 아티팩트다. before/after 동일하게
+나타나므로 비교를 오염시키지 않는다.
+
+### I7-2. Safari 하단바가 스크롤 중 흑↔백으로 바뀌던 문제
+
+**원인 2개.** 프로젝트에 `theme-color` 선언이 **아예 없었고**(전체 검색 0건),
+Safari 가 페이지를 샘플링해 툴바 색을 정하고 있었다. 게다가 `body` 가
+여전히 라이트 토큰 `--color-background: #ffffff` 를 쓰고 있어서, 모든 라우트가
+그 위에 다크 그라디언트를 덮더라도 **iOS 러버밴드 오버스크롤에서 흰색이
+드러난다.**
+
+**수정**:
+- `app/[locale]/layout.tsx` 에 `viewport` export — `themeColor: "#0A0F1E"`,
+  `colorScheme: "dark"`. 라이트/다크 미디어 쌍을 쓰지 않았다: 모든 라우트가
+  ink→dusk 다크(home/booking/guide/signin/not-found 전부 확인)이므로 라이트
+  변형은 항상 틀린 값이 된다. `#0A0F1E` 는 `--ink-900`, 그 그라디언트의 0%
+  스톱이자 툴바에 실제로 인접한 색이다.
+- `body { background-color: var(--ink-900) }`. `--color-background` 토큰은
+  건드리지 않았다 — 컴포넌트 팔레트가 기반하는 라이트 서피스 토큰이고,
+  실제로 그걸로 칠해지던 것은 `body` 뿐이었다(`bg-background` 사용처 0).
+
+증빙(서빙된 응답 본문):
+`/`, `/ko`, `/booking`, `/signin` 전부
+`<meta name="theme-color" content="#0A0F1E"/>` + `color-scheme: dark`.
+서빙된 CSS: `body{background-color:var(--ink-900);...}`
+
+### 건드리지 않은 발견 — 404 는 흰 화면이다 (기존 문제)
+
+매칭되지 않는 경로(`/nope-404`, `/ko/nope-404`)는 커스텀 다크
+`app/[locale]/not-found.tsx` 가 아니라 **Next 기본 404**(`next-error-h1`)를
+렌더한다. 여기엔 `theme-color` 가 없고 인라인 `body{background:#fff}` 가 있어
+**툴바가 흰색이 된다.** 즉 커스텀 404 는 실질적으로 도달 불가로 보인다.
+
+**고치지 않았다.** 루트 not-found 를 붙이려면 `app/layout.tsx` 를 새로 만들어야
+하는데 이 프로젝트의 루트 레이아웃은 `app/[locale]/layout.tsx` 이고,
+그 구조를 건드리는 것은 §3 불가침(next-intl 로케일 시스템)에 걸린다.
+I7 범위 밖이므로 후보로만 남긴다.
+
 ## I6 — 실행 완료, 커밋 승인 대기 (2026-07-27)
 
 아래 진단 3건 중 **I6-a(교통편 재배치) · I6-a2(커서) · I6-c(토글 제거)를
