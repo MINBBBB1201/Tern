@@ -283,10 +283,6 @@ function BookingPageClient() {
           }}
         />
 
-        <div data-fx-card>
-          <AirportGuideCards departureGuide={departureGuide} arrivalGuide={arrivalGuide} from={from} to={to} />
-        </div>
-
         {/* Matched alert banner */}
         {priceAlerts.matchedAlert && (
           <div className="glass-panel mt-4 rounded-2xl border border-[rgba(52,211,153,0.35)] p-4 text-sm text-success-strong">
@@ -340,6 +336,24 @@ function BookingPageClient() {
             {tFilters("noFlightsFound")}
           </div>
         )}
+
+        {/* I6: ground transport moved below the results. It used to sit
+            between the smart picks and OfferList, which pushed the first
+            bookable card a full viewport down the page — users reported
+            losing track of where you actually buy. Airport transfers are
+            post-decision information, so they belong after the fares.
+            Constraints checked before moving:
+              - scrollToOffer still works: SmartPickCards remains ABOVE
+                OfferList, so its smooth scroll keeps its downward direction
+                (and now travels less).
+              - ScrollFX is unaffected: it uses ScrollTrigger.batch keyed on
+                viewport entry, not DOM order, so this block simply joins a
+                later batch and still reveals.
+              - The linkOrderId confirmation banner is untouched at the top,
+                where the Duffel return leg needs it. */}
+        <div data-fx-card>
+          <AirportGuideCards departureGuide={departureGuide} arrivalGuide={arrivalGuide} from={from} to={to} />
+        </div>
 
         <div data-fx-card>
           <PriceTrendChart
