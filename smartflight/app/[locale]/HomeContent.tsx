@@ -492,7 +492,6 @@ export default function Home() {
   // the airlines panel's "fastest schedule" lookup below still reads it (it
   // simply renders its empty-state fallback here).
   const [results] = useState<Offer[]>([]);
-  const [showOffers, setShowOffers] = useState(true);
   const [selectedAirlineKey, setSelectedAirlineKey] = useState("turkish");
 
   // Inspiration cards are prompts, not links — clicking one brings the
@@ -1004,14 +1003,13 @@ export default function Home() {
         <section className="relative overflow-hidden py-20">
           <div className="hero-stars night-stars" aria-hidden="true" />
           <div className="relative z-10 max-w-5xl mx-auto px-6">
-            <div data-fx-head className="flex items-center justify-between mb-10">
+            {/* I6: the "Show Offers" switch that used to sit here was removed.
+                It gated nothing — no conditional render read its state — so it
+                only ever moved its own knob, and it shipped off-system (raw
+                bg-gray-300, 24px tall against the 44px touch floor, no
+                role="switch"). The sample flights below are always shown. */}
+            <div data-fx-head className="mb-10">
               <h2 className="text-3xl font-bold text-foreground">{tHome("flightsTitle")}</h2>
-              <div className="flex items-center gap-3">
-                <span className="text-sm text-muted">{tHome("showOffers")}</span>
-                <button onClick={() => setShowOffers(!showOffers)} className={`relative w-12 h-6 rounded-full transition ${showOffers ? 'bg-primary' : 'bg-gray-300'}`}>
-                  <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${showOffers ? 'translate-x-7' : 'translate-x-1'}`} />
-                </button>
-              </div>
             </div>
             <div className="space-y-4">
               {sampleFlights.map((flight) => (
