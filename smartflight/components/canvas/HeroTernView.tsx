@@ -70,6 +70,56 @@ const PASS_R = 0.09; // boarding-pass slab corner radius — glint targets deriv
 const TRAIL_N = 120;
 const TERN_SCALE = 0.6;
 
+/**
+ * Portrait composition transform, written once per frame by
+ * PortraitComposition and read by TernSequence.
+ *
+ * Why this has to exist (I7): TernSequence computes positions in WORLD space
+ * — the orbit comes from `spin.localToWorld` and the pass's settle point from
+ * unprojecting a screen coordinate through the camera. But tern/trail/pass/
+ * sparks are all children of `root`, which now sits inside a scaled+lifted
+ * group. Assigning a world vector to a child's `.position` treats it as a
+ * LOCAL value, so the whole flock rendered at scale*p + offset instead of p:
+ * the tern floated away from the globe and route it is supposed to follow.
+ * That was invisible before the group existed, when local == world.
+ *
+ * Converting at the few world-space PRODUCERS (rather than the many consumers)
+ * keeps every downstream mix — tail emission, breakaway control points, the
+ * radial/tangent frames — in one consistent space.
+ */
+const heroComp = { scale: 1, offsetY: 0 };
+
+/**
+ * The portrait transform as a pure function of view aspect — the single
+ * source of truth for both the group that applies it and the sequence that
+ * has to invert it. Deliberately NOT a "parent writes, child reads" handoff:
+ * R3F runs useFrame callbacks in subscription order, which follows mount
+ * order, and children mount before parents — so the child would have read a
+ * one-frame-stale transform. Both sides recomputing from the same aspect on
+ * the same frame has no ordering hazard at all.
+ *
+ * 0 at landscape (aspect >= 0.95), ramping to 1 at phone portrait (<= 0.45).
+ */
+const portraitTransform = (aspect: number) => {
+  const t = THREE.MathUtils.clamp((0.95 - aspect) / 0.5, 0, 1);
+  return {
+    scale: THREE.MathUtils.lerp(1, 0.44, t),
+    offsetY: THREE.MathUtils.lerp(0, 1.35, t),
+  };
+};
+
+const viewAspect = (state: { camera: THREE.Camera; size: { width: number; height: number } }) => {
+  const cam = state.camera as THREE.PerspectiveCamera;
+  return cam.isPerspectiveCamera ? cam.aspect : state.size.width / Math.max(state.size.height, 1);
+};
+
+/** World → composition-local. Uniform scale plus a y-only lift, so the
+ *  inverse is a subtract-then-divide. Mutates and returns `v`. */
+const compToLocal = (v: THREE.Vector3) => {
+  v.y -= heroComp.offsetY;
+  return v.multiplyScalar(1 / heroComp.scale);
+};
+
 const easeInOutSine = (t: number) => -(Math.cos(Math.PI * t) - 1) / 2;
 const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
 const clamp01 = (t: number) => Math.max(0, Math.min(1, t));
@@ -810,6 +860,27 @@ function TernSequence() {
       elapsedMs: anim.current.start < 0 ? -1 : Math.round(performance.now() - anim.current.start),
       theta0: anim.current.theta0,
       spinRegistered: !!globeShared.spin,
+      // `pos` above is LOCAL, which cannot tell a correct portrait layout from
+      // the I7 bug — under a scaled group both are "some vector". The orbit
+      // invariant is world-space: while circling, the tern sits ORBIT_ALT
+      // (1.16) globe-radii from the globe's centre, at every aspect ratio.
+      // `ratio` is that number, so it is the one figure that proves the bird
+      // is riding the globe it is drawn against rather than floating free.
+      orbit: (() => {
+        const spin = globeShared.spin;
+        if (!spin) return null;
+        const world = built.tern.getWorldPosition(new THREE.Vector3());
+        const center = spin.getWorldPosition(new THREE.Vector3());
+        const radius = spin.getWorldScale(new THREE.Vector3()).x;
+        const dist = world.distanceTo(center);
+        return {
+          world: world.toArray().map((n) => +n.toFixed(3)),
+          center: center.toArray().map((n) => +n.toFixed(3)),
+          radius: +radius.toFixed(3),
+          dist: +dist.toFixed(3),
+          ratio: radius > 0 ? +(dist / radius).toFixed(3) : null,
+        };
+      })(),
     });
     return () => {
       delete w.__ternReplay;
@@ -882,7 +953,14 @@ function TernSequence() {
     sparkLocal,
   } = tmpRef.current;
 
-  useFrame(() => {
+  useFrame((state) => {
+    // Refresh the composition transform from THIS frame's aspect before any
+    // world→local mapping below (see portraitTransform for why it is not
+    // handed down from the parent group).
+    const comp = portraitTransform(viewAspect(state));
+    heroComp.scale = comp.scale;
+    heroComp.offsetY = comp.offsetY;
+
     const a = anim.current;
     const {
       tern, wingGroups, wristGroups, trail, trailGeo, trailPos, trailCol, trailMat,
@@ -904,7 +982,10 @@ function TernSequence() {
       ndc.set(p.x * 2 - 1, 1 - p.y * 2);
       raycaster.setFromCamera(ndc, camera);
       raycaster.ray.intersectPlane(zPlane, out);
-      return out;
+      // Screen-anchored target, so it must stay put on screen: mapping it
+      // into composition-local keeps the pass at the intended screen point
+      // while the group's scale shrinks the slab itself.
+      return compToLocal(out);
     };
 
     // Scroll-out, shared with the globe (item 4): 0 = hero fully on
@@ -935,7 +1016,10 @@ function TernSequence() {
         .multiplyScalar(Math.cos(theta))
         .addScaledVector(fe2, Math.sin(theta))
         .multiplyScalar(ORBIT_ALT);
-      return spin ? spin.localToWorld(out) : out;
+      // spin is inside the composition group, so localToWorld already carries
+      // the portrait scale/lift — map back down so the tern rides the orbit
+      // the globe is actually drawn on.
+      return compToLocal(spin ? spin.localToWorld(out) : out);
     };
 
     // Forward + up-hint → tern orientation (+x forward, +y up), with an
@@ -980,8 +1064,10 @@ function TernSequence() {
         a.theta0 = bestTheta;
       }
 
-      spin.getWorldPosition(globeCenter);
-      const globeR = spin.getWorldScale(radial).x; // uniform scale
+      compToLocal(spin.getWorldPosition(globeCenter));
+      // Radius in the same (local) units as globeCenter, so the entry-swoop
+      // offsets below stay proportional to the globe as drawn.
+      const globeR = spin.getWorldScale(radial).x / heroComp.scale;
       const p = clamp01(elapsed / FLIGHT_MS);
 
       if (elapsed < ENTRY_MS) {
@@ -1254,7 +1340,7 @@ function TernSequence() {
             .multiplyScalar(Math.cos(th))
             .addScaledVector(ae2, Math.sin(th))
             .multiplyScalar(AMBIENT_ALT);
-          return spin.localToWorld(out);
+          return compToLocal(spin.localToWorld(out));
         };
         ambientPoint(theta, posA);
         ambientPoint(theta + 0.015 * a.ambientDir, posB);
@@ -1262,7 +1348,7 @@ function TernSequence() {
         tangent.subVectors(posB, posA);
         if (tangent.lengthSq() > 1e-10) tangent.normalize();
 
-        spin.getWorldPosition(globeCenter);
+        compToLocal(spin.getWorldPosition(globeCenter));
         radial.subVectors(posA, globeCenter).normalize();
         // Rate-limited slerp instead of copy: at the endpoints the tangent
         // reverses, and the lag turns the snap into a banking turnaround.
@@ -1315,14 +1401,9 @@ function PortraitComposition({ children }: { children: React.ReactNode }) {
   useFrame((state) => {
     const g = group.current;
     if (!g) return;
-    const cam = state.camera as THREE.PerspectiveCamera;
-    const aspect = cam.isPerspectiveCamera
-      ? cam.aspect
-      : state.size.width / Math.max(state.size.height, 1);
-    // 0 at landscape (>=0.95), ramping to 1 at phone portrait (<=0.45).
-    const t = THREE.MathUtils.clamp((0.95 - aspect) / 0.5, 0, 1);
-    g.scale.setScalar(THREE.MathUtils.lerp(1, 0.44, t));
-    g.position.y = THREE.MathUtils.lerp(0, 1.35, t);
+    const { scale, offsetY } = portraitTransform(viewAspect(state));
+    g.scale.setScalar(scale);
+    g.position.y = offsetY;
   });
 
   return <group ref={group}>{children}</group>;
