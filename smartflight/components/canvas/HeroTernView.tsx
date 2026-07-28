@@ -1290,6 +1290,44 @@ function TernSequence() {
   return <primitive object={built.root} />;
 }
 
+/**
+ * Portrait composition.
+ *
+ * The scene was laid out for a landscape hero: the globe's radius is a
+ * fraction of the view plane's HEIGHT (GLOBE_R_FRAC in HeroGlobe), and the
+ * pass is a fixed 1.9 world units wide. On a 390x844 phone that makes the
+ * globe's diameter ~1.3x the viewport WIDTH and the pass ~83% of it, both
+ * centered — they sat straight on top of the headline and the hero copy
+ * became unreadable (docs/screenshots/i6b-after-mobile-hero.png, first cut).
+ *
+ * Rather than re-authoring the scene per breakpoint, the whole thing is
+ * scaled down and lifted as the view gets narrower, so the globe and pass
+ * settle into the upper area and the centered copy below them stays clear.
+ * Landscape is untouched: t = 0 at aspect >= 0.95, so desktop keeps the
+ * exact composition it had.
+ *
+ * This reads viewport shape for LAYOUT, which is what it is actually good
+ * for — it is not the capability gate that I6-b2 removed.
+ */
+function PortraitComposition({ children }: { children: React.ReactNode }) {
+  const group = useRef<THREE.Group>(null);
+
+  useFrame((state) => {
+    const g = group.current;
+    if (!g) return;
+    const cam = state.camera as THREE.PerspectiveCamera;
+    const aspect = cam.isPerspectiveCamera
+      ? cam.aspect
+      : state.size.width / Math.max(state.size.height, 1);
+    // 0 at landscape (>=0.95), ramping to 1 at phone portrait (<=0.45).
+    const t = THREE.MathUtils.clamp((0.95 - aspect) / 0.5, 0, 1);
+    g.scale.setScalar(THREE.MathUtils.lerp(1, 0.44, t));
+    g.position.y = THREE.MathUtils.lerp(0, 1.35, t);
+  });
+
+  return <group ref={group}>{children}</group>;
+}
+
 /* ── Public component: gate + View ── */
 
 export default function HeroTernView() {
@@ -1304,6 +1342,7 @@ export default function HeroTernView() {
   const [reduced] = useState(
     () => window.matchMedia("(prefers-reduced-motion: reduce)").matches
   );
+  const isStatic = reduced || quality === "static";
 
   // Static branch marker: lets CSS keep the hero copy centered when the
   // globe/3D scene is not mounted (reduced-motion, or demoted to static).
@@ -1342,7 +1381,6 @@ export default function HeroTernView() {
   return (
     <View
       aria-hidden="true"
-  const isStatic = reduced || quality === "static";
       style={{ position: "absolute", inset: 0, pointerEvents: "none" }}
     >
       <PerspectiveCamera makeDefault fov={45} position={[0, 0, 6]} near={0.1} far={1000} />
@@ -1351,10 +1389,12 @@ export default function HeroTernView() {
       <directionalLight color={0xf2934d} intensity={1.7} position={[2, -3, 4]} />
       <directionalLight color={0x8fe0e8} intensity={1.3} position={[-3, 4, 2]} />
       <directionalLight color={0xffffff} intensity={0.55} position={[0, 0, 5]} />
-      <TernSequence />
-      {/* Civil-twilight globe: real terminator, behind the flight plane so
-          the tern crosses in front of it (see HeroGlobe for the math). */}
-      <HeroGlobe />
+      <PortraitComposition>
+        <TernSequence />
+        {/* Civil-twilight globe: real terminator, behind the flight plane so
+            the tern crosses in front of it (see HeroGlobe for the math). */}
+        <HeroGlobe />
+      </PortraitComposition>
       {/* No EffectComposer here, deliberately: bloom was trialled (Stage 4)
           and rejected on screenshots — inside a scissored drei View it
           bloomed the trail points into blobs, washed out the pass face

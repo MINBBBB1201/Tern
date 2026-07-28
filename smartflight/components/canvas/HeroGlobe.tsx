@@ -421,7 +421,16 @@ export default function HeroGlobe() {
     // (smoothstep 0.05–0.5 in HeroTernView) so globe and tern recede in
     // step instead of the globe vanishing first — the recede stays
     // visible longer before it dims out.
-    const fade = 1 - THREE.MathUtils.smoothstep(globeShared.scrollOut, 0.05, 0.5);
+    const scrollFade = 1 - THREE.MathUtils.smoothstep(globeShared.scrollOut, 0.05, 0.5);
+    // Portrait dim: in landscape the copy sits beside the globe, so the globe
+    // can be at full strength. On a phone there is no room beside it — the
+    // headline lands ON the sphere, and over bright daylit landmass it stops
+    // being readable. Dimming keeps it a backdrop instead of a competitor.
+    // Reuses the existing uFade path rather than adding a second opacity
+    // mechanism, so the scroll recede still composes correctly on top.
+    const aspectNow = cam.isPerspectiveCamera ? cam.aspect : state.size.width / Math.max(state.size.height, 1);
+    const portrait = 1 - THREE.MathUtils.clamp((aspectNow - 0.45) / 0.5, 0, 1);
+    const fade = scrollFade * THREE.MathUtils.lerp(1, 0.42, portrait);
     globeMaterial.uniforms.uFade.value = fade;
     haloMaterial.uniforms.uFade.value = fade;
     routeMaterial.opacity = 0.95 * fade;
