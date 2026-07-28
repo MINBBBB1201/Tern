@@ -1,9 +1,30 @@
 # Backlog — B/C/D/E/F/G/H series (2026-07-17 → 2026-07-22)
 
-## I6 후보 — 진단만 완료, 수정 미착수 (2026-07-27)
+## I6 — 실행 완료, 커밋 승인 대기 (2026-07-27)
 
-세 건 모두 **원인 파악까지만** 하고 코드는 건드리지 않았다. 증빙:
-`docs/screenshots/i6-diag-booking-order.png`, `i6-diag-mobile-hero.png`.
+아래 진단 3건 중 **I6-a(교통편 재배치) · I6-a2(커서) · I6-c(토글 제거)를
+구현**했다. I6-b는 의도된 설계로 확인되어 미착수.
+
+측정 (1440×900, `/booking?from=ICN&to=NRT&departureDate=2026-09-15`):
+
+| 항목 | before | after |
+|---|---|---|
+| 첫 예약 카드 위치 | 877px (0.97 뷰포트분) | **579px (0.64)** |
+| 교통편 섹션 위치 | 515px (예약 카드 **위**) | **2493px (아래)** |
+| SmartPick `cursor` | `default` | **`pointer`** |
+| Show Offers 토글 | 존재 | **없음** |
+
+SmartPick 클릭 회귀 없음: 정렬 `duration → price`, `scrollY 210`
+(= `scrollToOffer` 정상 동작).
+
+증빙: `docs/screenshots/i6-{before,after}-booking-order.png`,
+`i6-{before,after}-home-flights.png` — 재현 스크립트 `scripts/i6-shots.mjs`,
+측정 스크립트 `scripts/i6-verify.mjs`.
+
+> 주의: 원래 이 절이 인용하던 `i6-diag-booking-order.png`는 이번 검증 중
+> 같은 경로에 덮어써져 소실됐다(untracked라 복구 불가). 동일한 변경 전
+> 상태는 `i6-before-booking-order.png`가 대체한다. `i6-diag-mobile-hero.png`는
+> 그대로 있다.
 
 ### I6-a. /booking에서 실제 예약 카드까지 스크롤이 길다
 
@@ -41,6 +62,49 @@ SmartPickCard는 `glass-panel tilt-card`만 쓴다. 즉 **기능은 있는데 �
   등장 스태거가 어긋날 수 있다.
 - `linkOrderId` 주문 확인 배너는 Duffel 반환 레그의 성공 신호라 **반드시
   최상단**이어야 한다(I5-1에서 검증한 경로).
+
+**세 제약 확인 결과 (2026-07-27, 구현 시점):**
+1. `scrollToOffer` — 손볼 필요 없었다. 옮긴 것은 **AirportGuideCards**이고
+   SmartPickCards는 OfferList **위에 그대로** 남았다. 전제가 유지되므로
+   스크롤 방향은 그대로이고 이동 거리만 짧아졌다. 클릭 실측 `scrollY 210`.
+2. ScrollFX — 스태거 어긋남 없음. `ScrollTrigger.batch`가 **DOM 순서가 아니라
+   뷰포트 진입**을 기준으로 묶기 때문에, 옮긴 블록은 더 늦은 배치에 합류할 뿐
+   리빌 자체는 정상. after 캡처에서 교통편 카드가 보이는 것으로 확인.
+3. `linkOrderId` 배너 — **건드리지 않았다** (L218, 최상단 유지).
+
+### I6-b2. 모바일 globe 활성화 — 성능 측정 완료, 제품 결정 대기 (2026-07-27)
+
+코드 미수정. 게이트만 페이지 컨텍스트에서 우회해 측정
+(`scripts/i6b-globe-probe{,2,3}.mjs`). 390×844 mobile emulation,
+호스트 GPU = AMD Radeon iGPU(ANGLE/D3D11), 6초 창 ×3 ×3회 반복.
+
+| 구성 | 캔버스 px | 정착 FPS | p95 | draws/f | 텍스처 |
+|---|---|---|---|---|---|
+| A. static (현행) | 585×1266 | **59.9** (3/3 동일) | 40 | 1 | 0.2MB |
+| B. globe, CPU 1x | 780×1688 | 40.2–59.5 (진동) | 39.8 | ~20 | 35.8MB |
+| C. globe, CPU 4x | 780×1688 | **24.0** | 15–17 | ~20 | 35.8MB |
+| E. globe, dpr1.5, CPU 4x | 585×1266 | **29.9** | 17–20 | ~19 | 35.8MB |
+| F. static, CPU 4x | 585×1266 | 40.0 | 29.9 | 1 | 0.2MB |
+
+- **모바일은 이미 WebGL을 켜고 있다.** `<768`은 "off"가 아니라 `lite`
+  (ambient motes 60개, dpr [1,1.5]). globe 추가는 0→1이 아니라 증분 비용.
+- CPU 4x 기준 static 40fps → globe 24fps (**-40%**).
+- dpr 2 → 1.5 만으로 24 → 29.9fps (**+25%**). 부하가 fill-rate 쪽에 있다.
+- 정점 17.5k/frame — **폴리곤은 병목이 아니다.** 폴리곤 감축은 효과 없음.
+- **post-processing 없음** (EffectComposer 미사용, Stage 4에서 bloom 반려).
+  경량화로 뺄 것이 애초에 없다.
+- 텍스처 35.8MB는 **일회성 업로드** (2번째 창 Δ0.00MB). earth-day/night 둘 다
+  2048×1024. globe 실제 렌더 지름은 500 device px 미만 → 과대 샘플링.
+- 히어로를 지나쳐 스크롤하면 **draws/frame 0** (drei View 컬링). 상시
+  배터리 드레인은 아니다. rAF 루프는 계속 돔(120fps 공전) — CPU 소소.
+
+**미해결 — 이게 결정적이다**: 두 파일 모두 `hardwareConcurrency <= 4`를
+**하드 off 게이트**로 쓴다(`GlobalCanvasInner.tsx:26`, `HeroTernView.tsx:1298`).
+실제 아이폰 Safari가 4 이하를 보고하면 **폭 조건만 풀어도 아무 변화가 없다.**
+실기기 확인 필요.
+
+**측정 못 한 것**: 배터리(mAh), 실제 모바일 GPU 시간, 발열/스로틀링.
+데스크톱 iGPU 수치로 아이폰을 추정할 수 없다 — 실기기 프로파일링 필요.
 
 ### I6-b. 모바일 홈에서 히어로 globe 없음 — **의도된 설계, 회귀 아님**
 
