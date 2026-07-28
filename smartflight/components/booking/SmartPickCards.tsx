@@ -89,7 +89,13 @@ function SmartPickCard({ card, onPick }: SmartPickCardProps) {
       onMouseMove={tilt.onMouseMove}
       onMouseLeave={tilt.onMouseLeave}
       onClick={() => card.offer && onPick(card.sort, card.offer)}
-      className="glass-panel tilt-card h-full w-full rounded-2xl p-3 text-left hover:shadow-md hover:border-[var(--contrail-300)]"
+      /* I6: cursor-pointer is explicit because these read as static labels
+         without it — the card really does sort the list and scroll to the
+         offer, but a <button> keeps the default arrow cursor and the only
+         other affordance is a subtle hover shadow. The homepage's airline
+         picker gets its pointer from .glass-row; this card uses
+         glass-panel + tilt-card, which carry none. */
+      className="glass-panel tilt-card h-full w-full cursor-pointer rounded-2xl p-3 text-left hover:shadow-md hover:border-[var(--contrail-300)]"
     >
       {/* primary-hover, not primary: 12px text on glass needs ≥4.5:1 (primary is 4.42) */}
       <p className="text-xs font-semibold uppercase tracking-wide text-primary-hover">{card.label}</p>
