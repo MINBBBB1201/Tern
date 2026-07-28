@@ -72,7 +72,59 @@ SmartPickCard는 `glass-panel tilt-card`만 쓴다. 즉 **기능은 있는데 �
    리빌 자체는 정상. after 캡처에서 교통편 카드가 보이는 것으로 확인.
 3. `linkOrderId` 배너 — **건드리지 않았다** (L218, 최상단 유지).
 
-### I6-b2. 모바일 globe 활성화 — 성능 측정 완료, 제품 결정 대기 (2026-07-27)
+### I6-b3. 모바일 globe 적응형 활성화 — 구현 완료, 커밋 승인 대기 (2026-07-28)
+
+`innerWidth < 768` / `hardwareConcurrency <= 4` 하드 게이트 **제거**.
+capability 판정을 실측 프레임타임(drei `PerformanceMonitor`)으로 대체.
+`prefers-reduced-motion` 은 안전망으로 유지(사용자 명시 선호는 성능 추측이 아님).
+
+- 신규 `components/canvas/quality.ts` — full → lite → static **단방향** 티어
+- dpr 캡 1.5 (기존 full 은 2)
+- earth 텍스처 2048×1024 → 1024×512 (GPU 10.7MB → 2.7MB each)
+
+검증 (프로덕션 빌드, 390×844):
+
+| 항목 | 결과 |
+|---|---|
+| 모바일 globe | 표시됨 (before: static) |
+| dpr 실효 | 585/390 = **1.50** |
+| CPU 4x, 45초 소크 | `full` 유지 — 거짓 강등 없음 |
+| CPU 6x | `full → lite → static` |
+| static 도달 | `data-hero-static=1`, 보딩패스 카드, draws 30 → **1** |
+| reduced-motion | canvas 미생성, draws 0 |
+
+**튜닝 중 실제로 틀린 것 2건** (§9 에 반영):
+1. `bounds` 를 refreshrate 비율로만 잡으면 120Hz 패널에서 84fps 를 요구해
+   정상 기기를 강등한다 → 절대 fps 상한 `min(rr*0.7, 45)`.
+2. 상한을 도달 가능하게 두니 **60fps 기기가 incline↔decline 플립플롭으로
+   static 까지 떨어졌다.** 사다리가 단방향이라 incline 이 무의미하므로
+   상한을 도달 불가(`rr*2`)로 바꿨다.
+
+**히어로 구도 (별도 문제, 함께 해결)**: globe 반지름이 `planeH` 기준이라
+세로 화면에서 지름이 화면 **폭보다 커져** 카피를 덮었다. 첫 캡처에서
+"Chase the horizon." 이 판독 불가. 해결:
+- `PortraitComposition` — aspect 0.95→0.45 구간에서 씬 scale 1→0.44, y 0→1.35
+- `HeroGlobe` 세로 딤 — 기존 `uFade` 경로 재사용, 세로에서 ×0.42
+
+데스크톱은 aspect 보간값이 0 이라 **완전 무변경**(캡처 대조 확인).
+중간값 iPad 세로(aspect 0.69)도 정상.
+
+증빙: `docs/screenshots/i6b-{before,after}-mobile-hero.png`,
+`i6b-after-ipadport-hero.png`, `i6b-{before,after}-desktop-hero.png`,
+`i6b-after-fallback-cpu{4,6}x.png`.
+스크립트: `scripts/i6b-{globe-probe,globe-probe2,globe-probe3,fallback-verify,soak4x,shots}.mjs`
+
+**여전히 미측정**: 실기기 배터리·발열. `hardwareConcurrency` 게이트가
+없어졌으므로 "아이폰이 4를 보고하면 아무 일도 안 일어난다"는 리스크는 해소.
+
+**후보 (지금 넣지 않음) — 탭 재활성 시 티어 1회 재평가**: 강등이 단방향이라
+일시적 부하(다른 탭의 무거운 작업 등)로 static 까지 떨어지면 페이지를 새로
+열 때까지 복구되지 않는다. `visibilitychange` 에서 1회 재평가하는 방안이
+있으나, **흔치 않은 엣지케이스로 판단해 보류**했다(2026-07-28 결정).
+진동 방지가 단방향 설계의 목적이므로, 재평가를 넣을 때는 플립플롭 재발
+여부를 소크 테스트로 다시 확인해야 한다.
+
+### I6-b2. 모바일 globe 활성화 — 성능 측정 (2026-07-27)
 
 코드 미수정. 게이트만 페이지 컨텍스트에서 우회해 측정
 (`scripts/i6b-globe-probe{,2,3}.mjs`). 390×844 mobile emulation,
