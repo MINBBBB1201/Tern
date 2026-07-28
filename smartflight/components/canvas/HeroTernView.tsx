@@ -12,6 +12,7 @@ import * as THREE from "three";
 import gsap from "gsap";
 import HeroGlobe, { globeShared } from "./HeroGlobe";
 import { heroRoute } from "../../lib/heroRoute";
+import { useQuality } from "./quality";
 
 /**
  * Civil Twilight signature sequence — R3F port of the original raw-Three
@@ -1292,15 +1293,20 @@ function TernSequence() {
 /* ── Public component: gate + View ── */
 
 export default function HeroTernView() {
-  const [isStatic] = useState(
-    () =>
-      window.innerWidth < 768 ||
-      (navigator.hardwareConcurrency ?? 8) <= 4 ||
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  // Was: innerWidth < 768 || hardwareConcurrency <= 4 || reduced-motion.
+  // The first two refused the scene to every phone and to any device
+  // reporting four cores, on no measured evidence — a high-end iPhone can
+  // report 4 while a slow 8-core tablet passes. Capability is now decided
+  // by measured frame time (quality.ts); only the stated user preference
+  // remains a hard gate. Note this is reactive, not a one-shot useState:
+  // the tier can drop mid-session and the hero has to follow it down.
+  const quality = useQuality();
+  const [reduced] = useState(
+    () => window.matchMedia("(prefers-reduced-motion: reduce)").matches
   );
 
   // Static branch marker: lets CSS keep the hero copy centered when the
-  // globe/3D scene never mounts (mobile, reduced-motion, low-core).
+  // globe/3D scene is not mounted (reduced-motion, or demoted to static).
   useEffect(() => {
     if (!isStatic) return;
     const hero = document.querySelector(".hero-twilight");
@@ -1336,6 +1342,7 @@ export default function HeroTernView() {
   return (
     <View
       aria-hidden="true"
+  const isStatic = reduced || quality === "static";
       style={{ position: "absolute", inset: 0, pointerEvents: "none" }}
     >
       <PerspectiveCamera makeDefault fov={45} position={[0, 0, 6]} near={0.1} far={1000} />
