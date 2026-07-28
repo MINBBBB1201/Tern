@@ -206,7 +206,13 @@ html {
 }
 
 body {
-  background-color: var(--color-background);
+  /* Ink, not --color-background (#ffffff). Every route paints its own dark
+     gradient over the body, so the white was never meant to be seen — but it
+     IS seen on iOS rubber-band overscroll, which flashed white past the ends
+     of the page and made Safari's toolbar flip black↔white mid-scroll (I7).
+     --color-background stays as-is: it is the light surface token the
+     component palette is built on, and only body was ever painted with it. */
+  background-color: var(--ink-900);
   color: var(--color-foreground);
   font-family: var(--font-sans);
   font-size: 14px;

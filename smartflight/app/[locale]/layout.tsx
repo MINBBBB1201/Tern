@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getTranslations, setRequestLocale } from "next-intl/server";
@@ -25,6 +25,25 @@ type LayoutProps = { children: React.ReactNode; params: Promise<{ locale: string
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }
+
+/**
+ * I7: the site declared no theme-color at all, so mobile Safari fell back to
+ * sampling the page itself for its toolbar tint — and flipped the bottom bar
+ * between black and white while scrolling. Two things fed that: no declared
+ * colour, and `body` still carrying the light `--color-background` token,
+ * which shows through on rubber-band overscroll even though every page paints
+ * a dark gradient over it (fixed in globals.css).
+ *
+ * One fixed value, not a light/dark media pair: every route is the same
+ * ink→dusk dark (F1) — home, booking, guide, signin and not-found all render
+ * an ink-based gradient — so a light variant would only ever be wrong.
+ * #0A0F1E is --ink-900, the 0% stop of that gradient and therefore the colour
+ * actually adjacent to the toolbar at the top and bottom of the document.
+ */
+export const viewport: Viewport = {
+  themeColor: "#0A0F1E",
+  colorScheme: "dark",
+};
 
 export async function generateMetadata({
   params,
