@@ -1,13 +1,27 @@
 import puppeteer from "puppeteer-core";
 import path from "node:path";
+import fs from "node:fs";
 
 const OUT = path.resolve("docs/screenshots");
 const CHROME = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const base = process.argv[2] || "http://localhost:3000";
 const tag = process.argv[3] || "before"; // before | after
-const EMAIL = "i3-audit-tern@example.com";
-const PASSWORD = "Tern-i3-Audit-9271";
+
+const envText = fs.readFileSync(path.resolve(".env.local"), "utf8");
+const env = Object.fromEntries(
+  envText.split(/\r?\n/).filter((l) => l && !l.startsWith("#") && l.includes("=")).map((l) => {
+    const i = l.indexOf("=");
+    return [l.slice(0, i).trim(), l.slice(i + 1).trim()];
+  })
+);
+if (!env.TERN_TEST_EMAIL || !env.TERN_TEST_PASSWORD) {
+  throw new Error(
+    "Missing TERN_TEST_EMAIL / TERN_TEST_PASSWORD in .env.local (see .env.example)."
+  );
+}
+const EMAIL = env.TERN_TEST_EMAIL;
+const PASSWORD = env.TERN_TEST_PASSWORD;
 const IOS_UA =
   "Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1";
 const bookingUrl = `${base}/booking?from=ICN&to=NRT&departureDate=2026-09-15&adults=1&cabinClass=economy`;

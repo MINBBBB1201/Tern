@@ -31,8 +31,13 @@ const app = initializeApp({
 });
 const auth = getAuth(app);
 
-export const TEST_EMAIL = "i3-audit-tern@example.com";
-export const TEST_PASSWORD = "Tern-i3-Audit-9271";
+if (!env.TERN_TEST_EMAIL || !env.TERN_TEST_PASSWORD) {
+  throw new Error(
+    "Missing TERN_TEST_EMAIL / TERN_TEST_PASSWORD in .env.local (see .env.example)."
+  );
+}
+export const TEST_EMAIL = env.TERN_TEST_EMAIL;
+export const TEST_PASSWORD = env.TERN_TEST_PASSWORD;
 export const TEST_NAME = "Min (Test)";
 
 const cmd = process.argv[2];
