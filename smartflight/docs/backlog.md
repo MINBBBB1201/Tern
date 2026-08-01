@@ -1,5 +1,117 @@
 # Backlog — B/C/D/E/F/G/H series (2026-07-17 → 2026-07-22)
 
+## I10 — 존재하지 않는 IATA soft-404 제거 (2026-08-01)
+
+### I10-0. 범위 재확인 — **"한 줄이면 된다"는 예상은 틀렸다**
+
+I9 보고가 "`isKnownAirport()` 확인 후 `notFound()` 한 줄"이라고 낙관했는데,
+사용처를 전부 훑으니 **고칠 지점이 3곳이고 결함도 1개가 아니라 2개**였다.
+
+`DEFAULT_BRIEF`/`getAirportGuide` 폴백 사용처 전수:
+
+| 사용처 | 존재하지 않는 IATA 를 만나면 | 조치 |
+|---|---|---|
+| `guide/airport/[iata]/page.tsx:14` (generateMetadata) | 가짜 title 생성 | **수정** |
+| `guide/airport/[iata]/page.tsx:47` (본문) | 가짜 페이지 200 | **수정** |
+| `guide/airport/[iata]/opengraph-image.tsx:31` | **가짜 OG 이미지 71,626B 생성** | **수정** |
+| `app/sitemap.ts:54` | `getAllGuidedAirportCodes()` = 큐레이션 23곳만 | 영향 없음 |
+| `booking/BookingContent.tsx:86` | I5-4 `resolveBrief` 가 이미 처리 | 영향 없음 |
+| `components/SearchBar.tsx` | `getCuratedBrief` 는 null 반환 | 영향 없음 |
+| `blog/[slug]/page.tsx:77` | `post.iata` 는 고정 집합 | 영향 없음 |
+
+OG 이미지가 예상 밖이었다. `generateStaticParams` 가 큐레이션 23곳만 순회하는
+것은 맞지만 **라우트는 동적으로 열려 있어서**, `/guide/airport/ZZZ/opengraph-image`
+가 존재하지 않는 공항의 카드를 실제로 렌더했다(측정: 200 `image/png` 71,626B).
+
+**결함이 2개였다** — 측정 결과:
+
+```
+BEFORE
+/guide/airport/ICN  200  "Incheon International Airport (ICN)"   ← 정상
+/guide/airport/ATL  200  "ATL Airport (ATL)"                     ← (2) 실존 공항인데 지어낸 이름
+/guide/airport/ZZZ  200  "ZZZ Airport (ZZZ)"                     ← (1) soft-404
+/guide/airport/QQQ  200  "QQQ Airport (QQQ)"
+```
+
+(1) 은 브리프가 지목한 soft-404. **(2) 는 브리프에 없던 것**이다 — ATL 은
+`airports.json` 에 "Hartsfield Jackson Atlanta International Airport" 라는
+검증된 이름이 있는데 페이지가 "ATL Airport" 를 지어내 덮어썼다. I5-4 가
+`/booking` 에서 `resolveBrief` 로 이미 고친 §2-1 위반이 가이드 라우트에만
+남아 있었다.
+
+### I10-1. 3-tier 규칙 — 브리프의 구분 요청에 대한 답
+
+브리프가 "존재하지 않는 공항"과 "아직 가이드를 안 쓴 실존 공항"을 혼동하지 말라고
+했다. 코드에서 기존 의도를 확인한 결과 **구분이 필요하고, 이미 확립돼 있었다.**
+
+근거 — `BookingContent.tsx:78-93` 의 주석이 규칙을 그대로 적어 두고 있다:
+"showing an invented name where a verified one exists is the §2-1 problem…
+The generic localized summary is kept either way: it is honest general advice,
+not fabricated airport-specific detail." 가이드 라우트만 이 규칙을 못 받았다.
+
+채택 (신규 `lib/airportGuideAccess.ts`, 서버 전용):
+
+| tier | 대상 | 처리 |
+|---|---|---|
+| 1 | 큐레이션 23곳 | 기존 큐레이션 가이드 그대로 |
+| 2 | `airports.json` 에 있는 실존 공항 | **200 유지**, 이름·도시·국가를 데이터셋 실값으로. 본문은 기존 제네릭 유지 |
+| 3 | 둘 다 아님 | `notFound()` → I9 브랜드 404 |
+
+**tier 2 를 404 로 하지 않은 결정적 이유**: `AirportGuideCards.tsx:100` 이
+`/guide/airport/{iata}` 로 링크하는데 그 `iata` 는 **사용자가 검색한 공항**이다
+(큐레이션 23곳이 아니라 7,917곳 중 아무거나). tier 2 를 404 로 만들면 대부분의
+노선에서 `/booking` 이 깨진 링크를 뿜는다. 실측으로 확인함 —
+`/booking?from=ATL&to=LGW` 의 카드가 `/guide/airport/{ATL,LGW}` 를 가리키고,
+수정 후에도 둘 다 200 이다.
+
+제네릭 본문을 남긴 것은 그것이 **지어낸 공항별 정보가 아니라 정직한 일반
+안내**이기 때문이다("공식 택시 승강장을 이용하라", "국제선은 2시간 전 도착").
+문제였던 것은 본문이 아니라 **이름**이었다. tier 2 는 sitemap 에 원래 없으므로
+색인 대상이 새로 생기지도 않는다.
+
+`lib/airportBrief.ts` 가 아니라 별도 파일에 둔 이유: 이 규칙은 `airportData`
+(7,917개, 800KB)를 import 해야 하는데, `airportBrief` 는 홈의 `SearchBar` 가
+클라이언트에서 import 한다. 거기 넣었으면 홈 번들에 800KB 가 실렸다.
+
+### 증빙 (프로덕션 빌드)
+
+```
+AFTER
+/guide/airport/ICN  200  "Incheon International Airport (ICN)"
+/guide/airport/ATL  200  "Hartsfield Jackson Atlanta International Airport (ATL)"
+/guide/airport/LGW  200  "London Gatwick Airport (LGW)"
+/guide/airport/ZZZ  404   ko/ja/zh 도 전부 404 + 브랜드 404 카피 렌더
+/guide/airport/QQQ  404   /guide/airport/XYZ 404
+```
+
+OG 이미지: ICN 200 86,756B · ko/ICN 200 75,258B · ATL 200 93,498B ·
+**ZZZ 404 0B** (ko/ZZZ 도 404). 가짜 이미지 생성 중단 확인.
+
+국가 표기는 CLDR(`lib/countryNames.ts`, I5-4)로 로케일화 — `/guide/airport/ATL`
+= "Atlanta, United States", `/ko/guide/airport/ATL` = "Atlanta, 미국".
+도시명이 ko 에서도 영문인 것은 I5-4 결정(검증된 도시명 표기 없음) 그대로다.
+
+sitemap: `<loc>` 144개, 고유 IATA 23개(AMS…ZRH) **전부 200**, 가짜 IATA 없음.
+
+무손상: 큐레이션 **23곳 전수 200**. 기존 라우트 17개 전부 정상
+(`/` `/ko` `/ja` `/zh` `/booking` `/booking?from=ATL&to=LGW` `/about` `/support`
+`/terms` `/privacy` `/signin` `/blog/*` `/sitemap.xml` `/robots.txt`
+`/api/airports/search` `/opengraph-image` `/nope-404`=404).
+자동완성 무손상(`atlanta`→ATL/FTY/PDK, `인천`→ICN, `ICN`→ICN).
+정적 페이지 **159로 불변** — tier 2·3 은 원래 prerender 대상이 아니었다.
+
+tsc EXIT=0, eslint 0 errors, build EXIT=0.
+캡처 `docs/screenshots/i10-{en-404-nonexistent,ko-404-nonexistent,en-uncurated-real}.png`,
+재현 스크립트 `scripts/i10-shots.mjs`.
+
+### 남은 리스크
+
+tier 2 페이지는 제네릭 본문이라 SEO 관점에선 얇은 콘텐츠다. sitemap 에 없어
+적극 색인되진 않지만 `/booking` 링크를 통해 크롤러가 도달할 수는 있다. 지어낸
+정보가 없다는 점에서 §2-1 은 통과하나, 장기적으로는 tier 2 에 "아직 상세
+가이드가 없습니다" 류의 명시적 안내를 넣거나 `noindex` 를 다는 편이 정직하다.
+이번 범위 밖이라 후보로만 남긴다.
+
 ## I9 — 404 흰 화면 수정 (2026-08-01)
 
 ### I9-0. 재확인 — I7의 "§3 저촉" 판단은 **틀렸다**
