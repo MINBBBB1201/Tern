@@ -1,5 +1,115 @@
 # Backlog — B/C/D/E/F/G/H series (2026-07-17 → 2026-07-22)
 
+## I9 — 404 흰 화면 수정 (2026-08-01)
+
+### I9-0. 재확인 — I7의 "§3 저촉" 판단은 **틀렸다**
+
+I7은 "루트 not-found를 붙이려면 `app/layout.tsx`를 새로 만들어야 하는데 이
+프로젝트의 루트 레이아웃은 `app/[locale]/layout.tsx`라 §3 불가침에 걸린다"고
+보류했다. 재확인 결과 **전제는 맞고 결론이 틀렸다.**
+
+(a) 증상 재현 — 확인됨. 모든 garbage 경로가 Next 기본 404를 렌더했다.
+`<title>404: This page could not be found.</title>`, 스타일시트 0개,
+`body{color:#000;background:#fff}`, `theme-color` 없음. **상태 코드 자체는
+이미 404로 정상**이었다(가짜 200 아님). `/en/nope-404`만 307(as-needed 접두어
+제거)이다.
+
+(b) `app/` 실사 — 루트 `app/layout.tsx`는 **없다**. 그런데
+`app/[locale]/not-found.tsx`는 **이미 존재하고**, Civil Twilight로 완성돼 있으며
+(ink→dusk 그라디언트, hero-stars, 컨트레일 + tern 글리프, 홈/서포트 CTA)
+`NotFound` 메시지도 **4개 로케일 전부 채워져 있다.** 즉 디자인도 카피도 이미
+있었고 **거기에 도달하는 경로만 없었다.**
+
+(c) 판단 재구성 — I7의 추론은 "`app/not-found.tsx`는 루트 레이아웃을 요구한다"는
+일반 제약에 기댄 것이고, 그 자체는 맞다. 놓친 것은 **이 Next 버전의 문서**다.
+`node_modules/next/dist/docs/.../not-found.md`를 읽으니:
+
+- `not-found.js`는 **해당 세그먼트 안에서 `notFound()`가 던져질 때만** 뜬다.
+  진짜로 매칭 실패한 URL은 루트 `app/not-found.js`로 떨어진다 — 그게 없어서
+  기본 페이지가 나왔다. 원인 확정.
+- Next 15.4+에는 `global-not-found.js`가 있고, 문서가 적용 대상으로 **"루트
+  레이아웃이 최상위 동적 세그먼트인 경우(`app/[country]/layout.tsx`)"**를 명시한다.
+  이 프로젝트가 정확히 그 경우다.
+
+**핵심 답: next-intl을 건드리지 않고 고칠 수 있다.** 필요한 것은 로케일 감지·
+라우팅·메시지 변경이 아니라 "매칭 실패 시 무엇을 보여줄지" 하나뿐이다.
+미들웨어·`i18n/routing.ts`·`i18n/request.ts`·`messages/*` 전부 **무수정**.
+
+### I9-1. 구현 — `app/[locale]/[...rest]/page.tsx` (catch-all → `notFound()`)
+
+`notFound()`만 호출하는 catch-all 페이지 하나. "매칭 실패"를 "`[locale]` 안에서
+던져진 `notFound()`"로 바꿔 주므로 기존 `not-found.tsx`가 비로소 응답한다.
+`[locale]` 아래에 있으니 레이아웃·폰트·메시지가 그대로 적용돼 **요청 언어로
+공짜로 번역된다.**
+
+`global-not-found.tsx`를 쓰지 않은 이유: (1) 아직 experimental 플래그가 필요하고,
+(2) 레이아웃 렌더를 우회해 전역 스타일·폰트를 손으로 다시 import해야 하며,
+(3) 전역이라 로케일 세그먼트가 없어 **번역할 근거가 없다.** 통과 기준이
+로케일별 표시를 요구하므로 이 갈래는 요구사항에서 이미 진다.
+
+증빙 (프로덕션 빌드, `scripts/i9-shots.mjs`):
+
+| 로케일 | URL | http | h1 |
+|---|---|---|---|
+| en | `/nope-404` | 404 | You've flown off the route |
+| ko | `/ko/nope-404` | 404 | 경로를 벗어났네요 |
+| ja | `/ja/nope-404` | 404 | ルートを外れました |
+| zh | `/zh/nope-404` | 404 | 偏离航线了 |
+
+캡처 `docs/screenshots/i9-{en,ko,ja,zh}-404.png`.
+
+**캡처 함정 하나 실제로 밟았다**: 첫 실행에서 en 캡처에 **한국어**가 찍혔다.
+`localeDetection`이 켜져 있어 접두어 없는 `/nope-404`가 크롬의 Accept-Language를
+따라 `/ko`로 리다이렉트된 것이다(정상 동작이지 버그가 아니다). 스크립트에서
+로케일별로 Accept-Language를 고정하고 컨텍스트를 분리해 재캡처했다.
+
+엣지 케이스: `/fr/booking`·`/fr`(존재하지 않는 로케일), `/guide`,
+`/ko/guide/airport`(불완전 경로) 전부 404 + 브랜드 페이지. `/en/nope-404`는
+307 유지(불변). `/api/nope`도 404 정상.
+
+### 무손상 확인 (I8-1 수준으로 재확인)
+
+catch-all은 라우트 충돌 위험이 있는 변경이라 실제로 확인했다. 프로덕션 빌드에서
+20개 라우트 전부 200: `/` `/ko` `/ja` `/zh` `/booking` `/ko/booking` `/about`
+`/ko/about` `/support` `/terms` `/privacy` `/signin` `/guide/airport/{ICN,NRT}`
++ ko/ja/zh, `/sitemap.xml` `/robots.txt` `/api/airports/search`.
+가이드 본문 실렌더도 확인(h1 = `Incheon International Airport (ICN)` /
+`인천국제공항 (ICN)`, JSON-LD 1개). OG 이미지 6종 전부 200 `image/png`
+(86,756 / 75,258 / 77,245 / 76,841 / 103,604 ×2). 블로그 2종 200.
+정적 페이지 **159로 불변**.
+
+### 남은 한계 — 404 본문은 클라이언트 렌더다
+
+서버가 보내는 HTML에는 `<main>`·`<h1>`·`<svg>`가 **0개**다. 404 카피는 RSC
+페이로드에만 있고 JS 실행 후 그려진다(`<template
+data-next-error-message="NEXT_HTTP_ERROR_FALLBACK;404">`). 정상 페이지와 달리
+`<link rel="stylesheet">`도 걸리지 않는다.
+
+**다만 흰 화면 문제 자체는 해결됐다.** JS를 끄고 측정하니 body 배경이
+`rgba(0,0,0,0)`이고 실제 렌더는 **#111 다크**다 — `colorScheme: "dark"`(I7-2)가
+브라우저 UA 기본값을 다크로 만들기 때문. light/dark 스킴 둘 다 다크로 나온다.
+즉 JS 없이도 **흰 화면은 아니고**, 상태 코드 404와 `theme-color: #0A0F1E`는
+서버가 보낸다. JS가 있으면 완성된 브랜드 페이지가 뜬다(캡처).
+
+SEO 영향은 없다고 본다 — 검색엔진에 중요한 건 404 **상태 코드**이고 그건
+서버에서 정확히 나간다. 색인되면 안 되는 페이지라 본문 SSR의 가치가 낮다.
+
+서버 렌더까지 원하면 `global-not-found.tsx`가 유일한 경로이고, 그 대가는 위에
+적은 experimental + 로케일 상실이다. **지금 채택하지 않는다.**
+
+### 건드리지 않은 발견 — 존재하지 않는 IATA가 soft-404 (200)
+
+`/guide/airport/ZZZ` → **200**, `<title>ZZZ Airport (ZZZ) Airport Guide ...`,
+h1 `ZZZ Airport (ZZZ)`. `getAirportBrief`의 `DEFAULT_BRIEF`가 아무 3글자에나
+"ZZZ 공항" 플레이스홀더를 만들어 실재하지 않는 공항 페이지를 200으로 찍어낸다.
+검색엔진에는 soft-404이고, 지어낸 이름을 표시한다는 점에서 §2-1 취지에도
+어긋난다. I5-4가 자동완성에 대해 같은 문제를 `getCuratedBrief`로 막았는데
+가이드 라우트에는 적용되지 않았다.
+
+고치려면 `generateMetadata`/페이지에서 `isKnownAirport()` 확인 후 `notFound()`를
+부르면 되고, **I9-1 덕분에 이제 그게 브랜드 404로 뜬다.** I9 범위 밖이라
+후보로만 남긴다.
+
 ## I8 — 죽은 라우트 제거 + 로케일 검색 별칭 + OG 307 판단 (2026-08-01)
 
 ### I8-1. `app/guide/airport/[iata]/page.tsx` 삭제 — **잠재 리그레션이 아니라 실제 장애였다**
