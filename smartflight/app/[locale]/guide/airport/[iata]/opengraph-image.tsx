@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 import { getTranslations } from "next-intl/server";
-import { getAirportBrief } from "../../../../../lib/airportBrief";
+import { resolveAirportGuideOr404 } from "../../../../../lib/airportGuideAccess";
 import { getAllGuidedAirportCodes } from "../../../../../lib/airportGuides";
 import { ogCard, ogSize, ogContentType } from "../../../../../lib/og";
 import { routing } from "../../../../../i18n/routing";
@@ -28,7 +28,12 @@ export default async function Image({
   params: Promise<{ locale: string; iata: string }>;
 }) {
   const { locale, iata } = await params;
-  const guide = getAirportBrief(iata, locale);
+  /* I10: same gate as the page. generateStaticParams only pre-renders the 23
+     curated codes, but the route stayed dynamic for everything else, so
+     /guide/airport/ZZZ/opengraph-image happily rendered a 71KB card for an
+     airport that does not exist. Sharing the resolver means the image can
+     never name an airport the page itself would 404 on. */
+  const guide = resolveAirportGuideOr404(iata, locale);
   const t = await getTranslations({ locale, namespace: "AirportGuide" });
 
   // City/country come from the per-locale brief, so the subtitle is localized

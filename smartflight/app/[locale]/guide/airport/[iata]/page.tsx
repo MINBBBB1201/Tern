@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Link } from "../../../../../i18n/navigation";
 import { getTranslations } from "next-intl/server";
 import { SiteFooter } from "../../../../../components/SiteFooter";
-import { getAirportGuide } from "../../../../../lib/airportGuides";
+import { resolveAirportGuideOr404 } from "../../../../../lib/airportGuideAccess";
 import { buildAirportUberLink } from "../../../../../lib/rideDeepLinks";
 import { getAirport } from "../../../../../lib/airportData";
 import { alternatesFor, localeUrl, ogLocaleFor } from "../../../../../lib/seo";
@@ -11,7 +11,9 @@ type Props = { params: Promise<{ iata: string; locale: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { iata, locale } = await params;
-  const guide = getAirportGuide(iata, locale);
+  // Resolves or 404s (I10) — called here too, not only in the page, so a
+  // nonexistent code never gets metadata built for a page that will 404.
+  const guide = resolveAirportGuideOr404(iata, locale);
   // The root layout's title template ("%s | Tern") appends the suffix
   // automatically for `title` below — don't add it again here, or it
   // renders as "... | Tern | Tern". openGraph/twitter titles aren't
@@ -44,7 +46,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function AirportGuidePage({ params }: Props) {
   const { iata, locale } = await params;
-  const guide = getAirportGuide(iata, locale);
+  const guide = resolveAirportGuideOr404(iata, locale);
   const coords = getAirport(guide.iata);
   const t = await getTranslations({ locale, namespace: "AirportGuide" });
   const tNav = await getTranslations({ locale, namespace: "Nav" });
