@@ -2,7 +2,10 @@ import type { Metadata } from "next";
 import { Link } from "../../../../../i18n/navigation";
 import { getTranslations } from "next-intl/server";
 import { SiteFooter } from "../../../../../components/SiteFooter";
-import { resolveAirportGuideOr404 } from "../../../../../lib/airportGuideAccess";
+import {
+  resolveAirportGuideOr404,
+  isCuratedAirportGuide,
+} from "../../../../../lib/airportGuideAccess";
 import { buildAirportUberLink } from "../../../../../lib/rideDeepLinks";
 import { getAirport } from "../../../../../lib/airportData";
 import { alternatesFor, localeUrl, ogLocaleFor } from "../../../../../lib/seo";
@@ -28,6 +31,22 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title,
     description,
     alternates: alternatesFor(`/guide/airport/${guide.iata}`, locale),
+    /**
+     * I11: tier 2 (real airport, no hand-written guide) is noindex,follow.
+     *
+     * Those 7,894 pages carry the same generic body as each other, differing
+     * only in name/city/country — near-duplicate thin content that would
+     * compete with the 23 curated guides I5 built the sitemap around. `follow`
+     * is kept so the outbound links still pass and crawl budget isn't wasted
+     * re-discovering them.
+     *
+     * Tier 1 gets no robots directive at all, exactly as before — anything
+     * else would drop the curated guides out of search, which is the one
+     * regression this change must not cause.
+     */
+    ...(isCuratedAirportGuide(guide.iata)
+      ? {}
+      : { robots: { index: false, follow: true } }),
     openGraph: {
       title: `${title} | Tern`,
       description,
@@ -47,6 +66,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function AirportGuidePage({ params }: Props) {
   const { iata, locale } = await params;
   const guide = resolveAirportGuideOr404(iata, locale);
+  const curated = isCuratedAirportGuide(guide.iata);
   const coords = getAirport(guide.iata);
   const t = await getTranslations({ locale, namespace: "AirportGuide" });
   const tNav = await getTranslations({ locale, namespace: "Nav" });
@@ -128,6 +148,16 @@ export default async function AirportGuidePage({ params }: Props) {
           {guide.name} ({guide.iata})
         </h1>
         <p className="mt-4 text-muted leading-relaxed">{guide.summary}</p>
+
+        {/* I11: tier 2 says so plainly. Without this the generic body reads as
+            Tern's researched guide for this specific airport, which it isn't —
+            the "Airport guide" badge above promises more than the page has.
+            Muted glass panel, no new visual language. */}
+        {!curated && (
+          <p className="mt-5 glass-chip rounded-xl px-4 py-3 text-sm leading-relaxed text-muted">
+            {t("genericNotice")}
+          </p>
+        )}
 
         <section className="mt-10 glass-panel rounded-2xl p-6">
           <h2 className="text-lg font-bold">{t("terminals")}</h2>

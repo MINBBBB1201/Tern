@@ -244,7 +244,8 @@
     "avoidScams": "Avoid common scams",
     "uberCta": "Get a ride with Uber ↗",
     "uberNote": "Opens Uber with pickup set at {iata}. Availability, fares, and vehicle types vary by city—check the app for current options.",
-    "disclaimer": "Information is for planning only. Always confirm schedules and fares with the airport and operators before travel."
+    "disclaimer": "Information is for planning only. Always confirm schedules and fares with the airport and operators before travel.",
+    "genericNotice": "Tern has not published a detailed guide for this airport yet. What follows is general advice that applies to most airports — check the airport's official site for anything specific to your trip."
   },
   "NotFound": {
     "kicker": "404 — Off course",

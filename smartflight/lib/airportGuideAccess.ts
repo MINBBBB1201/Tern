@@ -61,8 +61,16 @@ export function resolveAirportGuideOr404(iata: string, locale: string): AirportG
   };
 }
 
-/** True when `iata` may have a guide page at all — the tier-3 test, no throw. */
-export function airportGuideExists(iata: string): boolean {
-  const code = iata.trim().toUpperCase();
-  return Boolean(getCuratedBrief(code) || getAirport(code));
+/**
+ * True for tier 1 — an airport with a hand-written guide.
+ *
+ * I11 uses this to split the two tiers that both render a page: tier 1 is the
+ * indexable long-tail asset I5 built, tier 2 is a real airport carrying only
+ * the generic body and must not compete with it in search.
+ *
+ * (This replaces I10's `airportGuideExists`, which was exported but never
+ * called — dead on arrival.)
+ */
+export function isCuratedAirportGuide(iata: string): boolean {
+  return getCuratedBrief(iata.trim().toUpperCase()) !== null;
 }
