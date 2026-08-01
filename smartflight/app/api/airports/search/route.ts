@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import airportsRaw from "../../../../lib/data/airports.json";
+import { getBriefSearchAliases } from "../../../../lib/airportBrief";
 
 type AirportInfo = {
   name: string;
@@ -13,6 +14,10 @@ const AIRPORTS = airportsRaw as Record<string, AirportInfo>;
 
 // Built once per server instance (module scope), not per-request.
 const ENTRIES = Object.entries(AIRPORTS);
+
+/** I8-2: IATA → localized aliases, also built once. 23 keys. */
+const ALIASES = getBriefSearchAliases();
+const EMPTY_ALIASES: readonly string[] = [];
 
 /**
  * The airport dataset has no passenger-volume/importance field, so a pure
@@ -78,6 +83,27 @@ export async function GET(req: NextRequest) {
     else if (nameLower.startsWith(q)) score = 70;
     else if (cityLower.includes(q)) score = 50;
     else if (nameLower.includes(q)) score = 40;
+
+    /**
+     * I8-2: localized aliases for the 23 curated airports, checked only after
+     * every English/IATA branch above has missed. Ordering matters — an ASCII
+     * query can never reach here with a different score than it had before
+     * this block existed, so English and IATA search are unchanged by
+     * construction rather than by test coverage alone.
+     *
+     * Scores mirror the tiers above (startsWith beats includes) so aliased
+     * hits interleave with English hits sensibly instead of always sinking
+     * or always floating.
+     */
+    if (score < 0) {
+      for (const alias of ALIASES[iata] || EMPTY_ALIASES) {
+        if (alias.startsWith(q)) {
+          score = 75;
+          break;
+        }
+        if (alias.includes(q)) score = 45;
+      }
+    }
 
     if (score > 0) {
       if (MAJOR_HUB_BOOST.has(iata)) score += 15;

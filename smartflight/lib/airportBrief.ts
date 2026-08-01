@@ -8,7 +8,7 @@
  * browser bundle. lib/airportGuides.ts composes the full guide from this
  * file plus the bodies, so nothing here is duplicated over there.
  */
-import { DEFAULT_LOCALE, isLocale, type Locale } from "../i18n/locales";
+import { DEFAULT_LOCALE, LOCALES, isLocale, type Locale } from "../i18n/locales";
 
 export type AirportBrief = {
   iata: string;
@@ -218,4 +218,41 @@ export function getCuratedBrief(iata: string, locale?: string): AirportBrief | n
   const code = iata.trim().toUpperCase();
   if (!BRIEFS[code]) return null;
   return getAirportBrief(code, locale);
+}
+
+/**
+ * I8-2: the localized name/city strings of the curated airports, as lowercased
+ * search aliases keyed by IATA.
+ *
+ * The autocomplete shows a ko user "인천국제공항" (getCuratedBrief, above) but
+ * matched only against the English `airports.json` fields, so typing the name
+ * they were just shown returned nothing. These aliases close that gap.
+ *
+ * Only the 23 curated airports are covered, and only with strings that already
+ * exist in BRIEFS — hand-checked translations from I4/I5, not machine output.
+ * The other 7,894 airports have no verified localized name, so inventing one
+ * to make it searchable would be the §2-1 breach getCuratedBrief exists to
+ * prevent. They keep English-only matching.
+ *
+ * Locale-independent on purpose: every locale's aliases are searchable at once,
+ * so the route needs no `locale` param and a ko user pasting a Japanese name
+ * still finds the airport. Display stays locale-specific; only matching widens.
+ */
+export function getBriefSearchAliases(): Record<string, string[]> {
+  const out: Record<string, string[]> = {};
+  for (const code of Object.keys(BRIEFS)) {
+    const seen = new Set<string>();
+    for (const loc of LOCALES) {
+      const { name, city } = BRIEFS[code][loc];
+      for (const s of [name, city]) {
+        const v = s.trim().toLowerCase();
+        // English name/city are already matched against airports.json, but
+        // keeping them costs nothing and covers curated spellings that differ
+        // from the dataset's (e.g. "São Paulo/Guarulhos" vs "Sao Paulo").
+        if (v) seen.add(v);
+      }
+    }
+    out[code] = [...seen];
+  }
+  return out;
 }
