@@ -1,5 +1,127 @@
 # Backlog — B/C/D/E/F/G/H series (2026-07-17 → 2026-07-22)
 
+## I8 — 죽은 라우트 제거 + 로케일 검색 별칭 + OG 307 판단 (2026-08-01)
+
+### I8-1. `app/guide/airport/[iata]/page.tsx` 삭제 — **잠재 리그레션이 아니라 실제 장애였다**
+
+브리프와 직전 라운드 보고는 이 파일을 "미들웨어 rewrite 덕에 무해한 죽은 코드"로
+분류했다. **틀렸다.** 깨끗한 dev 서버에서 재확인하니 공항 가이드 라우트가 **4개
+로케일 전부 404**였다.
+
+```
+/guide/airport/ICN    -> 404      /  -> 200
+/ko/guide/airport/ICN -> 404      /booking -> 200
+/ja/guide/airport/ICN -> 404      /about   -> 200
+/zh/guide/airport/ICN -> 404
+```
+
+다른 라우트는 전부 정상이라 서버 문제가 아니다. 인과는 실험으로 확정했다 — 중복
+파일 하나를 제거하자 같은 서버에서 **즉시 4개 전부 200**으로 바뀌었다.
+
+직전 라운드가 200을 관측한 것도 사실이다. 즉 `app/guide/...`와
+`app/[locale]/guide/...`가 같은 URL을 두고 충돌하면서 **컴파일 순서에 따라
+비결정적으로** 승자가 갈렸다. "무해함"은 관측이 운이 좋았던 것이고, 재현되지
+않는 200에 기대고 있었다.
+
+**교훈으로 남길 것**: 라우트 충돌에서 한 번의 200은 안전의 증거가 아니다.
+→ §9 추가함.
+
+로직 손실 없음. `[locale]` 버전은 삭제본의 **상위집합**이다(삭제본에 없던
+transitTips·SiteFooter·JSON-LD·generateMetadata·i18n을 모두 가짐). 삭제본에만
+있던 것은 floorGuide 섹션의 영문 안내문 한 줄("Static facts only — exact walking
+routes...")뿐이고, 대응하는 메시지 키(`floorGuideNote`)가 4개 로케일 어디에도
+없다. 도달 불가였으므로 사용자가 보던 문구가 아니다. **이식하지 않았다** — 4개
+로케일 신규 카피 작성은 I8 범위 밖이고 ja/zh 자연스러움 검증이 필요하다. 아래
+"열린 항목"에 남긴다.
+
+증빙 (프로덕션 빌드 `next start`, 응답 본문):
+
+| URL | http | h1 | 다크 | 구버전 | JSON-LD |
+|---|---|---|---|---|---|
+| `/guide/airport/ICN` | 200 | Incheon International Airport (ICN) | 1 | 0 | 1 |
+| `/ko/guide/airport/ICN` | 200 | 인천국제공항 (ICN) | 1 | 0 | 1 |
+| `/ja/guide/airport/ICN` | 200 | 仁川国際空港 (ICN) | 1 | 0 | 1 |
+| `/zh/guide/airport/ICN` | 200 | 仁川国际机场 (ICN) | 1 | 0 | 1 |
+| `/guide/airport/NRT` | 200 | Narita International Airport (NRT) | 1 | 0 | 1 |
+
+빌드 라우트 목록에서 비로케일 `/guide/...` 항목이 사라졌고 정적 페이지 수는
+**159로 불변**(삭제분이 prerender 대상이 아니었음).
+
+### I8-2. 큐레이션 23곳 로케일 별칭 검색 인덱스
+
+`lib/airportBrief.ts`에 `getBriefSearchAliases()` 추가 — `BRIEFS`의 4개 로케일
+`name`/`city`를 소문자 별칭으로 모아 IATA별로 반환. `app/api/airports/search/route.ts`가
+모듈 스코프에서 한 번 만들어 쓴다.
+
+**로케일 파라미터를 추가하지 않았다.** 모든 로케일의 별칭을 동시에 매칭하므로
+라우트 시그니처가 그대로고, ko 사용자가 일본어 표기를 붙여넣어도 찾힌다. 표시
+계층은 기존대로 로케일별(`getCuratedBrief`)이고 **매칭만 넓어진다.**
+
+무손상은 **구조로** 보장했다 — 별칭 분기는 기존 영문/IATA 분기가 전부 실패한
+경우(`score < 0`)에만 실행된다. ASCII 질의는 이 블록이 없던 때와 같은 점수를
+받을 수밖에 없다.
+
+증빙 — 구조 논증만으로는 §5를 만족하지 않으므로 실제 응답을 before/after로
+떴다. 영문·IATA 20개 질의(`atlanta` `paris` `lon` `new york` `sao` `ICN` `LGW`
+`GRU` `DXB` `ATL` `NRT` `JFK` 등)의 **순서 포함 전체 결과가 byte-identical**
+(`diff` 무출력). 캡처 스크립트 `scratchpad/probe.mjs`, 산출물 `before.txt`/`after.txt`.
+
+신규 동작 (프로덕션 빌드):
+
+| 질의 | 결과 | 질의 | 결과 |
+|---|---|---|---|
+| 인천 | ICN | 히스로 | LHR |
+| 成田 | NRT | 羽田 | HND |
+| 戴高乐 | CDG | 창이 | SIN |
+
+**브리프의 비큐레이트 예시가 또 틀렸다**: GRU·DXB는 둘 다 큐레이션 23곳에
+**포함**된다(I5-4가 CDG·GRU·DXB에 대해 같은 정정을 이미 기록했다). 실제
+비큐레이트 회귀 확인에는 `atlanta`(ATL/FTY/PDK)를 썼고 결과 불변이다.
+
+### I8-3. en OG 307 홉 — **조치 불필요로 종결**
+
+프로덕션(`www.flytern.site`) 실측:
+
+```
+GET /en/guide/airport/ICN/opengraph-image?dbc75e80dd9a5686
+  -> 307, Location: /guide/airport/ICN/opengraph-image
+  -> 200, image/png, 86,756 bytes (hops=1, 1.53s)
+```
+
+주요 스크레이퍼 User-Agent 4종 전부 **최종 200 image/png 86,756 bytes**:
+`facebookexternalhit/1.1`, `Twitterbot/1.0`, `Slackbot-LinkExpanding`,
+`LinkedInBot/1.0`. UA 기반 차단 없음. 대조군 ko는 hops=0 직행 200(75,258 bytes).
+
+**판단: 고치지 않는다.** 실제 실패 모드(스크레이퍼가 이미지를 못 받음)가
+반증됐다. 비용은 en 한정 왕복 1회뿐이고, 307에 `max-age=0, must-revalidate`가
+붙어 매 스크레이프마다 홉을 치르지만 이미지 자체는 정상 전달된다.
+
+수정 방안 2가지를 확인했고 **둘 다 채택하지 않았다**:
+
+1. `generateMetadata`에서 `openGraph.images`를 직접 조립 — Next가 붙이는 콘텐츠
+   해시(`?dbc75e80dd9a5686`, 캐시 무효화용)를 잃는다. 브리프가 인용한 기존 판단이
+   맞다. 없는 이득에 캐시 정합성을 내주는 거래다.
+2. 미들웨어 matcher에 `opengraph-image` 제외 추가
+   (`(?!...|.*opengraph-image|...)`) — 해시를 **잃지 않고** 307을 없앨 수 있다.
+   현재 matcher는 `.*\..*`로 확장자 있는 파일만 빼는데 `opengraph-image`는 확장자가
+   없어 걸린다. 다만 이건 **§3 불가침(next-intl 로케일 시스템)** 수정이므로
+   브리프 지시대로 구현하지 않고 방안만 남긴다.
+
+**검증 필요**: 위는 HTTP 계층 확인이다. 페이스북/트위터 렌더러가 실제로 카드
+미리보기를 그리는지는 디버거 로그인이 필요해 확인하지 못했다. 소유자가
+`https://www.flytern.site/guide/airport/ICN`을 페이스북 공유 디버거에 한 번
+넣어보면 종결된다.
+
+### 열린 항목 (이번에 만들지 않고 남김)
+
+- floorGuide 섹션 안내문이 4개 로케일 모두 없음. 삭제된 중복 라우트에만 영문으로
+  있었다. 신규 카피 + ja/zh 검증이 필요해 범위 밖.
+- dev 로그 경고: `The "middleware" file convention is deprecated. Please use
+  "proxy" instead.` (Next 16.2.2). §3 불가침 영역이라 손대지 않음. 마이그레이션은
+  별도 판단 필요.
+- 워크스페이스 루트 경고: `C:\Users\mimin\package-lock.json`이 루트로 추론됨.
+  `turbopack.root` 미설정. 빌드는 성공하나 경고가 매 실행 출력된다.
+
 ## I6(1차 브리프) 재실행 시도 — 게이트 실패, 코드 변경 없음 (2026-08-01)
 
 낡은 브리프가 도착했다. 내용은 "I5-3/I5-4/I5-5를 이월해 I6으로 실행하고 I7은
@@ -141,7 +263,7 @@ Safari 가 페이지를 샘플링해 툴바 색을 정하고 있었다. 게다�
 그 구조를 건드리는 것은 §3 불가침(next-intl 로케일 시스템)에 걸린다.
 I7 범위 밖이므로 후보로만 남긴다.
 
-## I6 — 실행 완료, 커밋 승인 대기 (2026-07-27)
+## I6 — 완료 (2026-07-27, 커밋 e8c4c2a·a805688·c6e9527)
 
 아래 진단 3건 중 **I6-a(교통편 재배치) · I6-a2(커서) · I6-c(토글 제거)를
 구현**했다. I6-b는 의도된 설계로 확인되어 미착수.
@@ -213,7 +335,7 @@ SmartPickCard는 `glass-panel tilt-card`만 쓴다. 즉 **기능은 있는데 �
    리빌 자체는 정상. after 캡처에서 교통편 카드가 보이는 것으로 확인.
 3. `linkOrderId` 배너 — **건드리지 않았다** (L218, 최상단 유지).
 
-### I6-b3. 모바일 globe 적응형 활성화 — 구현 완료, 커밋 승인 대기 (2026-07-28)
+### I6-b3. 모바일 globe 적응형 활성화 — 완료 (2026-07-28, 커밋 6860d16·f267c91·2c74ffd)
 
 `innerWidth < 768` / `hardwareConcurrency <= 4` 하드 게이트 **제거**.
 capability 판정을 실측 프레임타임(drei `PerformanceMonitor`)으로 대체.
