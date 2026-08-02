@@ -1,0 +1,88 @@
+{
+  "desktop": {
+    "globe canvas (3D layer)": {
+      "found": 1,
+      "painted": 1
+    },
+    "hero stage <View>": {
+      "found": 1,
+      "painted": 1
+    },
+    "ambient star layer": {
+      "found": 3,
+      "painted": 3
+    },
+    "scroll trail (G2)": {
+      "found": 14,
+      "painted": 14
+    },
+    "headline": {
+      "found": 1,
+      "painted": 1
+    },
+    "subtitle": {
+      "found": 1,
+      "painted": 1
+    },
+    "popular-route ticker": {
+      "found": 1,
+      "painted": 1
+    },
+    "search bar": {
+      "found": 1,
+      "painted": 1
+    },
+    "smartpicks strip": {
+      "found": 6,
+      "painted": 6
+    },
+    "airline logos strip": {
+      "found": 6,
+      "painted": 6
+    },
+    "__heroHeight": 900
+  },
+  "mobile390": {
+    "globe canvas (3D layer)": {
+      "found": 1,
+      "painted": 1
+    },
+    "hero stage <View>": {
+      "found": 1,
+      "painted": 1
+    },
+    "ambient star layer": {
+      "found": 3,
+      "painted": 3
+    },
+    "scroll trail (G2)": {
+      "found": 14,
+      "painted": 13
+    },
+    "headline": {
+      "found": 1,
+      "painted": 1
+    },
+    "subtitle": {
+      "found": 1,
+      "painted": 1
+    },
+    "popular-route ticker": {
+      "found": 1,
+      "painted": 1
+    },
+    "search bar": {
+      "found": 1,
+      "painted": 1
+    },
+    "smartpicks strip": {
+      "found": 6,
+      "painted": 6
+    },
+    "airline logos strip": {
+      "found": 6,
+      "painted": 6
+    },
+    "__heroHeight": 1422
+  }
+}

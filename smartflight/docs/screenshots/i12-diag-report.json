@@ -1,0 +1,174 @@
+[
+  {
+    "label": "iphone390",
+    "width": 390,
+    "height": 844,
+    "dpr": 3,
+    "http": 200,
+    "tierBefore": "full",
+    "fps": 4.3,
+    "stage": {
+      "w": 390,
+      "h": 844,
+      "aspect": 0.462
+    },
+    "hero": {
+      "w": 390,
+      "h": 1382.1,
+      "aspect": 0.282
+    },
+    "canvas": {
+      "w": 390,
+      "h": 844
+    },
+    "innerW": 390,
+    "innerH": 844,
+    "staticFlag": null,
+    "hasStaticCard": false,
+    "ticker": "ICN → JFKSeoul · New York",
+    "orbit": {
+      "world": [
+        -0.893,
+        1.541,
+        0.103
+      ],
+      "center": [
+        -0.308,
+        1.317,
+        -0.635
+      ],
+      "radius": 0.834,
+      "dist": 0.968,
+      "ratio": 1.16
+    }
+  },
+  {
+    "label": "android360",
+    "width": 360,
+    "height": 800,
+    "dpr": 3,
+    "http": 200,
+    "tierBefore": "full",
+    "fps": 4.5,
+    "stage": {
+      "w": 360,
+      "h": 800,
+      "aspect": 0.45
+    },
+    "hero": {
+      "w": 360,
+      "h": 1382.1,
+      "aspect": 0.26
+    },
+    "canvas": {
+      "w": 360,
+      "h": 800
+    },
+    "innerW": 360,
+    "innerH": 800,
+    "staticFlag": null,
+    "hasStaticCard": false,
+    "ticker": "ICN → JFKSeoul · New York",
+    "orbit": {
+      "world": [
+        -0.831,
+        1.585,
+        0.115
+      ],
+      "center": [
+        -0.291,
+        1.35,
+        -0.616
+      ],
+      "radius": 0.809,
+      "dist": 0.939,
+      "ratio": 1.16
+    }
+  },
+  {
+    "label": "iphone414",
+    "width": 414,
+    "height": 896,
+    "dpr": 2,
+    "http": 200,
+    "tierBefore": "full",
+    "fps": 3.1,
+    "stage": {
+      "w": 414,
+      "h": 896,
+      "aspect": 0.462
+    },
+    "hero": {
+      "w": 414,
+      "h": 1292.4,
+      "aspect": 0.32
+    },
+    "canvas": {
+      "w": 414,
+      "h": 896
+    },
+    "innerW": 414,
+    "innerH": 896,
+    "staticFlag": null,
+    "hasStaticCard": false,
+    "ticker": "ICN → JFKSeoul · New York",
+    "orbit": {
+      "world": [
+        -0.918,
+        1.427,
+        0.108
+      ],
+      "center": [
+        -0.308,
+        1.317,
+        -0.635
+      ],
+      "radius": 0.834,
+      "dist": 0.967,
+      "ratio": 1.16
+    }
+  },
+  {
+    "label": "desktop1440",
+    "width": 1440,
+    "height": 900,
+    "dpr": 1,
+    "http": 200,
+    "tierBefore": "full",
+    "fps": 3.1,
+    "stage": {
+      "w": 1440,
+      "h": 900,
+      "aspect": 1.6
+    },
+    "hero": {
+      "w": 1440,
+      "h": 900,
+      "aspect": 1.6
+    },
+    "canvas": {
+      "w": 1440,
+      "h": 900
+    },
+    "innerW": 1440,
+    "innerH": 900,
+    "staticFlag": null,
+    "hasStaticCard": false,
+    "ticker": "ICN → JFKSeoul · New York",
+    "orbit": {
+      "world": [
+        -2.842,
+        0.962,
+        0.441
+      ],
+      "center": [
+        -2.354,
+        0,
+        -1.4
+      ],
+      "radius": 1.839,
+      "dist": 2.133,
+      "ratio": 1.16
+    }
+  }
+]

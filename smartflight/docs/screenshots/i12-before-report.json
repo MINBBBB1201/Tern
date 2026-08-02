@@ -1,0 +1,106 @@
+[
+  {
+    "label": "390",
+    "width": 390,
+    "height": 844,
+    "dpr": 3,
+    "http": 200,
+    "fps": 30.1,
+    "monitor": {
+      "fps": 71,
+      "refreshrate": 71,
+      "factor": 0.5
+    },
+    "stage": {
+      "w": 390,
+      "h": 1382.1,
+      "aspect": 0.282
+    },
+    "pass": null,
+    "headline": {
+      "top": 320,
+      "bottom": 407.3,
+      "left": 24,
+      "right": 366
+    },
+    "overlapsHeadline": null
+  },
+  {
+    "label": "360",
+    "width": 360,
+    "height": 800,
+    "dpr": 3,
+    "http": 200,
+    "fps": 31.2,
+    "monitor": {
+      "fps": 34,
+      "refreshrate": 37,
+      "factor": 0.5
+    },
+    "stage": {
+      "w": 360,
+      "h": 1382.1,
+      "aspect": 0.26
+    },
+    "pass": null,
+    "headline": {
+      "top": 144,
+      "bottom": 231.3,
+      "left": 22.5,
+      "right": 337.5
+    },
+    "overlapsHeadline": null
+  },
+  {
+    "label": "414",
+    "width": 414,
+    "height": 896,
+    "dpr": 2,
+    "http": 200,
+    "fps": 30.3,
+    "monitor": {
+      "fps": 34,
+      "refreshrate": 34,
+      "factor": 0.5
+    },
+    "stage": {
+      "w": 414,
+      "h": 1292.4,
+      "aspect": 0.32
+    },
+    "pass": null,
+    "headline": {
+      "top": 144,
+      "bottom": 187.7,
+      "left": 26.9,
+      "right": 387.1
+    },
+    "overlapsHeadline": null
+  },
+  {
+    "label": "desktop",
+    "width": 1440,
+    "height": 900,
+    "dpr": 1,
+    "http": 200,
+    "fps": 29.9,
+    "monitor": {
+      "fps": 34,
+      "refreshrate": 36,
+      "factor": 0.5
+    },
+    "stage": {
+      "w": 1440,
+      "h": 900,
+      "aspect": 1.6
+    },
+    "pass": null,
+    "headline": {
+      "top": 278.5,
+      "bottom": 349.1,
+      "left": 747.8,
+      "right": 1329.6
+    },
+    "overlapsHeadline": null
+  }
+]

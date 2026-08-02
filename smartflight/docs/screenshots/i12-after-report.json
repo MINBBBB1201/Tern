@@ -1,0 +1,138 @@
+[
+  {
+    "label": "390",
+    "width": 390,
+    "height": 844,
+    "dpr": 3,
+    "http": 200,
+    "fps": 62.9,
+    "monitor": {
+      "fps": 52,
+      "refreshrate": 80,
+      "factor": 0.5
+    },
+    "stage": {
+      "w": 390,
+      "h": 844,
+      "aspect": 0.462
+    },
+    "pass": {
+      "left": 208.1,
+      "right": 355.1,
+      "top": 76.5,
+      "bottom": 147.4,
+      "marginLeft": 208.1,
+      "marginRight": 34.9,
+      "fitsHorizontally": true
+    },
+    "headline": {
+      "top": 184,
+      "bottom": 271.3,
+      "left": 24,
+      "right": 366
+    },
+    "overlapsHeadline": false
+  },
+  {
+    "label": "360",
+    "width": 360,
+    "height": 800,
+    "dpr": 3,
+    "http": 200,
+    "fps": 69.6,
+    "monitor": {
+      "fps": 86,
+      "refreshrate": 88,
+      "factor": 0.5
+    },
+    "stage": {
+      "w": 360,
+      "h": 800,
+      "aspect": 0.45
+    },
+    "pass": {
+      "left": 192.3,
+      "right": 327.4,
+      "top": 71.8,
+      "bottom": 137.1,
+      "marginLeft": 192.3,
+      "marginRight": 32.6,
+      "fitsHorizontally": true
+    },
+    "headline": {
+      "top": 184,
+      "bottom": 271.3,
+      "left": 22.5,
+      "right": 337.5
+    },
+    "overlapsHeadline": false
+  },
+  {
+    "label": "414",
+    "width": 414,
+    "height": 896,
+    "dpr": 2,
+    "http": 200,
+    "fps": 72.7,
+    "monitor": {
+      "fps": 104,
+      "refreshrate": 121,
+      "factor": 0.5
+    },
+    "stage": {
+      "w": 414,
+      "h": 896,
+      "aspect": 0.462
+    },
+    "pass": {
+      "left": 220.9,
+      "right": 376.9,
+      "top": 81.2,
+      "bottom": 156.5,
+      "marginLeft": 220.9,
+      "marginRight": 37.1,
+      "fitsHorizontally": true
+    },
+    "headline": {
+      "top": 184,
+      "bottom": 227.7,
+      "left": 26.9,
+      "right": 387.1
+    },
+    "overlapsHeadline": false
+  },
+  {
+    "label": "desktop",
+    "width": 1440,
+    "height": 900,
+    "dpr": 1,
+    "http": 200,
+    "fps": 58.6,
+    "monitor": {
+      "fps": 66,
+      "refreshrate": 66,
+      "factor": 0.5
+    },
+    "stage": {
+      "w": 1440,
+      "h": 900,
+      "aspect": 1.6
+    },
+    "pass": {
+      "left": 862.8,
+      "right": 1219,
+      "top": 110.6,
+      "bottom": 274.9,
+      "marginLeft": 862.8,
+      "marginRight": 221,
+      "fitsHorizontally": true
+    },
+    "headline": {
+      "top": 278.5,
+      "bottom": 349.1,
+      "left": 747.8,
+      "right": 1329.6
+    },
+    "overlapsHeadline": false
+  }
+]
