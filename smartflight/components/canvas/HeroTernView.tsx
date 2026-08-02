@@ -67,8 +67,28 @@ const CONTRAIL = new THREE.Color("#8FE0E8");
 const PASS_W = 1.9;
 const PASS_H = 0.85;
 const PASS_R = 0.09; // boarding-pass slab corner radius — glint targets derive from it
-const TRAIL_N = 120;
+const TRAIL_N = 260;
 const TERN_SCALE = 0.6;
+
+/** Wingtrail grain. `TRAIL_STEP` is the world-space gap between samples and
+ *  `TRAIL_SIZE` the sprite diameter; both project through the same camera, so
+ *  their RATIO — and therefore how continuous the contrail reads — is constant
+ *  at every viewport and every composition scale. See the emitter in
+ *  TernSequence for why spacing is a distance and not "one point per frame".
+ *
+ *  The ratio is 0.25 rather than the ~1.0 the old per-frame emitter happened
+ *  to produce at 60fps because a soft radial sprite's VISIBLE core is only
+ *  about 40% of its nominal size — at pitch ≈ size the cores stay apart and
+ *  the trail still reads as a row of beads rather than a line (measured on a
+ *  0.45 build before settling here; docs/screenshots/i12-desktop-trail-after.png
+ *  is the shipped grain).
+ *  Quartering the pitch overlaps the cores; TRAIL_N rises to keep the same
+ *  trail LENGTH (260 × 0.25 ≈ the old 120 × 0.55), and TRAIL_GAIN takes the
+ *  per-sample brightness back down so ~4x the additive overlap does not turn
+ *  the contrail into a solid bar. */
+const TRAIL_SIZE = 0.095;
+const TRAIL_STEP = TRAIL_SIZE * 0.25;
+const TRAIL_GAIN = 0.45;
 
 /**
  * Portrait composition transform, written once per frame by
@@ -281,6 +301,74 @@ function applyWingbeat(
   wrists[0].rotation.x = wr - 0.14 * (1 - env);
   wrists[1].rotation.x = -(wr - 0.14 * (1 - env));
 }
+
+/** Soft radial glint sprite — white core to transparent edge. Under additive
+ *  blending the falloff reads as glow rather than as a hard-edged quad. Shared
+ *  by the corner sparks and (since I12) the wingtrail, which used the default
+ *  square point. */
+function makeGlowSprite(): THREE.CanvasTexture {
+  const c = document.createElement("canvas");
+  c.width = c.height = 64;
+  const ctx = c.getContext("2d")!;
+  const grd = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+  grd.addColorStop(0, "rgba(255,255,255,1)");
+  grd.addColorStop(0.35, "rgba(255,255,255,0.6)");
+  grd.addColorStop(1, "rgba(255,255,255,0)");
+  ctx.fillStyle = grd;
+  ctx.fillRect(0, 0, 64, 64);
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+
+/**
+ * Wingtrail shader.
+ *
+ * Why not PointsMaterial (which this replaces): the trail's per-sample fade
+ * lived in a vertex COLOR, and PointsMaterial's fragment alpha is
+ * `opacity * mapAlpha` — it does not know about vertex colour at all
+ * (`<color_fragment>` multiplies rgb only). So a fully faded sample still
+ * wrote alpha = 1 with rgb ≈ 0. The site canvas is `alpha: true` and clears
+ * transparent, so "opaque black" is not a no-op: those samples punched solid
+ * black squares into the page. That is the reported "square markers" —
+ * visible as a black dashed rectangle in
+ * docs/screenshots/i12-desktop-orbit-before.png, where the not-yet-emitted
+ * tail sits on the boarding-pass outline at fade 0.
+ *
+ * Here the fade is a per-point attribute driving BOTH colour and alpha, so a
+ * faded sample contributes nothing to either channel. Blending is spelled out
+ * rather than using AdditiveBlending because the alpha channel matters for
+ * compositing over the page: alpha accumulates with the same linear weight as
+ * rgb (One/One) instead of AdditiveBlending's SrcAlpha·SrcAlpha.
+ *
+ * gl_PointSize reproduces three's own points convention exactly
+ * (`size * pixelRatio * (cssHeight / 2) / -z`, see WebGLMaterials
+ * refreshUniformsPoints) so landscape keeps the grain it was tuned with.
+ */
+const trailVertex = /* glsl */ `
+  attribute float aFade;
+  uniform float uSize;
+  uniform float uScale;
+  varying float vFade;
+  void main() {
+    vFade = aFade;
+    vec4 mv = modelViewMatrix * vec4(position, 1.0);
+    gl_PointSize = max(uSize * (uScale / -mv.z), 1.0);
+    gl_Position = projectionMatrix * mv;
+  }
+`;
+
+const trailFragment = /* glsl */ `
+  uniform vec3 uColor;
+  uniform float uOpacity;
+  uniform sampler2D uMap;
+  varying float vFade;
+  void main() {
+    float a = texture2D(uMap, gl_PointCoord).a * vFade * uOpacity;
+    if (a <= 0.001) discard;
+    gl_FragColor = vec4(uColor, a);
+  }
+`;
 
 function roundedRectShape(w: number, h: number, r: number): THREE.Shape {
   const s = new THREE.Shape();
@@ -637,19 +725,32 @@ function buildScene() {
       edgeMat.opacity = 0.4 * f;
     };
 
-    // Wingtrail
+    // Wingtrail. `aFade` (not a vertex colour) carries the per-sample
+    // brightness — see trailFragment for why that distinction is the bug fix.
     const trailPos = new Float32Array(TRAIL_N * 3);
-    const trailCol = new Float32Array(TRAIL_N * 3);
+    const trailFade = new Float32Array(TRAIL_N);
     const trailGeo = new THREE.BufferGeometry();
     trailGeo.setAttribute("position", new THREE.BufferAttribute(trailPos, 3));
-    trailGeo.setAttribute("color", new THREE.BufferAttribute(trailCol, 3));
-    const trailMat = new THREE.PointsMaterial({
-      size: 0.095,
-      sizeAttenuation: true,
-      vertexColors: true,
-      blending: THREE.AdditiveBlending,
+    trailGeo.setAttribute("aFade", new THREE.BufferAttribute(trailFade, 1));
+    const trailSprite = makeGlowSprite();
+    const trailMat = new THREE.ShaderMaterial({
+      vertexShader: trailVertex,
+      fragmentShader: trailFragment,
+      uniforms: {
+        uColor: { value: CONTRAIL.clone() },
+        uOpacity: { value: 1 },
+        uSize: { value: TRAIL_SIZE },
+        uScale: { value: 1 },
+        uMap: { value: trailSprite },
+      },
       transparent: true,
       depthWrite: false,
+      blending: THREE.CustomBlending,
+      blendEquation: THREE.AddEquation,
+      blendSrc: THREE.SrcAlphaFactor,
+      blendDst: THREE.OneFactor,
+      blendSrcAlpha: THREE.OneFactor,
+      blendDstAlpha: THREE.OneFactor,
     });
     const trail = new THREE.Points(trailGeo, trailMat);
     trail.frustumCulled = false;
@@ -713,20 +814,7 @@ function buildScene() {
   // Soft radial sprite so the sparks read as glints, not the default
   // square point. White→transparent gradient; additive blending turns
   // the transparent falloff into a smooth glow, vertexColors tints it.
-  const sparkSprite = (() => {
-    const c = document.createElement("canvas");
-    c.width = c.height = 64;
-    const ctx = c.getContext("2d")!;
-    const grd = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
-    grd.addColorStop(0, "rgba(255,255,255,1)");
-    grd.addColorStop(0.35, "rgba(255,255,255,0.6)");
-    grd.addColorStop(1, "rgba(255,255,255,0)");
-    ctx.fillStyle = grd;
-    ctx.fillRect(0, 0, 64, 64);
-    const tex = new THREE.CanvasTexture(c);
-    tex.colorSpace = THREE.SRGBColorSpace;
-    return tex;
-  })();
+  const sparkSprite = makeGlowSprite();
   const sparkMat = new THREE.PointsMaterial({
     size: 0.34,
     map: sparkSprite,
@@ -747,7 +835,7 @@ function buildScene() {
   return {
     root, tern, wingGroups, wristGroups, wingGeos,
     bodyGeo, capGeo, billGeo, tailGeo,
-    trail, trailGeo, trailPos, trailCol, trailMat,
+    trail, trailGeo, trailPos, trailFade, trailMat, trailSprite,
     pass, slabGeo, slabMat, passEdgeMat, faceGeo, faceMat, faceTex, faceCanvas,
     sparks, sparkGeo, sparkMat, sparkSprite, sparkPos, sparkCol, cornerOffsets,
     bodyMat, capMat, billMat, wingMat, edgeMat, setBirdFade,
@@ -792,6 +880,7 @@ function TernSequence() {
       [built.bodyMat, built.capMat, built.billMat, built.wingMat, built.edgeMat, built.trailMat, built.slabMat, built.passEdgeMat, built.faceMat, built.sparkMat].forEach((m) => m.dispose());
       built.faceTex.dispose();
       built.sparkSprite.dispose();
+      built.trailSprite.dispose();
       built.root.traverse((obj) => {
         if (obj instanceof THREE.LineSegments) obj.geometry.dispose();
       });
@@ -805,6 +894,8 @@ function TernSequence() {
     flapPhase: 0,
     gaitPhase: 0.9, // start inside a flap burst so the entry beats wings
     trailFilled: 0,
+    emitInit: false, // distance-stepped trail emitter (see the emit block)
+    lastEmit: new THREE.Vector3(),
     snapshotTaken: false,
     trailSnapshot: new Float32Array(TRAIL_N * 3),
     heroEl: null as Element | null,
@@ -828,6 +919,7 @@ function TernSequence() {
       a.lastNow = performance.now();
       a.freezeAt = freeze ? offsetMs : -1;
       a.trailFilled = 0;
+      a.emitInit = false;
       a.snapshotTaken = false;
       a.theta0 = NaN;
       a.ambientInit = false;
@@ -913,7 +1005,7 @@ function TernSequence() {
     ae1: THREE.Vector3; ae2: THREE.Vector3;
     b1: THREE.Vector3; b2: THREE.Vector3; breakP0: THREE.Vector3; breakF0: THREE.Vector3;
     basisM: THREE.Matrix4; qTarget: THREE.Quaternion; qBank: THREE.Quaternion;
-    sparkLocal: THREE.Vector3;
+    sparkLocal: THREE.Vector3; glSize: THREE.Vector2;
   } | null>(null);
   if (tmpRef.current === null) {
     tmpRef.current = {
@@ -944,13 +1036,14 @@ function TernSequence() {
       qTarget: new THREE.Quaternion(),
       qBank: new THREE.Quaternion(),
       sparkLocal: new THREE.Vector3(),
+      glSize: new THREE.Vector2(),
     };
   }
   const {
     posA, posB, settleWorld, tailLocal, raycaster, zPlane, ndc,
     tangent, toSettle, radial, globeCenter, sideAxis, upAxis,
     entryStart, entryCtrl, fe1, fe2, ae1, ae2, b1, b2, breakP0, breakF0, basisM, qTarget, qBank,
-    sparkLocal,
+    sparkLocal, glSize,
   } = tmpRef.current;
 
   useFrame((state) => {
@@ -963,7 +1056,7 @@ function TernSequence() {
 
     const a = anim.current;
     const {
-      tern, wingGroups, wristGroups, trail, trailGeo, trailPos, trailCol, trailMat,
+      tern, wingGroups, wristGroups, trail, trailGeo, trailPos, trailFade, trailMat,
       pass, slabMat, passEdgeMat, faceMat, setBirdFade,
       sparks, sparkMat, sparkPos, sparkCol, cornerOffsets,
     } = built;
@@ -1037,6 +1130,16 @@ function TernSequence() {
     };
 
     unproject(SETTLE, settleWorld);
+
+    // Trail grain, refreshed from this frame's renderer + composition.
+    // uSize/uScale mirror three's own points convention exactly (see
+    // trailVertex) so the landscape grain is bit-identical to the
+    // PointsMaterial this replaced; multiplying by the composition scale is
+    // the new part — without it the sprites keep their landscape pixel size
+    // while the scene around them shrinks, so portrait got a contrail more
+    // than twice as coarse as the one it was tuned for.
+    trailMat.uniforms.uSize.value = TRAIL_SIZE * heroComp.scale * state.gl.getPixelRatio();
+    trailMat.uniforms.uScale.value = state.gl.getSize(glSize).y * 0.5;
 
     if (elapsed < FLIGHT_MS) {
       if (!spin) return; // globe not registered yet (first frame at most)
@@ -1118,26 +1221,49 @@ function TernSequence() {
       // rhythm as the orbit settles in.
       applyWingbeat(wingGroups, wristGroups, a, dt, 10.5 - 3.5 * p, elapsed < ENTRY_MS ? 0 : 0.3 * p);
 
-      // emit trail from the tail
+      // Emit trail from the tail — by DISTANCE FLOWN, not once per frame.
+      //
+      // One sample per frame ties the contrail's grain to the device's frame
+      // rate: the bird's speed is wall-clock (ORBIT_MS), so a phone at 30fps
+      // spaces the samples twice as far apart as a desktop at 60, and a phone
+      // that dips to 20 spaces them three times as far — the contrail stops
+      // being a line and becomes a row of separate marks. Stepping a fixed
+      // world distance makes the trail identical at any frame rate: slow
+      // frames insert the samples the bird flew past, they are not lost.
+      // The step scales with the composition so portrait keeps the same grain
+      // (see TRAIL_STEP).
       tailLocal.set(-1.0, 0.05, 0).applyQuaternion(tern.quaternion).multiplyScalar(tern.scale.x).add(tern.position);
-      trailPos.copyWithin(3, 0, (TRAIL_N - 1) * 3);
-      trailPos[0] = tailLocal.x;
-      trailPos[1] = tailLocal.y;
-      trailPos[2] = tailLocal.z;
-      a.trailFilled = Math.min(a.trailFilled + 1, TRAIL_N);
+      const step = TRAIL_STEP * heroComp.scale;
+      const pushTrail = (v: THREE.Vector3) => {
+        trailPos.copyWithin(3, 0, (TRAIL_N - 1) * 3);
+        trailPos[0] = v.x;
+        trailPos[1] = v.y;
+        trailPos[2] = v.z;
+        a.trailFilled = Math.min(a.trailFilled + 1, TRAIL_N);
+      };
+      if (!a.emitInit) {
+        a.emitInit = true;
+        a.lastEmit.copy(tailLocal);
+        pushTrail(tailLocal);
+      }
+      let gap = tailLocal.distanceTo(a.lastEmit);
+      // Bounded: after a stall (or a tab returning to the foreground) refill
+      // at most one whole trail rather than looping over a huge distance.
+      for (let guard = 0; gap >= step && guard < TRAIL_N; guard++) {
+        a.lastEmit.lerp(tailLocal, step / gap);
+        pushTrail(a.lastEmit);
+        gap = tailLocal.distanceTo(a.lastEmit);
+      }
       for (let i = 0; i < TRAIL_N; i++) {
-        const fade = i < a.trailFilled ? Math.pow(1 - i / TRAIL_N, 2.2) : 0;
-        trailCol[i * 3] = 0.62 * fade;
-        trailCol[i * 3 + 1] = 0.92 * fade;
-        trailCol[i * 3 + 2] = 0.96 * fade;
+        trailFade[i] = i < a.trailFilled ? TRAIL_GAIN * Math.pow(1 - i / TRAIL_N, 2.2) : 0;
       }
       trail.visible = true;
       trailGeo.attributes.position.needsUpdate = true;
-      trailGeo.attributes.color.needsUpdate = true;
+      trailGeo.attributes.aFade.needsUpdate = true;
 
       // scroll-out fade (item 4): dim, never slice
       setBirdFade(flightFade);
-      trailMat.opacity = flightFade;
+      trailMat.uniforms.uOpacity.value = flightFade;
       tern.visible = flightFade > 0.01;
     } else if (elapsed < FLIGHT_MS + HANDOFF_MS) {
       // Phase B — the breakaway: the tern leaves the orbit tangentially,
@@ -1188,7 +1314,7 @@ function TernSequence() {
       tern.scale.setScalar(TERN_SCALE * (1 - 0.94 * smoothstep(q, 0.6, 0.95)));
       const dissolve = 1 - smoothstep(q, 0.7, 0.94);
       setBirdFade(dissolve * flightFade);
-      trailMat.opacity = flightFade;
+      trailMat.uniforms.uOpacity.value = flightFade;
       tern.visible = dissolve * flightFade > 0.01;
 
       // trail particles converge onto the pass outline — crystallizing
@@ -1201,13 +1327,10 @@ function TernSequence() {
         trailPos[i * 3 + 1] = a.trailSnapshot[i * 3 + 1] + (ty - a.trailSnapshot[i * 3 + 1]) * s;
         trailPos[i * 3 + 2] = a.trailSnapshot[i * 3 + 2] * (1 - s);
         const base = i < a.trailFilled ? Math.pow(1 - i / TRAIL_N, 2.2) : 0;
-        const glow = base * (1 - s) + (i < a.trailFilled ? 0.85 * s * (1 - q) : 0);
-        trailCol[i * 3] = 0.62 * glow;
-        trailCol[i * 3 + 1] = 0.92 * glow;
-        trailCol[i * 3 + 2] = 0.96 * glow;
+        trailFade[i] = TRAIL_GAIN * (base * (1 - s) + (i < a.trailFilled ? 0.85 * s * (1 - q) : 0));
       }
       trailGeo.attributes.position.needsUpdate = true;
-      trailGeo.attributes.color.needsUpdate = true;
+      trailGeo.attributes.aFade.needsUpdate = true;
       trail.visible = q < 0.995;
 
       // pass grows from a sliver, timed to meet the arriving bird: it
