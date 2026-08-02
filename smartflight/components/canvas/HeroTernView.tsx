@@ -1460,10 +1460,30 @@ export default function HeroTernView() {
   if (isStatic) return <StaticBoardingPass />;
 
   return (
-    <View
-      aria-hidden="true"
-      style={{ position: "absolute", inset: 0, pointerEvents: "none" }}
-    >
+    // The <View>'s DOM box IS the 3D stage: drei tracks this rect and drives
+    // the view camera's aspect from it, and every composition number in this
+    // file (portraitTransform, SETTLE) plus the globe's radius/placement are
+    // functions of that aspect.
+    //
+    // The box itself lives in globals.css (.hero-stage) rather than here,
+    // because it needs a `100vh` declaration followed by a `100svh` one — a
+    // fallback pair an inline style object cannot express, and without it a
+    // browser that does not know `svh` drops the whole height and collapses
+    // the stage to zero.
+    //
+    // I12: it used to be `inset: 0` — the whole hero. On desktop the hero is
+    // exactly one viewport (900px), so stage == screen and the composition was
+    // authored correctly. On a phone the hero is its CONTENT: headline, copy,
+    // ticker, the search bar (which stacks vertically at <768px) and the
+    // SmartPicks strip stack up to ~1382px against an 844px screen. The stage
+    // was therefore 390x1382 — aspect 0.28 — and the scene composed itself for
+    // a frame two thirds of which the user cannot see: globe diameter came out
+    // at 106% of the screen width and the boarding pass was pushed off the
+    // right edge. Pinning the stage to the visible viewport makes phone and
+    // desktop agree that the stage is one screen. `min()` keeps a hero that is
+    // SHORTER than a viewport from claiming space it does not have; on desktop
+    // both terms are 900px, so landscape is byte-for-byte unchanged.
+    <View aria-hidden="true" className="hero-stage">
       <PerspectiveCamera makeDefault fov={45} position={[0, 0, 6]} near={0.1} far={1000} />
       {/* Civil-twilight lighting: warm horizon key from below, cool sky rim. */}
       <ambientLight color={0x2a3a66} intensity={1.4} />

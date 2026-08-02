@@ -403,6 +403,36 @@ body {
   text-align: center;
 }
 
+/* The 3D stage — the drei <View> box for the hero scene. Sized to one
+   VIEWPORT, not to the hero element, because drei drives the view camera's
+   aspect from this rect and the whole composition (globe radius, portrait
+   ramp, boarding-pass anchor) is a function of that aspect. The hero is as
+   tall as its content, which on a phone is ~1.7 viewports — composing against
+   that produced a globe wider than the screen and a pass off the right edge
+   (I12). Desktop heroes are exactly one viewport, so both terms are equal
+   there and landscape is unchanged. */
+.hero-stage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: min(100svh, 100%);
+  pointer-events: none;
+}
+
+/* svh fallback. It has to be @supports and not a second `height:` line in the
+   rule above: the CSS optimiser collapses duplicate properties and keeps only
+   the last, so the classic fallback pair silently loses the fallback (checked
+   against the served chunk, not assumed). Without a fallback a browser that
+   does not know svh drops the height entirely and the stage — absolutely
+   positioned with no bottom — collapses to zero, taking the whole hero scene
+   with it. */
+@supports not (height: 100svh) {
+  .hero-stage {
+    height: min(100vh, 100%);
+  }
+}
+
 @media (min-width: 1024px) {
   .hero-twilight:not([data-hero-static]) .hero-copy {
     align-self: flex-end;
