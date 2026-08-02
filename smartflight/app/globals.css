@@ -1065,14 +1065,32 @@ body {
 
 /* Mobile: the hero content block nearly fills the viewport, so the pass
    pins to a fixed offset under the nav and the content starts below it
-   instead of centering into a collision (headline used to overlap it). */
+   instead of centering into a collision (headline used to overlap it).
+   I12: scoped to [data-hero-static]. The reserve exists for the STATIC
+   card, which only renders in the static branch — but the selector applied
+   to every phone, so the animated 3D hero also carried 320px of empty
+   reserve. That is not just dead space: the hero is the drei <View>'s
+   tracked rect, so a 390x844 phone reported a 390x1558 stage (aspect 0.25)
+   and every aspect-derived number in the scene was computed against it —
+   globe diameter 106% of the screen width, the pass driven off the right
+   edge. Same :not([data-hero-static]) split .hero-copy already uses. */
 @media (max-width: 767px) {
   .boarding-pass-static-wrap {
     top: 84px;
   }
-  .hero-twilight .hero-content {
+  .hero-twilight[data-hero-static] .hero-content {
     justify-content: flex-start !important;
     padding-top: 320px !important;
+  }
+  /* The animated branch needs the same kind of reserve, sized to the 3D pass
+     rather than to the static card: the pass settles at 76-157px depending on
+     width (docs/screenshots/i12-after-report.json), so 184px clears its lower
+     edge by ~27px at the tightest width (414). Without this the headline box
+     ran into the pass — the reason 320px existed in the first place, just at
+     the wrong size for this branch. */
+  .hero-twilight:not([data-hero-static]) .hero-content {
+    justify-content: flex-start !important;
+    padding-top: 184px !important;
   }
 }
 

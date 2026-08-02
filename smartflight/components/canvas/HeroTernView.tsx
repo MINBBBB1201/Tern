@@ -31,9 +31,21 @@ import { useQuality } from "./quality";
 
 type PathPoint = { x: number; y: number };
 
-/** Where the boarding pass settles (fractional hero coords). Raised from
- *  0.26 when the route ticker lengthened the copy block below it. */
-const SETTLE: PathPoint = { x: 0.72, y: 0.225 };
+/** Where the boarding pass settles (fractional stage coords). Raised from
+ *  0.26 when the route ticker lengthened the copy block below it.
+ *
+ *  I12: portrait needed its own anchor. In landscape the copy sits in the
+ *  right half BELOW the pass, so 0.225 clears it. In portrait the headline
+ *  is centred and full-width, and the pass — ~37% of the stage width — landed
+ *  straight on top of "Chase the horizon."
+ *  (docs/screenshots/i12-diag-iphone390-pass.png). Portrait therefore lifts
+ *  the pass into the empty band between the nav and the headline, which is
+ *  also clear of the globe: the globe's right limb ends at ~0.58 of the stage
+ *  width, the pass starts at ~0.61. x is unchanged — the right side is the
+ *  side the pass has always occupied, and moving it to centre would put it
+ *  back over the globe's cap. */
+const SETTLE_LANDSCAPE: PathPoint = { x: 0.72, y: 0.225 };
+const SETTLE_PORTRAIT: PathPoint = { x: 0.72, y: 0.135 };
 
 /**
  * One continuous cinematic beat (Stage 1.5 update #2): the tern swoops in
@@ -120,13 +132,23 @@ const heroComp = { scale: 1, offsetY: 0 };
  *
  * 0 at landscape (aspect >= 0.95), ramping to 1 at phone portrait (<= 0.45).
  */
+const portraitRamp = (aspect: number) => THREE.MathUtils.clamp((0.95 - aspect) / 0.5, 0, 1);
+
 const portraitTransform = (aspect: number) => {
-  const t = THREE.MathUtils.clamp((0.95 - aspect) / 0.5, 0, 1);
+  const t = portraitRamp(aspect);
   return {
+    t,
     scale: THREE.MathUtils.lerp(1, 0.44, t),
     offsetY: THREE.MathUtils.lerp(0, 1.35, t),
   };
 };
+
+/** Settle anchor on the same ramp, so the pass slides to its portrait spot
+ *  continuously instead of jumping at a breakpoint. */
+const settleFor = (t: number): PathPoint => ({
+  x: THREE.MathUtils.lerp(SETTLE_LANDSCAPE.x, SETTLE_PORTRAIT.x, t),
+  y: THREE.MathUtils.lerp(SETTLE_LANDSCAPE.y, SETTLE_PORTRAIT.y, t),
+});
 
 const viewAspect = (state: { camera: THREE.Camera; size: { width: number; height: number } }) => {
   const cam = state.camera as THREE.PerspectiveCamera;
@@ -958,6 +980,25 @@ function TernSequence() {
       // (1.16) globe-radii from the globe's centre, at every aspect ratio.
       // `ratio` is that number, so it is the one figure that proves the bird
       // is riding the globe it is drawn against rather than floating free.
+      // I12: the settled pass's four corners in NDC. Returned as NDC rather
+      // than pixels on purpose — converting needs the <View>'s tracked rect,
+      // and `state.size` inside a View goes stale across a resize (the same
+      // trap HeroGlobe documents). The probe multiplies by the rect it
+      // measured from the DOM. Off-stage is then just |x| > 1.
+      passNdc: (() => {
+        if (!built.pass.visible) return null;
+        built.pass.updateWorldMatrix(true, false);
+        const cam = camera as THREE.PerspectiveCamera;
+        return [
+          [-PASS_W / 2, -PASS_H / 2],
+          [PASS_W / 2, -PASS_H / 2],
+          [PASS_W / 2, PASS_H / 2],
+          [-PASS_W / 2, PASS_H / 2],
+        ].map(([x, y]) => {
+          const v = new THREE.Vector3(x, y, 0).applyMatrix4(built.pass.matrixWorld).project(cam);
+          return [+v.x.toFixed(4), +v.y.toFixed(4)];
+        });
+      })(),
       orbit: (() => {
         const spin = globeShared.spin;
         if (!spin) return null;
@@ -978,7 +1019,7 @@ function TernSequence() {
       delete w.__ternReplay;
       delete (w as unknown as { __ternState?: () => object }).__ternState;
     };
-  }, [built]);
+  }, [built, camera]);
 
   // Cursor-reactive settled pass (Phase C only): raw pointer NDC written by
   // the listener, smoothed per-frame so the pass leans toward the cursor
@@ -1129,7 +1170,7 @@ function TernSequence() {
       return qTarget;
     };
 
-    unproject(SETTLE, settleWorld);
+    unproject(settleFor(comp.t), settleWorld);
 
     // Trail grain, refreshed from this frame's renderer + composition.
     // uSize/uScale mirror three's own points convention exactly (see
