@@ -371,9 +371,15 @@ export default function HeroGlobe() {
 
   useEffect(() => {
     globeShared.spin = spinRef.current;
+    // Verification hook (I13): the orbit is a circle in THIS frame, so the
+    // path the tern traces across the screen depends on the spin phase at
+    // flight start — i.e. on when the page happened to load. A before/after
+    // capture pair is only comparable if the probe can pin it.
+    (window as unknown as { __ternGlobeSpin?: THREE.Group | null }).__ternGlobeSpin = spinRef.current;
     applyRoute(); // markers exist now; also seeds globeShared for the orbit
     return () => {
       globeShared.spin = null;
+      delete (window as unknown as { __ternGlobeSpin?: THREE.Group | null }).__ternGlobeSpin;
       placeholderTex.dispose();
       globeMaterial.dispose();
       haloMaterial.dispose();

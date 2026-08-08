@@ -45,7 +45,79 @@ type PathPoint = { x: number; y: number };
  *  side the pass has always occupied, and moving it to centre would put it
  *  back over the globe's cap. */
 const SETTLE_LANDSCAPE: PathPoint = { x: 0.72, y: 0.225 };
-const SETTLE_PORTRAIT: PathPoint = { x: 0.72, y: 0.135 };
+/**
+ * I13 corrects both numbers, and adds a portrait size.
+ *
+ * The I12 anchor was chosen against a stated premise — "the globe's right
+ * limb ends at ~0.58 of the stage width, the pass starts at ~0.61" — that
+ * measurement does not support. Measured on the running page at all three
+ * phone widths (docs/screenshots/i13-probe-{360,390,414}.json) the limb ends
+ * at 0.71 of the stage width and the pass started at 0.53, so its lower-left
+ * corner sat 32-36px INSIDE the globe's silhouette (normalised radius 0.73,
+ * where 1.0 is exactly on the limb) — and in front of it, drawn over the
+ * sphere and the route arc. That is the reported "the card touches the
+ * globe": a real pixel overlap, not an illusion of proximity.
+ *
+ * Why the limb is there at all: the portrait transform below scales the scene
+ * about the view centre, which drags the globe in from its authored 0.26
+ * anchor to 0.38 of the width and pushes its right limb from 45% of the
+ * width (desktop, where the pass has a clear column and clears it by 250px)
+ * to 71%. The clear right-hand column the pass was composed to occupy does
+ * not exist in portrait.
+ *
+ * So the anchor alone cannot fix it: with the pass at landscape size, the
+ * best position that still keeps it on screen and below the nav is 14px
+ * short of the limb. The portrait pass is therefore 0.76 scale as well as
+ * repositioned into the top-right corner — which buys 19px of clear sky at
+ * 390 (docs/screenshots/i13-verify.json). Landscape is untouched: the ramp
+ * is 0 at aspect >= 0.95, so desktop keeps the exact pass it had.
+ */
+const SETTLE_PORTRAIT: PathPoint = { x: 0.822, y: 0.122 };
+const PASS_PORTRAIT_SCALE = 0.76;
+
+/** Hero View camera, mirrored from the <PerspectiveCamera> at the bottom of
+ *  this file (and matching HeroGlobe's copy of the same two numbers). Named
+ *  here because the copy-band dim needs to map a scene point to a screen
+ *  height fraction every frame, for the tern and for all 260 trail samples —
+ *  cheaper as three multiplies than as a projection matrix per point. */
+const CAM_Z = 6;
+const TAN_HALF_FOV = Math.tan(THREE.MathUtils.degToRad(45 / 2));
+
+/**
+ * Copy-band dim (I13) — how much of the bird survives where it is over text.
+ *
+ * In landscape the hero copy sits in the right half and the globe owns the
+ * left, so the tern flies over sky, not over words: measured, its screen box
+ * covers 2.5% of the headline at worst. Portrait has no such column — the
+ * copy is centred and full-width directly under the globe, and the lower part
+ * of the revolution crosses it. Measured at 390x844 across one pinned
+ * revolution (docs/screenshots/i13-orbit-cycle-390-before.json) the tern
+ * covers up to 42% of the headline box and 32% of the sub-paragraph, and at
+ * the bottom of the orbit it is seen edge-on: a 143 x 42px pale glass sliver
+ * lying across 16px body text. That is the reported "the orbit looks slightly
+ * off when it is low" — not a dropped frame or a clipped stage, but the bird
+ * ceasing to read as a bird and starting to read as a smear over the copy.
+ *
+ * Moving the orbit is not available: its radius is a fixed 1.16 globe radii
+ * (the invariant this round must preserve) and the globe's own disc already
+ * spans the copy block, so nothing short of shrinking the globe out of the
+ * composition would clear the text.
+ *
+ * The globe already answers exactly this question for itself — HeroGlobe dims
+ * to 0.42 in portrait so the headline stays readable over daylit landmass.
+ * This is that rule applied to the actor rather than the backdrop, with one
+ * difference: the globe is behind the copy everywhere, so its dim is a
+ * constant, whereas the tern is only over the copy for part of its path, so
+ * its dim is a band. Over the sky and the globe's upper cap it stays at full
+ * strength and the sequence reads exactly as before.
+ */
+const COPY_DIM = 0.3;
+/** Feather on each edge of the band, in stage-height fractions (~50px on a
+ *  390x844 phone). The band is measured from the copy's DOM box, which is the
+ *  text's box — the bird is ~150px tall, so it has to start dimming before
+ *  its centre crosses the boundary or its leading edge lands on the first
+ *  line at full brightness. */
+const COPY_FEATHER = 0.06;
 
 /**
  * One continuous cinematic beat (Stage 1.5 update #2): the tern swoops in
@@ -149,6 +221,19 @@ const settleFor = (t: number): PathPoint => ({
   x: THREE.MathUtils.lerp(SETTLE_LANDSCAPE.x, SETTLE_PORTRAIT.x, t),
   y: THREE.MathUtils.lerp(SETTLE_LANDSCAPE.y, SETTLE_PORTRAIT.y, t),
 });
+
+/** Pass size on the same ramp, for the same reason. */
+const passScaleFor = (t: number) => THREE.MathUtils.lerp(1, PASS_PORTRAIT_SCALE, t);
+
+/** Composition-local point → its height fraction down the stage (0 = top
+ *  edge, 1 = bottom edge). The composition transform is a uniform scale plus
+ *  a y lift, and the camera looks straight down -z, so this is the whole
+ *  projection for the y axis — no matrix needed. Used by the copy-band dim. */
+const stageFracY = (localY: number, localZ: number) => {
+  const worldY = localY * heroComp.scale + heroComp.offsetY;
+  const halfH = (CAM_Z - localZ * heroComp.scale) * TAN_HALF_FOV;
+  return 0.5 - (worldY / halfH) * 0.5;
+};
 
 const viewAspect = (state: { camera: THREE.Camera; size: { width: number; height: number } }) => {
   const cam = state.camera as THREE.PerspectiveCamera;
@@ -921,6 +1006,16 @@ function TernSequence() {
     snapshotTaken: false,
     trailSnapshot: new Float32Array(TRAIL_N * 3),
     heroEl: null as Element | null,
+    // Copy band (I13), as stage-height fractions. Measured from the DOM
+    // rather than hardcoded so it follows the real text box through font
+    // loading, translation length (ko/ja/zh wrap differently) and rotation.
+    // Both boxes are inside the hero and scroll together, so the band is a
+    // pure layout value — refreshed on a duty cycle, not per frame.
+    stageEl: null as Element | null,
+    copyEl: null as Element | null,
+    bandAt: 0,
+    bandTop: 0,
+    bandBot: 0,
     theta0: NaN, // orbit insertion/breakaway angle, chosen on first frame
     freezeAt: -1, // verification: pin `elapsed` to this ms when >= 0
     // Phase D (ambient shuttle) state
@@ -960,8 +1055,17 @@ function TernSequence() {
     };
     // Freeze the clock at its current point (call after letting the
     // sequence run so the trail has real history), or unfreeze with -1.
+    // Unfreezing REBASES `start` to the frozen instant: without that the
+    // clock would jump forward by however long the probe held the frame, and
+    // a step-through capture of one revolution would skip the very sections
+    // it stopped to photograph (I13).
     (w as unknown as { __ternFreeze?: (at?: number) => number }).__ternFreeze = (at?: number) => {
       const a = anim.current;
+      if (at !== undefined && at < 0) {
+        if (a.freezeAt >= 0) a.start = performance.now() - a.freezeAt;
+        a.freezeAt = -1;
+        return -1;
+      }
       a.freezeAt = at !== undefined ? at : performance.now() - a.start;
       return a.freezeAt;
     };
@@ -1012,6 +1116,55 @@ function TernSequence() {
           radius: +radius.toFixed(3),
           dist: +dist.toFixed(3),
           ratio: radius > 0 ? +(dist / radius).toFixed(3) : null,
+        };
+      })(),
+      // I13: the globe's SILHOUETTE in the same NDC space as passNdc, so
+      // "the pass touches the globe" can be answered with a distance instead
+      // of an opinion. A sphere's outline under perspective is (very nearly,
+      // at this fov and depth) an ellipse about the projected centre; the
+      // radii are measured by projecting centre ± radius along the camera's
+      // own right/up axes, which is what the eye reads as the limb.
+      globeNdc: (() => {
+        const spin = globeShared.spin;
+        if (!spin) return null;
+        const cam = camera as THREE.PerspectiveCamera;
+        const c = spin.getWorldPosition(new THREE.Vector3());
+        const r = spin.getWorldScale(new THREE.Vector3()).x;
+        const right = new THREE.Vector3().setFromMatrixColumn(cam.matrixWorld, 0);
+        const up = new THREE.Vector3().setFromMatrixColumn(cam.matrixWorld, 1);
+        const p = c.clone().project(cam);
+        const px = c.clone().addScaledVector(right, r).project(cam);
+        const py = c.clone().addScaledVector(up, r).project(cam);
+        return {
+          cx: +p.x.toFixed(4),
+          cy: +p.y.toFixed(4),
+          rx: +Math.abs(px.x - p.x).toFixed(4),
+          ry: +Math.abs(py.y - p.y).toFixed(4),
+        };
+      })(),
+      // I13: the bird's own screen box. `pos`/`world` are a single point and
+      // cannot say whether the SHAPE is sitting on the hero copy — a tern
+      // 2.4 world units long is most of a phone's width once the orbit swings
+      // it toward the camera.
+      ternNdc: (() => {
+        if (!built.tern.visible) return null;
+        const cam = camera as THREE.PerspectiveCamera;
+        const box = new THREE.Box3().setFromObject(built.tern);
+        if (box.isEmpty()) return null;
+        const xs: number[] = [];
+        const ys: number[] = [];
+        for (const x of [box.min.x, box.max.x])
+          for (const y of [box.min.y, box.max.y])
+            for (const z of [box.min.z, box.max.z]) {
+              const v = new THREE.Vector3(x, y, z).project(cam);
+              xs.push(v.x);
+              ys.push(v.y);
+            }
+        return {
+          x0: +Math.min(...xs).toFixed(4),
+          x1: +Math.max(...xs).toFixed(4),
+          y0: +Math.min(...ys).toFixed(4),
+          y1: +Math.max(...ys).toFixed(4),
         };
       })(),
     });
@@ -1138,6 +1291,36 @@ function TernSequence() {
     // Flight-phase fade (same curve as the globe): the bird and its trail
     // dim out instead of getting sliced at the viewport edge mid-flight.
     const flightFade = 1 - smoothstep(scrollOut, 0.05, 0.5);
+
+    // Copy band (I13, see COPY_DIM). Layout, so it is re-measured on a duty
+    // cycle; the two rects are both inside the hero, so their DIFFERENCE is
+    // scroll-invariant and a stale read costs nothing until an actual reflow.
+    if (comp.t > 0.001 && now - a.bandAt > 500) {
+      a.bandAt = now;
+      if (!a.stageEl?.isConnected) a.stageEl = document.querySelector(".hero-stage");
+      if (!a.copyEl?.isConnected) a.copyEl = document.querySelector(".hero-copy");
+      if (a.stageEl && a.copyEl) {
+        const sr = a.stageEl.getBoundingClientRect();
+        const cr = a.copyEl.getBoundingClientRect();
+        if (sr.height > 0) {
+          a.bandTop = (cr.top - sr.top) / sr.height;
+          a.bandBot = (cr.bottom - sr.top) / sr.height;
+        }
+      }
+    }
+    /** 1 over sky, COPY_DIM over the hero copy, ramped by the portrait
+     *  transform so landscape is bit-for-bit unchanged. Takes a
+     *  composition-local point so the trail can dim per SAMPLE — dimming the
+     *  whole trail by the bird's own position would darken the half of it
+     *  still arcing over the globe. */
+    const copyDim = (ly: number, lz: number) => {
+      if (comp.t <= 0.001 || a.bandBot <= a.bandTop) return 1;
+      const f = stageFracY(ly, lz);
+      const inBand =
+        smoothstep(f, a.bandTop - COPY_FEATHER, a.bandTop + COPY_FEATHER) *
+        (1 - smoothstep(f, a.bandBot - COPY_FEATHER, a.bandBot + COPY_FEATHER));
+      return THREE.MathUtils.lerp(1, THREE.MathUtils.lerp(1, COPY_DIM, inBand), comp.t);
+    };
 
     // Orbit sampling in the globe's spinning frame: the same circle the
     // route line lives on. fe1/fe2 are frozen at flight start so a live
@@ -1296,14 +1479,19 @@ function TernSequence() {
         gap = tailLocal.distanceTo(a.lastEmit);
       }
       for (let i = 0; i < TRAIL_N; i++) {
-        trailFade[i] = i < a.trailFilled ? TRAIL_GAIN * Math.pow(1 - i / TRAIL_N, 2.2) : 0;
+        trailFade[i] =
+          i < a.trailFilled
+            ? TRAIL_GAIN *
+              Math.pow(1 - i / TRAIL_N, 2.2) *
+              copyDim(trailPos[i * 3 + 1], trailPos[i * 3 + 2])
+            : 0;
       }
       trail.visible = true;
       trailGeo.attributes.position.needsUpdate = true;
       trailGeo.attributes.aFade.needsUpdate = true;
 
       // scroll-out fade (item 4): dim, never slice
-      setBirdFade(flightFade);
+      setBirdFade(flightFade * copyDim(tern.position.y, tern.position.z));
       trailMat.uniforms.uOpacity.value = flightFade;
       tern.visible = flightFade > 0.01;
     } else if (elapsed < FLIGHT_MS + HANDOFF_MS) {
@@ -1354,21 +1542,29 @@ function TernSequence() {
       wingGroups[1].scale.z = 1 - 0.75 * fold;
       tern.scale.setScalar(TERN_SCALE * (1 - 0.94 * smoothstep(q, 0.6, 0.95)));
       const dissolve = 1 - smoothstep(q, 0.7, 0.94);
-      setBirdFade(dissolve * flightFade);
+      setBirdFade(dissolve * flightFade * copyDim(tern.position.y, tern.position.z));
       trailMat.uniforms.uOpacity.value = flightFade;
       tern.visible = dissolve * flightFade > 0.01;
 
-      // trail particles converge onto the pass outline — crystallizing
+      // trail particles converge onto the pass outline — crystallizing.
+      // The outline is the pass's SIZE ON SCREEN, so it takes the portrait
+      // scale too: without it the contrail would condense into a rectangle
+      // the pass then shrinks out of, and the "one object changing form" read
+      // would break at exactly the moment it has to hold.
+      const ps = passScaleFor(comp.t);
       for (let i = 0; i < TRAIL_N; i++) {
         const s = smoothstep(q, 0.2 + 0.42 * (i / TRAIL_N), 0.56 + 0.42 * (i / TRAIL_N));
-        const o = outlinePoint(i / TRAIL_N * 2.0 + 0.13, PASS_W, PASS_H);
+        const o = outlinePoint(i / TRAIL_N * 2.0 + 0.13, PASS_W * ps, PASS_H * ps);
         const tx = settleWorld.x + o.x;
         const ty = settleWorld.y + o.y;
         trailPos[i * 3] = a.trailSnapshot[i * 3] + (tx - a.trailSnapshot[i * 3]) * s;
         trailPos[i * 3 + 1] = a.trailSnapshot[i * 3 + 1] + (ty - a.trailSnapshot[i * 3 + 1]) * s;
         trailPos[i * 3 + 2] = a.trailSnapshot[i * 3 + 2] * (1 - s);
         const base = i < a.trailFilled ? Math.pow(1 - i / TRAIL_N, 2.2) : 0;
-        trailFade[i] = TRAIL_GAIN * (base * (1 - s) + (i < a.trailFilled ? 0.85 * s * (1 - q) : 0));
+        trailFade[i] =
+          TRAIL_GAIN *
+          (base * (1 - s) + (i < a.trailFilled ? 0.85 * s * (1 - q) : 0)) *
+          copyDim(trailPos[i * 3 + 1], trailPos[i * 3 + 2]);
       }
       trailGeo.attributes.position.needsUpdate = true;
       trailGeo.attributes.aFade.needsUpdate = true;
@@ -1381,7 +1577,11 @@ function TernSequence() {
         pass.visible = true;
         const grow = easeOutBackSoft(g);
         pass.position.copy(settleWorld);
-        pass.scale.set(0.08 + 0.92 * grow, 0.05 + 0.95 * easeOutBackSoft(clamp01(g * 1.18)), 1);
+        pass.scale.set(
+          (0.08 + 0.92 * grow) * ps,
+          (0.05 + 0.95 * easeOutBackSoft(clamp01(g * 1.18))) * ps,
+          1
+        );
         const align = 1 - easeOutCubic(g);
         pass.rotation.set(-0.06 * (1 - align), -0.5 * align - 0.18 * (1 - align), heading * align);
         const passDim = 1 - smoothstep(scrollOut, 0.35, 0.9);
@@ -1441,7 +1641,8 @@ function TernSequence() {
       const k = 1 - Math.exp(-dt * 4);
       pt.sx += (pt.x - pt.sx) * k;
       pt.sy += (pt.y - pt.sy) * k;
-      pass.scale.set(1, 1, 1);
+      const psC = passScaleFor(comp.t);
+      pass.scale.set(psC, psC, 1);
       // Gentle rise with scroll (was 1.6x and rocketed off-screen before
       // the dim even began) — the pass now leaves mostly by fading.
       pass.position.set(
@@ -1526,7 +1727,9 @@ function TernSequence() {
 
         const ambientFade = smoothstep(ambientT, 0, AMBIENT_FADE_MS);
         tern.scale.setScalar(TERN_SCALE * AMBIENT_SCALE * (0.7 + 0.3 * ambientFade));
-        setBirdFade(0.75 * ambientFade * flightFade);
+        // Same band as the flight (I13): the shuttle runs the route arc, so
+        // in portrait it crosses the copy on every leg.
+        setBirdFade(0.75 * ambientFade * flightFade * copyDim(tern.position.y, tern.position.z));
         // At ~40px the GL edge lines alias into sparkle — the distant
         // bird reads by its plumage values alone.
         built.edgeMat.opacity *= 0.15;
