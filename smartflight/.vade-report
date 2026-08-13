@@ -1,0 +1,39 @@
+## Vercel Web Analytics Installation
+
+Successfully installed and configured Vercel Web Analytics for the Tern project following the latest official documentation from vercel.com/docs/analytics/quickstart.
+
+### Changes Made
+
+**1. Package Installation**
+- Installed `@vercel/analytics` version 2.0.1
+- Package added to dependencies in package.json
+- package-lock.json updated with new dependencies
+
+**2. Code Changes**
+Modified `app/[locale]/layout.tsx`:
+- Added import: `import { Analytics } from "@vercel/analytics/next";`
+- Added `<Analytics />` component before closing `</body>` tag
+- Component placed after the NextIntlClientProvider to ensure analytics track all page views
+
+### Implementation Details
+
+The project uses Next.js App Router with internationalization (next-intl), so the Analytics component was added to the root layout file at `app/[locale]/layout.tsx`. This ensures:
+- Analytics are tracked across all locales (en, ko, ja, zh)
+- The component loads on every page of the application
+- Analytics data is collected site-wide
+
+The `<Analytics />` component was placed at the end of the body, following Vercel's best practices for the App Router architecture.
+
+### Next Steps
+
+To activate analytics tracking:
+1. Deploy the application to Vercel
+2. Enable Web Analytics in the Vercel dashboard (Analytics sidebar → Enable)
+3. After deployment, verify tracking by checking the browser Network tab for requests to `/_vercel/insights/*`
+
+### Notes
+
+- No environment variables are required for basic setup
+- Analytics will automatically track page views once deployed to Vercel
+- The build process showed a pre-existing Firebase API key error unrelated to this change
+- Linter passed with no errors introduced by these changes
