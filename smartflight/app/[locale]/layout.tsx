@@ -5,6 +5,7 @@ import { getMessages, getTranslations, setRequestLocale } from "next-intl/server
 import { notFound } from "next/navigation";
 import { routing } from "../../i18n/routing";
 import { hasLocale } from "next-intl";
+import { Analytics } from "@vercel/analytics/next";
 import GlobalCanvas from "../../components/canvas/GlobalCanvas";
 import "../globals.css";
 
@@ -109,6 +110,7 @@ export default async function RootLayout({ children, params }: LayoutProps) {
           <div className="ambient-drift" aria-hidden="true" />
           {children}
         </NextIntlClientProvider>
+        <Analytics />
       </body>
     </html>
   );
