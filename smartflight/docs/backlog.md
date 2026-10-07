@@ -1,5 +1,54 @@
 # Backlog — B/C/D/E/F/G/H series (2026-07-17 → 2026-07-22)
 
+## I14 — 토스페이먼츠 결제위젯 연동 (테스트 키) (2026-08-08)
+
+### 🔴 실 키(live_) 전환 전 필수 선행 조건 — Terms/Privacy 문구 개정
+
+**현재 배포본의 문구가 사이트 내 결제와 정면 충돌한다.** 4개 로케일 모두:
+
+- `Terms s3p`: *"Tern does not take payment or issue tickets. When you continue
+  to book, you are handed off to a third party who becomes your counterparty…"*
+- `Privacy s4p`: *"Any payment is taken by the booking provider at checkout —
+  Tern never sees or stores card details."*
+
+테스트 키·고정 테스트 금액 단계에서는 실제 돈이 움직이지 않고 카드 정보도 토스
+쪽에서만 처리되므로 현재 상태는 허용 범위다. 그러나 **`live_` 키로 바꾸는 순간
+위 두 문장이 거짓이 된다** — Tern 이 merchant of record 가 되기 때문이다.
+
+법적·정책적 문구라 §2-2 상 에이전트가 임의로 고칠 수 없다. **소유자 결정 사항이며,
+실 키 전환 라운드의 첫 번째 작업으로 처리할 것.** 최소 손봐야 하는 것:
+1. Tern 이 직접 결제를 수령하는 경우를 Terms 에 명시 (counterparty 가 누구인지)
+2. 환불·취소 주체와 절차 (현재는 "그 provider 의 규칙" 이라고만 되어 있음)
+3. Privacy 의 processor 목록에 토스페이먼츠 추가
+4. 발권 주체와 결제 주체가 다른 구조를 명시 (결제는 Tern, 발권은 파트너)
+
+### 남은 것 — 다음 라운드
+
+- **결제 금액이 고정 테스트 상수(1,000 KRW)다.** 실제 오퍼 금액 연결은 통화 결정
+  대기 중: Duffel 오퍼는 전부 USD(조직 청구통화, `lib/currency.ts`)이고 위젯은
+  KRW 를 받는다. 표시 전용 환율을 청구 금액으로 승격시키는 것은 §2-1 문제이므로,
+  가맹점이 지원하는 통화 확인 후 결정할 것.
+- **Duffel Balance 연동 / 발권 API** — 계정·키 없음. 결제 성공 후 실제 발권이
+  붙기 전까지 완료 화면은 "결제 확인, 발권 아님"으로 유지.
+- **기존 Duffel Links 흐름 유지** — 이번 라운드에서 제거 판단 안 함. 병행 운용.
+
+### 범위 밖 발견
+
+- **토스 API 에러 메시지는 로케일과 무관하게 한국어만 온다.** en 결과 화면에
+  "결제 시간이 만료되어…" 가 그대로 노출된다(`i14-en-result-fail.png`). 현재는
+  "결제사 안내 메시지" 라벨 + 에러 코드를 함께 보여줘서 출처를 분명히 했지만,
+  en/ja/zh 사용자에게는 읽을 수 없는 문장이다. 개선안: 문서화된 주요 코드
+  (`PAY_PROCESS_CANCELED`, `REJECT_CARD_COMPANY`, `EXCEED_MAX_CARD_INSTALLMENT_PLAN`
+  등)를 자체 번역 문구로 매핑하고, 원문은 코드와 함께 보조로 남기기.
+- **`TERN_TEST_EMAIL` 계정이 존재하지 않는다.** I3 가 설계대로 라운드 끝에
+  삭제했고(`net-zero`), `.env.local` 에는 자격증명만 남아 있다. `auth/invalid-credential`
+  확인. 예약 auth 게이트 뒤를 캡처해야 하는 라운드는 시작 전에
+  `node scripts/i3-auth-helper.mjs create` 로 되살리고 끝에 다시 지울 것.
+  (I14 는 이 때문에 CheckoutModal book 스텝 캡처를 포기했다 — §7.)
+- **토스는 국내 테스트 카드번호를 제공하지 않는다.** 브리프 전제와 다름. 테스트
+  환경에서는 실제 카드번호를 넣어도 가상 결제로 처리되고, **에러 재현은
+  `TossPayments-Test-Code` 요청 헤더**로 한다. 실패 케이스 검증은 이 헤더를 쓸 것.
+
 ## I13 — 모바일 히어로 잔여 2건: 궤도 하단부 + 티켓/지구본 겹침 (2026-08-08)
 
 I12 배포 후 실기기(iPhone Safari) 확인에서 남은 2건. 신고가 "살짝 이상함"으로

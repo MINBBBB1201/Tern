@@ -83,7 +83,9 @@
     "continueToCheckout": "안전한 결제로 이동",
     "whiteLabelHandoff": "또는 저희 예약 사이트 book.flytern.site에서도 예약할 수 있습니다. 아래 링크를 누르면 <route>{from} → {to}</route> 노선과 날짜가 미리 채워진 채로 열립니다. 항공편은 그곳에서 다시 고르게 되고, 가격은 다를 수 있습니다. 그곳에서 예약이 이뤄지면 Tern이 수수료를 받지만 이용자에게 추가 비용은 없습니다.",
     "bookThisRoute": "이 노선 예약하기 ↗",
-    "close": "닫기"
+    "close": "닫기",
+    "payOnTernNote": "또는 Tern 자체 결제 페이지를 이용해보세요 — Tern에서 직접 받는 테스트 결제입니다. 예약이나 발권은 이루어지지 않습니다.",
+    "payOnTern": "Tern에서 결제 (테스트)"
   },
   "Home": {
     "kickerInspiration": "여행 영감",
@@ -515,5 +517,40 @@
     "privacyDescription": "Tern이 무엇을 수집하고 무엇을 수집하지 않는지, 어떤 외부 서비스가 관여하는지 — 로그인, 검색, 분석, 제휴 링크까지 있는 그대로 밝힙니다.",
     "guideTitle": "{name}({iata}) 공항 가이드 — 환승, 이동 약자 지원, 시내 교통",
     "guideDescriptionFallback": "{name}({iata})에서 알아둘 것들: 터미널 구조, 시내 교통, 이동 약자 지원 서비스."
+  },
+  "Payment": {
+    "metaTitle": "결제 · Tern",
+    "metaDescription": "테스트 모드 결제 페이지입니다.",
+    "resultMetaTitle": "결제 결과 · Tern",
+    "kicker": "결제",
+    "title": "Tern에서 결제하기",
+    "intro": "파트너 사이트가 아닌 Tern에서 진행하는 테스트 결제입니다. 항공권은 발권되지 않습니다.",
+    "testModeLabel": "테스트 모드",
+    "testModeBody": "고정 금액으로 진행되는 테스트 결제이며, 항공권 요금이 아닙니다. 실제로 청구되지 않고 항공권도 발권되지 않습니다. 발권은 기존 예약 파트너를 통해 이루어집니다.",
+    "amountLabel": "테스트 결제 금액",
+    "payButton": "결제하기",
+    "payButtonBusy": "결제창을 여는 중…",
+    "notConfigured": "이 환경에는 결제가 설정되어 있지 않습니다.",
+    "widgetError": "결제 수단을 불러오지 못했습니다. 페이지를 새로고침해주세요.",
+    "requestError": "결제창을 열지 못했습니다. 다시 시도해주세요.",
+    "resultTitle": "결제 결과",
+    "confirming": "결제를 확인하는 중입니다…",
+    "successKicker": "결제 확인됨",
+    "successTitle": "테스트 결제가 확인되었습니다",
+    "successBody": "결제사에서 승인 처리되었습니다. 테스트 거래이므로 항공편이 예약되거나 항공권이 발권되지는 않았습니다. 실제 항공권 예약은 예약 페이지의 결제 파트너를 이용해주세요.",
+    "failKicker": "결제 실패",
+    "failTitle": "결제가 완료되지 않았습니다",
+    "failBody": "청구된 금액은 없습니다. 다시 시도하시거나, 예약 페이지에서 결제 파트너를 통해 진행해주세요.",
+    "cancelKicker": "결제 취소됨",
+    "cancelTitle": "결제를 취소하셨습니다",
+    "cancelBody": "청구된 금액은 없습니다.",
+    "providerMessage": "결제사 안내 메시지",
+    "noPayment": "표시할 결제 내역이 없습니다. 이 페이지는 결제 후 이동하는 화면입니다.",
+    "fieldOrderId": "주문번호",
+    "fieldStatus": "상태",
+    "fieldAmount": "금액",
+    "fieldApprovedAt": "승인 시각",
+    "tryAgain": "다시 시도",
+    "backToSearch": "검색으로 돌아가기"
   }
 }

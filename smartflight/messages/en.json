@@ -83,7 +83,9 @@
     "continueToCheckout": "Continue to secure checkout",
     "whiteLabelHandoff": "Or book through our booking site, book.flytern.site: the link below opens it with <route>{from} → {to}</route> and your dates pre-filled — you'll re-select your flight there, and prices may differ. Tern earns a commission on bookings made there, at no extra cost to you.",
     "bookThisRoute": "Book this route ↗",
-    "close": "Close"
+    "close": "Close",
+    "payOnTernNote": "Or try our own payment page — a test payment taken on Tern. It books nothing and issues no ticket.",
+    "payOnTern": "Pay on Tern (test)"
   },
   "Home": {
     "kickerInspiration": "Inspiration",
@@ -515,5 +517,40 @@
     "privacyDescription": "What Tern collects, what it does not, and which third parties are involved — sign-in, search, analytics, and affiliate links, stated plainly.",
     "guideTitle": "{name} ({iata}) Airport Guide — Layovers, Accessibility & Ground Transport",
     "guideDescriptionFallback": "Everything you need to know about {name} ({iata}): terminal layout, ground transport, and accessibility services."
+  },
+  "Payment": {
+    "metaTitle": "Payment · Tern",
+    "metaDescription": "Test-mode payment page.",
+    "resultMetaTitle": "Payment result · Tern",
+    "kicker": "Checkout",
+    "title": "Pay on Tern",
+    "intro": "A test payment, taken on Tern instead of on a partner's site. No ticket is issued.",
+    "testModeLabel": "Test mode",
+    "testModeBody": "This is a test charge of a fixed amount — it is not the fare for a flight. No money is taken and no ticket is issued. Ticketing still happens through our booking partners.",
+    "amountLabel": "Test charge",
+    "payButton": "Pay",
+    "payButtonBusy": "Opening payment…",
+    "notConfigured": "Payment isn't configured on this environment.",
+    "widgetError": "Couldn't load the payment form. Please reload the page.",
+    "requestError": "Couldn't open the payment window. Please try again.",
+    "resultTitle": "Payment result",
+    "confirming": "Confirming your payment…",
+    "successKicker": "Payment confirmed",
+    "successTitle": "We've received your test payment",
+    "successBody": "The payment was approved by our payment provider. This is a test transaction — no flight has been booked and no ticket has been issued. To book a real flight, use the checkout partners on the booking page.",
+    "failKicker": "Payment failed",
+    "failTitle": "The payment didn't go through",
+    "failBody": "Nothing was charged. You can try again, or go back and book through one of our checkout partners.",
+    "cancelKicker": "Payment cancelled",
+    "cancelTitle": "You cancelled the payment",
+    "cancelBody": "Nothing was charged.",
+    "providerMessage": "Message from the payment provider",
+    "noPayment": "There's no payment to show here. This page is where you land after paying.",
+    "fieldOrderId": "Order ID",
+    "fieldStatus": "Status",
+    "fieldAmount": "Amount",
+    "fieldApprovedAt": "Approved at",
+    "tryAgain": "Try again",
+    "backToSearch": "Back to search"
   }
 }

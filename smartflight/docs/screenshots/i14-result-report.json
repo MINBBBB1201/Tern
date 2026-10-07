@@ -1,0 +1,62 @@
+[
+  {
+    "locale": "en",
+    "case": "fail",
+    "http": 200,
+    "url": "http://localhost:3000/checkout/result?paymentKey=probe_no_such_payment_key&orderId=tern-probe-fail-msk8vshw&amount=1000",
+    "heading": "The payment didn't go through",
+    "kicker": "Payment failed",
+    "providerMessage": "Message from the payment provider결제 시간이 만료되어 결제 진행 데이터가 존재하지 않습니다.NOT_FOUND_PAYMENT_SESSION",
+    "bodyText": "Payment failedThe payment didn't go throughNothing was charged. You can try again, or go back and book through one of our checkout partners.Message from the payment provider결제 시간이 만료되어 결제 진행 데이터가 존재하지 않습니다.NOT_FOUND_PAYMENT_SESSIONTry againBack to search"
+  },
+  {
+    "locale": "en",
+    "case": "cancel",
+    "http": 200,
+    "url": "http://localhost:3000/checkout/result?code=PAY_PROCESS_CANCELED&message=%EC%82%AC%EC%9A%A9%EC%9E%90%EC%97%90%20%EC%9D%98%ED%95%B4%20%EA%B2%B0%EC%A0%9C%EA%B0%80%20%EC%B7%A8%EC%86%8C%EB%90%98%EC%97%88%EC%8A%B5%EB%8B%88%EB%8B%A4.&orderId=tern-probe-cancel",
+    "heading": "You cancelled the payment",
+    "kicker": "Payment cancelled",
+    "providerMessage": "Message from the payment provider사용자에 의해 결제가 취소되었습니다.PAY_PROCESS_CANCELED",
+    "bodyText": "Payment cancelledYou cancelled the paymentNothing was charged.Message from the payment provider사용자에 의해 결제가 취소되었습니다.PAY_PROCESS_CANCELEDTry againBack to search"
+  },
+  {
+    "locale": "en",
+    "case": "none",
+    "http": 200,
+    "url": "http://localhost:3000/checkout/result",
+    "heading": null,
+    "kicker": null,
+    "providerMessage": null,
+    "bodyText": "There's no payment to show here. This page is where you land after paying.Try againBack to search"
+  },
+  {
+    "locale": "ko",
+    "case": "fail",
+    "http": 200,
+    "url": "http://localhost:3000/ko/checkout/result?paymentKey=probe_no_such_payment_key&orderId=tern-probe-fail-msk8wgoq&amount=1000",
+    "heading": "결제가 완료되지 않았습니다",
+    "kicker": "결제 실패",
+    "providerMessage": "결제사 안내 메시지결제 시간이 만료되어 결제 진행 데이터가 존재하지 않습니다.NOT_FOUND_PAYMENT_SESSION",
+    "bodyText": "결제 실패결제가 완료되지 않았습니다청구된 금액은 없습니다. 다시 시도하시거나, 예약 페이지에서 결제 파트너를 통해 진행해주세요.결제사 안내 메시지결제 시간이 만료되어 결제 진행 데이터가 존재하지 않습니다.NOT_FOUND_PAYMENT_SESSION다시 시도검색으로 돌아가기"
+  },
+  {
+    "locale": "ko",
+    "case": "cancel",
+    "http": 200,
+    "url": "http://localhost:3000/ko/checkout/result?code=PAY_PROCESS_CANCELED&message=%EC%82%AC%EC%9A%A9%EC%9E%90%EC%97%90%20%EC%9D%98%ED%95%B4%20%EA%B2%B0%EC%A0%9C%EA%B0%80%20%EC%B7%A8%EC%86%8C%EB%90%98%EC%97%88%EC%8A%B5%EB%8B%88%EB%8B%A4.&orderId=tern-probe-cancel",
+    "heading": "결제를 취소하셨습니다",
+    "kicker": "결제 취소됨",
+    "providerMessage": "결제사 안내 메시지사용자에 의해 결제가 취소되었습니다.PAY_PROCESS_CANCELED",
+    "bodyText": "결제 취소됨결제를 취소하셨습니다청구된 금액은 없습니다.결제사 안내 메시지사용자에 의해 결제가 취소되었습니다.PAY_PROCESS_CANCELED다시 시도검색으로 돌아가기"
+  },
+  {
+    "locale": "ko",
+    "case": "none",
+    "http": 200,
+    "url": "http://localhost:3000/ko/checkout/result",
+    "heading": null,
+    "kicker": null,
+    "providerMessage": null,
+    "bodyText": "표시할 결제 내역이 없습니다. 이 페이지는 결제 후 이동하는 화면입니다.다시 시도검색으로 돌아가기"
+  }
+]

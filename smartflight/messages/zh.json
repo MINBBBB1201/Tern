@@ -83,7 +83,9 @@
     "continueToCheckout": "前往安全结算",
     "whiteLabelHandoff": "或通过我们的预订网站 book.flytern.site 预订：点击下方链接会打开预填 <route>{from} → {to}</route> 航线和日期的搜索页面——您可以在那里重新选择航班，价格可能会有所不同。通过该渠道完成的预订，Tern 将获得佣金，您无需支付额外费用。",
     "bookThisRoute": "预订该航线 ↗",
-    "close": "关闭"
+    "close": "关闭",
+    "payOnTernNote": "或试用我们自己的支付页面 — 在 Tern 上进行的测试支付。不会预订，也不会出票。",
+    "payOnTern": "在 Tern 上支付（测试）"
   },
   "Home": {
     "kickerInspiration": "灵感",
@@ -515,5 +517,40 @@
     "privacyDescription": "Tern 收集什么、不收集什么，以及涉及哪些第三方 —— 登录、搜索、分析和返佣链接，如实说明。",
     "guideTitle": "{name}（{iata}）机场指南 —— 中转、无障碍服务与地面交通",
     "guideDescriptionFallback": "在 {name}（{iata}）需要知道的一切：航站楼布局、地面交通和无障碍服务。"
+  },
+  "Payment": {
+    "metaTitle": "支付 · Tern",
+    "metaDescription": "测试模式支付页面。",
+    "resultMetaTitle": "支付结果 · Tern",
+    "kicker": "支付",
+    "title": "在 Tern 上支付",
+    "intro": "这是在 Tern 上进行的测试支付，而非合作伙伴网站。不会出票。",
+    "testModeLabel": "测试模式",
+    "testModeBody": "这是固定金额的测试支付，并非机票票价。不会实际扣款，也不会出票。出票仍通过我们的预订合作伙伴完成。",
+    "amountLabel": "测试支付金额",
+    "payButton": "支付",
+    "payButtonBusy": "正在打开支付窗口…",
+    "notConfigured": "当前环境未配置支付功能。",
+    "widgetError": "无法加载支付方式，请刷新页面。",
+    "requestError": "无法打开支付窗口，请重试。",
+    "resultTitle": "支付结果",
+    "confirming": "正在确认您的支付…",
+    "successKicker": "支付已确认",
+    "successTitle": "已收到您的测试支付",
+    "successBody": "支付服务商已完成授权。这是一笔测试交易，未预订任何航班，也未出票。如需实际预订，请使用预订页面上的支付合作伙伴。",
+    "failKicker": "支付失败",
+    "failTitle": "支付未能完成",
+    "failBody": "未产生任何扣款。您可以重试，或返回预订页面通过支付合作伙伴完成。",
+    "cancelKicker": "支付已取消",
+    "cancelTitle": "您取消了支付",
+    "cancelBody": "未产生任何扣款。",
+    "providerMessage": "来自支付服务商的提示",
+    "noPayment": "这里没有可显示的支付记录。本页面是支付完成后跳转的页面。",
+    "fieldOrderId": "订单号",
+    "fieldStatus": "状态",
+    "fieldAmount": "金额",
+    "fieldApprovedAt": "授权时间",
+    "tryAgain": "重试",
+    "backToSearch": "返回搜索"
   }
 }

@@ -1,0 +1,90 @@
+[
+  {
+    "locale": "en",
+    "http": 200,
+    "rendered": false,
+    "methodFrames": 0,
+    "agreementFrames": 0,
+    "methodBox": {
+      "w": 622,
+      "h": 0
+    },
+    "agreementBox": {
+      "w": 622,
+      "h": 0
+    },
+    "payButtonText": "Sign In",
+    "payButtonDisabled": false,
+    "alert": "Couldn't load the payment form. Please reload the page.",
+    "htmlLang": "en",
+    "consoleErrors": [
+      "[toss] widget render failed t: 결제위젯 연동 키의 클라이언트 키로 SDK를 연동해주세요. API 개별 연동 키는 지원하지 않습니다."
+    ]
+  },
+  {
+    "locale": "ko",
+    "http": 200,
+    "rendered": false,
+    "methodFrames": 0,
+    "agreementFrames": 0,
+    "methodBox": {
+      "w": 622,
+      "h": 0
+    },
+    "agreementBox": {
+      "w": 622,
+      "h": 0
+    },
+    "payButtonText": "로그인",
+    "payButtonDisabled": false,
+    "alert": "결제 수단을 불러오지 못했습니다. 페이지를 새로고침해주세요.",
+    "htmlLang": "ko",
+    "consoleErrors": [
+      "[toss] widget render failed t: 결제위젯 연동 키의 클라이언트 키로 SDK를 연동해주세요. API 개별 연동 키는 지원하지 않습니다."
+    ]
+  },
+  {
+    "locale": "ja",
+    "http": 200,
+    "rendered": false,
+    "methodFrames": 0,
+    "agreementFrames": 0,
+    "methodBox": {
+      "w": 622,
+      "h": 0
+    },
+    "agreementBox": {
+      "w": 622,
+      "h": 0
+    },
+    "payButtonText": "サインイン",
+    "payButtonDisabled": false,
+    "alert": "支払い方法を読み込めませんでした。ページを再読み込みしてください。",
+    "htmlLang": "ja",
+    "consoleErrors": [
+      "[toss] widget render failed t: 결제위젯 연동 키의 클라이언트 키로 SDK를 연동해주세요. API 개별 연동 키는 지원하지 않습니다."
+    ]
+  },
+  {
+    "locale": "zh",
+    "http": 200,
+    "rendered": false,
+    "methodFrames": 0,
+    "agreementFrames": 0,
+    "methodBox": {
+      "w": 622,
+      "h": 0
+    },
+    "agreementBox": {
+      "w": 622,
+      "h": 0
+    },
+    "payButtonText": "登录",
+    "payButtonDisabled": false,
+    "alert": "无法加载支付方式，请刷新页面。",
+    "htmlLang": "zh",
+    "consoleErrors": [
+      "[toss] widget render failed t: 결제위젯 연동 키의 클라이언트 키로 SDK를 연동해주세요. API 개별 연동 키는 지원하지 않습니다."
+    ]
+  }
+]

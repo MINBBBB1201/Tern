@@ -7,6 +7,7 @@ import { buildBookingPrograms, dateLabel, type Offer } from "../../lib/offerUtil
 import { PriceDisplay } from "../../lib/PriceDisplay";
 import { useDurationLabel } from "../../lib/useDurationLabel";
 import { localeTag } from "../../i18n/locales";
+import { Link } from "../../i18n/navigation";
 
 type CheckoutModalProps = {
   checkoutOffer: Offer | null;
@@ -250,6 +251,20 @@ function CheckoutModalShell({ checkoutOffer, checkoutStep, fromCity, toCity, fro
                     </a>
                   </div>
                 )}
+                {/* I14: third path — Tern's own TossPayments checkout, in test
+                    mode. Added ALONGSIDE the two handoffs above rather than
+                    replacing either: those two book real flights, this one
+                    takes a fixed test payment and books nothing, and the copy
+                    has to keep that distinction obvious. */}
+                <div className="space-y-2">
+                  <p className={`text-xs ${tone.muted}`}>{t("payOnTernNote")}</p>
+                  <Link
+                    href="/checkout"
+                    className={`block w-full rounded-2xl border border-[rgba(143,224,232,0.28)] py-3 text-center text-sm font-semibold ${tone.base} hover:bg-white/5 transition-colors`}
+                  >
+                    {t("payOnTern")}
+                  </Link>
+                </div>
                 <button
                   type="button"
                   onClick={onClose}

@@ -83,7 +83,9 @@
     "continueToCheckout": "安全な決済へ進む",
     "whiteLabelHandoff": "または当社の予約サイト book.flytern.site からもご予約いただけます：以下のリンクを開くと<route>{from} → {to}</route>の路線と日程が入力された状態で表示されます — そちらでフライトを選び直してください。価格が異なる場合があります。ここでのご予約についてTernに手数料が入りますが、お客様に追加費用は発生しません。",
     "bookThisRoute": "この路線を予約 ↗",
-    "close": "閉じる"
+    "close": "閉じる",
+    "payOnTernNote": "または Tern の決済ページをお試しください — Tern 上で行うテスト決済です。予約も発券も行われません。",
+    "payOnTern": "Tern で支払う（テスト）"
   },
   "Home": {
     "kickerInspiration": "インスピレーション",
@@ -515,5 +517,40 @@
     "privacyDescription": "Tern が何を取得し、何を取得しないか、どの外部サービスが関わるか — ログイン、検索、分析、アフィリエイトリンクについて率直に記載します。",
     "guideTitle": "{name}（{iata}）空港ガイド — 乗継・バリアフリー・市内アクセス",
     "guideDescriptionFallback": "{name}（{iata}）で知っておきたいこと: ターミナル構成、市内交通、バリアフリーサービス。"
+  },
+  "Payment": {
+    "metaTitle": "お支払い · Tern",
+    "metaDescription": "テストモードの決済ページです。",
+    "resultMetaTitle": "決済結果 · Tern",
+    "kicker": "お支払い",
+    "title": "Ternで支払う",
+    "intro": "パートナーサイトではなくTern上で行うテスト決済です。航空券は発券されません。",
+    "testModeLabel": "テストモード",
+    "testModeBody": "固定金額で行うテスト決済であり、航空券の運賃ではありません。実際に請求されることはなく、航空券も発券されません。発券は従来どおり予約パートナーを通じて行われます。",
+    "amountLabel": "テスト決済金額",
+    "payButton": "支払う",
+    "payButtonBusy": "決済画面を開いています…",
+    "notConfigured": "この環境では決済が設定されていません。",
+    "widgetError": "支払い方法を読み込めませんでした。ページを再読み込みしてください。",
+    "requestError": "決済画面を開けませんでした。もう一度お試しください。",
+    "resultTitle": "決済結果",
+    "confirming": "決済を確認しています…",
+    "successKicker": "決済確認済み",
+    "successTitle": "テスト決済を確認しました",
+    "successBody": "決済会社で承認されました。テスト取引のため、航空便の予約や航空券の発券は行われていません。実際のご予約は、予約ページの決済パートナーをご利用ください。",
+    "failKicker": "決済失敗",
+    "failTitle": "決済が完了しませんでした",
+    "failBody": "請求は発生していません。もう一度お試しいただくか、予約ページの決済パートナーからお進みください。",
+    "cancelKicker": "決済キャンセル",
+    "cancelTitle": "決済をキャンセルしました",
+    "cancelBody": "請求は発生していません。",
+    "providerMessage": "決済会社からのメッセージ",
+    "noPayment": "表示する決済情報がありません。このページは決済後に表示される画面です。",
+    "fieldOrderId": "注文番号",
+    "fieldStatus": "ステータス",
+    "fieldAmount": "金額",
+    "fieldApprovedAt": "承認日時",
+    "tryAgain": "再試行",
+    "backToSearch": "検索に戻る"
   }
 }
